@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "job_id": "job-repair-001",
+  "trace_id": "trace-pair13-demo",
+  "job_type": "REPAIR",
+  "status": "SUCCEEDED",
+  "input": {
+    "repository": {"commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+    "md_report_uri": "artifact://pair13/job-full-001/md-report.json"
+  },
+  "output": {
+    "patch_uri": "artifact://pair13/job-repair-001/fix.patch",
+    "build_exit_code": 0,
+    "verify_exit_code": 0,
+    "remaining_md_count": 0
+  },
+  "error": null
+}

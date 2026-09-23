@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "trace_id": "trace-pair13-demo",
+  "job_type": "REPAIR",
+  "idempotency_key": "b13-repair-demo-001",
+  "input": {
+    "repository": {
+      "url": "https://github.com/example/tiny-greeting.git",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "md_report_uri": "artifact://pair13/job-full-001/md-report.json",
+    "makefile_path": "Makefile",
+    "environment": {"configuration_id": "gcc-default"},
+    "build_command": "make clean && make",
+    "verify_command": "./app"
+  }
+}

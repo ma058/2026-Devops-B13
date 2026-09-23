@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "job_id": "job-invalid-003",
+  "trace_id": "trace-invalid-003",
+  "job_type": "DRAFT",
+  "status": "FAILED",
+  "input": {"repository": {"commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}},
+  "output": null,
+  "error": null
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "trace_id": "trace-pair13-demo",
+  "job_type": "FULL_CHECK",
+  "idempotency_key": "a13-full-demo-001",
+  "input": {
+    "repository": {
+      "url": "https://github.com/example/tiny-greeting.git",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "environment": {
+      "image_ref": "example/tiny-greeting:demo",
+      "configuration_id": "gcc-default",
+      "project_root": "/work"
+    },
+    "build_command": "make clean && make"
+  }
+}

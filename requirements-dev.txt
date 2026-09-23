@@ -1,0 +1,2 @@
+# Development-only dependency used by scripts/check_jsonschema.py.
+jsonschema>=4.10,<5

@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "trace_id": "trace-invalid-001",
+  "job_type": "ABC",
+  "idempotency_key": "invalid-001",
+  "input": {
+    "repository": {
+      "url": "https://github.com/example/tiny-greeting.git",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  }
+}

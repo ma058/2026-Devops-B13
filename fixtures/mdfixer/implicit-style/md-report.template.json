@@ -1,0 +1,14 @@
+{
+  "provenance": "B13_MANUAL_ORACLE",
+  "repository_commit": "REPLACE_WITH_REAL_40_HEX_COMMIT_SHA",
+  "configuration_id": "gcc-O0",
+  "findings": [
+    {
+      "type": "MISSING",
+      "target": "main.o",
+      "dependency": "config.h",
+      "makefile": "Makefile",
+      "evidence": "main.c includes config.h, while the implicit %.o: %.c rule does not track header changes"
+    }
+  ]
+}

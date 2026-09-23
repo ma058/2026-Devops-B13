@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/b13/artifact.schema.json",
+  "title": "B13/A13 Artifact metadata (provisional)",
+  "type": "object",
+  "required": ["artifact_id", "type", "uri", "media_type", "producer_job_id", "repository_commit", "configuration_id"],
+  "properties": {
+    "artifact_id": {"type": "string", "minLength": 1},
+    "type": {"type": "string", "minLength": 1},
+    "uri": {"type": "string", "pattern": "^artifact://pair13/"},
+    "media_type": {"type": "string", "minLength": 1},
+    "producer_job_id": {"type": "string", "pattern": "^job-[A-Za-z0-9-]+$"},
+    "repository_commit": {"type": "string", "pattern": "^[0-9a-fA-F]{40}$"},
+    "configuration_id": {"type": "string", "minLength": 1},
+    "sha256": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"}
+  },
+  "additionalProperties": true
+}

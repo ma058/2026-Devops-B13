@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "job_id": "job-draft-001",
+  "trace_id": "trace-pair13-demo",
+  "job_type": "DRAFT",
+  "status": "SUCCEEDED",
+  "input": {
+    "repository": {
+      "url": "https://github.com/example/tiny-greeting.git",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  },
+  "output": {
+    "image_ref": "example/tiny-greeting:demo",
+    "build_exit_code": 0,
+    "verify_exit_code": 0,
+    "artifacts": [
+      {
+        "artifact_id": "dockerfile-001",
+        "type": "DOCKERFILE",
+        "uri": "artifact://pair13/job-draft-001/Dockerfile",
+        "media_type": "text/plain",
+        "producer_job_id": "job-draft-001",
+        "repository_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "configuration_id": "gcc-default"
+      }
+    ]
+  },
+  "error": null
+}
