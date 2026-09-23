@@ -4,7 +4,7 @@
 
 当前仓库处于**本地草案阶段**：E2 中跨组字段需要 A13 确认；E3 的 Implicit 小项目已在 WSL Ubuntu 实测，但尚未使用 A13 的 EChecker 复检。示例 JSON 是合成数据，不能当作服务运行结果；参考补丁有独立的本地验证记录。
 
-从零开始的执行顺序、个人负责事项和验收条件见 [任务流程](docs/TASK_FLOW.md)。
+实验执行顺序、成员分工和验收条件见 [任务流程](docs/TASK_FLOW.md)。
 
 ## 当前可运行的检查
 
@@ -26,4 +26,4 @@ python3 scripts/verify_implicit.py
 
 第一项使用 Python `jsonschema` 包校验 JSON Schema 文件和样例；第二项需要 Git、GNU Make 和 GCC，在隔离副本中复现问题、验证修复和失败恢复。已完成的运行记录见 `evidence/E2/` 与 `evidence/E3/`。
 
-GitHub 远端尚未连接成功，本地文件尚未提交。请先审阅，再以你自己的 Git 身份提交；之后在 [贡献登记表](CONTRIBUTIONS.md) 中补上真实的 Issue、Commit、PR 和 Review 链接。
+仓库成员应使用各自的 GitHub 身份、个人分支和独立提交完成负责内容，并在 [贡献登记表](CONTRIBUTIONS.md) 中补充真实的 Issue、Commit、PR、Review 和运行证据。跨组契约只有在 A13 留下可追溯的确认记录后，才能从“草案”改为“已确认”。
