@@ -24,4 +24,8 @@
 
 ## 限制
 
-示例中的 URL、commit、镜像和 Artifact URI 均为合成值，不代表真实构建或跨组访问成功。FULL_CHECK、INCREMENTAL_CHECK 的专有字段由 B13 暂拟，须在 A13 互审后替换或确认。尚未创建 GitHub Issue/PR，也没有真实提交 SHA。
+示例中的 URL、commit、镜像和 Artifact URI 均为合成值，不代表真实构建或跨组访问成功。FULL_CHECK、INCREMENTAL_CHECK 的专有字段由 B13 暂拟，须在 A13 互审后替换或确认。成员1工作已登记到 GitHub Issue #1；E2 实现提交为 `af194c40ffd1394fb56cc9f5b2367b7feffb5a3b`。功能分支尚未推送，PR 尚未创建。
+
+## 2026-09-23 复验
+
+在 Windows 重新执行标准库校验器和 9 项单元测试，在 WSL Ubuntu 重新执行正式 JSON Schema 校验，退出码均为 0。当前 WSL 使用的 `jsonschema` 版本为 4.10.3。复验仍只证明 B13 本地契约草案自洽，不代表 A13 已接受专有字段或成功读取产物。

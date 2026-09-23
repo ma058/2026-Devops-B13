@@ -10,12 +10,16 @@ Makefile text eol=lf
 *.h text eol=lf
 *.py text eol=lf
 *.json text eol=lf
+*.txt text eol=lf
+*.log text eol=lf
 *.md text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
 *.toml text eol=lf
 *.sh text eol=lf
-*.patch text eol=lf
+# Unified-diff context lines intentionally begin with a marker followed by the
+# original whitespace, so ordinary source whitespace checks do not apply.
+*.patch text eol=lf whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab
 
 # Native Windows scripts use CRLF.
 *.bat text eol=crlf

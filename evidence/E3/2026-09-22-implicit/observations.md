@@ -9,7 +9,7 @@
 - 命令：在仓库根目录执行 `python3 scripts/verify_implicit.py`
 - 脚本退出码：0
 - Oracle 来源：`B13_MANUAL_ORACLE`，不是 A13 检测器结果
-- 仓库 commit SHA：尚无本地提交，待成员1使用自己的 Git 身份完成首个提交后补充
+- E3 基线提交：`c65226b27043e0a688d1a4b41249cd7b0893f164`
 
 ## 实际观察
 
