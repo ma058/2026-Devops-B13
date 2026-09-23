@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "trace_id": "trace-invalid-002",
+  "job_type": "INCREMENTAL_CHECK",
+  "idempotency_key": "invalid-002",
+  "input": {
+    "repository": {
+      "url": "https://github.com/example/tiny-greeting.git",
+      "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "base_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "environment": {"configuration_id": "gcc-default"}
+  }
+}

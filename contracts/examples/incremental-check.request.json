@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "trace_id": "trace-pair13-demo",
+  "job_type": "INCREMENTAL_CHECK",
+  "idempotency_key": "a13-incremental-demo-001",
+  "input": {
+    "repository": {
+      "url": "https://github.com/example/tiny-greeting.git",
+      "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "base_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "baseline": {
+      "actual_graph_uri": "artifact://pair13/job-full-001/actual.json",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "configuration_id": "gcc-default"
+    },
+    "environment": {"configuration_id": "gcc-default"}
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "job_id": "job-incremental-001",
+  "trace_id": "trace-pair13-demo",
+  "job_type": "INCREMENTAL_CHECK",
+  "status": "SUCCEEDED",
+  "input": {
+    "repository": {"commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"},
+    "base_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "baseline": {
+      "actual_graph_uri": "artifact://pair13/job-full-001/actual.json",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "configuration_id": "gcc-default"
+    }
+  },
+  "output": {
+    "findings": [{"type": "MISSING", "target": "main.o", "dependency": "feature.h"}],
+    "updated_actual_graph_uri": "artifact://pair13/job-incremental-001/actual.json"
+  },
+  "error": null
+}

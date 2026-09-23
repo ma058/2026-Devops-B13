@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/b13/job.schema.json",
+  "title": "B13/A13 Job snapshot (provisional)",
+  "type": "object",
+  "required": ["schema_version", "job_id", "trace_id", "job_type", "status", "input", "output", "error"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "job_id": {"type": "string", "pattern": "^job-[A-Za-z0-9-]+$"},
+    "trace_id": {"type": "string", "minLength": 1},
+    "job_type": {"enum": ["DRAFT", "FULL_CHECK", "INCREMENTAL_CHECK", "REPAIR"]},
+    "status": {"enum": ["QUEUED", "RUNNING", "SUCCEEDED", "FAILED", "TIMED_OUT", "CANCELLED"]},
+    "input": {"type": "object", "minProperties": 1},
+    "output": {"type": ["object", "null"]},
+    "error": {
+      "type": ["object", "null"],
+      "required": ["code", "message"],
+      "properties": {
+        "code": {"type": "string", "minLength": 1},
+        "message": {"type": "string", "minLength": 1},
+        "log_uri": {"type": "string", "pattern": "^artifact://"}
+      },
+      "additionalProperties": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"enum": ["QUEUED", "RUNNING"]}}, "required": ["status"]},
+      "then": {"properties": {"output": {"type": "null"}, "error": {"type": "null"}}}
+    },
+    {
+      "if": {"properties": {"status": {"const": "SUCCEEDED"}}, "required": ["status"]},
+      "then": {"properties": {"output": {"type": "object"}, "error": {"type": "null"}}}
+    },
+    {
+      "if": {"properties": {"status": {"enum": ["FAILED", "TIMED_OUT", "CANCELLED"]}}, "required": ["status"]},
+      "then": {"properties": {"output": {"type": "null"}, "error": {"type": "object"}}}
+    }
+  ],
+  "additionalProperties": true
+}
