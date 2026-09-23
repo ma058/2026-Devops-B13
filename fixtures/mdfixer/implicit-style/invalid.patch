@@ -1,0 +1,12 @@
+diff --git a/Makefile b/Makefile
+--- a/Makefile
++++ b/Makefile
+@@ -7,7 +7,7 @@ app: main.o
+ 	$(CC) main.o -o app
+ 
+ %.o: %.c
+-	$(CC) $(CFLAGS) -c $< -o $@
++	false # intentionally invalid candidate
+ 
+ clean:
+ 	rm -f main.o main.d app

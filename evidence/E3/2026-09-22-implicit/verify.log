@@ -1,0 +1,69 @@
+ORACLE=B13_MANUAL_ORACLE; detector was not run
+$ make
+exit=0
+cc -O0 -c main.c -o main.o
+cc main.o -o app
+
+$ ./app
+exit=0
+1
+
+$ make
+exit=0
+make: Nothing to be done for 'all'.
+
+$ ./app
+exit=0
+1
+
+PASS before patch: header-only change leaves stale output 1
+$ git apply --check /mnt/c/Users/ma058/Desktop/devops/B13/fixtures/mdfixer/implicit-style/reference.patch
+exit=0
+
+$ git apply /mnt/c/Users/ma058/Desktop/devops/B13/fixtures/mdfixer/implicit-style/reference.patch
+exit=0
+
+$ make
+exit=0
+cc -O0 -MMD -MP -c main.c -o main.o
+cc main.o -o app
+
+$ ./app
+exit=0
+1
+
+clean_build_sha256_before=29eda946d1c03145a17716400ca297bc9b66a6fba5827363682d0facfd63ab05
+clean_build_sha256_after=29eda946d1c03145a17716400ca297bc9b66a6fba5827363682d0facfd63ab05
+$ make
+exit=0
+cc -O0 -MMD -MP -c main.c -o main.o
+cc main.o -o app
+
+$ ./app
+exit=0
+3
+
+PASS after patch: .d tracks header and rebuild outputs 3
+PASS clean-build artifact SHA-256 unchanged at VALUE=1
+$ git apply --check /mnt/c/Users/ma058/Desktop/devops/B13/fixtures/mdfixer/implicit-style/invalid.patch
+exit=0
+
+$ git apply /mnt/c/Users/ma058/Desktop/devops/B13/fixtures/mdfixer/implicit-style/invalid.patch
+exit=0
+
+$ make
+exit=2
+false # intentionally invalid candidate
+make: *** [Makefile:10: main.o] Error 1
+
+$ make
+exit=0
+cc -O0 -c main.c -o main.o
+cc main.o -o app
+
+$ ./app
+exit=0
+1
+
+PASS invalid candidate rejected; original Makefile restored
+All implicit fixture checks passed. A13 EChecker recheck remains pending.
