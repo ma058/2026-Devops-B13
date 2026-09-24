@@ -1,0 +1,13 @@
+diff --git a/Makefile b/Makefile
+index 4ddfb1b..e336eba 100644
+--- a/Makefile
++++ b/Makefile
+@@ -6,7 +6,7 @@ all: app
+ app: main.o
+ 	$(CC) main.o -o app
+ 
+-main.o: main.c
++main.o: main.c config.h
+ 	$(CC) $(CFLAGS) -c main.c -o main.o
+ 
+ clean:
