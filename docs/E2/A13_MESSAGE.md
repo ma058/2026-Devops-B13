@@ -3,11 +3,11 @@
 ## 发送前由 B13 补全
 
 - B13 仓库：<https://github.com/ma058/2026-Devops-B13>
-- 契约分支：`member1/e2-contracts-e3-implicit`（发送前确认已推送）
+- 契约分支：`main`
 - 契约 Commit SHA：`af194c40ffd1394fb56cc9f5b2367b7feffb5a3b`（E2 Schema、样例和校验器）
-- GitHub PR：`【创建后填写；若尚无 PR，写“待创建”】`
-- B13 联系人及联系方式：`【填写】`
-- 建议交流时间或回复期限：`【填写】`
+- GitHub PR：<https://github.com/ma058/2026-Devops-B13/pull/2>（已合并）
+- B13 联系人及联系方式：成员1（姓名与联系方式由 B13 在发送前补充）
+- 建议交流时间或回复期限：待 B13 与 A13 协商
 
 > 当前公共契约、A13 服务专有字段和 `artifact://` 规则均为 B13 草案。只有 A13 在双方可见的 Issue、PR 或会议记录中确认后，才能标记为正式约定。
 
