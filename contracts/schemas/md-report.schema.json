@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/b13/md-report.schema.json",
+  "title": "MD/RD report (provisional)",
+  "description": "MD/RD（缺失/冗余依赖）检测报告 Schema。语义来源：BuildChecker（TSE）与 EChecker（ISSTA'24）论文的错误报告（若干 target 及其 MD/RD 列表）；JSON 封装、字段命名与必填约束为课程工程化扩展。消费者规则：REPAIR/MDFixer 只消费 type=MISSING 的 finding，不修复 REDUNDANT。版本政策与字段说明见 docs/E2/repair-contract.md。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "report_id",
+    "repository",
+    "configuration_id",
+    "environment",
+    "detector",
+    "provenance",
+    "findings"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "description": "契约版本，与全组公共 Schema 版本风格一致；破坏性变更须按 repair-contract.md 版本政策先开 Issue"
+    },
+    "report_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "报告唯一标识，由生产方生成"
+    },
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "commit"],
+      "properties": {
+        "url": {
+          "type": "string",
+          "minLength": 1,
+          "description": "仓库地址；E2 契约样例为合成值，E3 fixture 报告使用 B13 仓库真实地址"
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{40}$",
+          "description": "完整 40 位 commit SHA；报告必须绑定到被检测源码的确切版本"
+        }
+      }
+    },
+    "configuration_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "构建配置标识；报告只在同一配置下可比【待 A13 确认 A-09】"
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os", "arch"],
+      "properties": {
+        "os": { "type": "string", "description": "如 linux、windows、macos" },
+        "arch": { "type": "string", "description": "如 x86_64、aarch64" },
+        "make_version": { "type": "string" },
+        "cc_version": { "type": "string" },
+        "image_ref": { "type": "string", "description": "检测所在镜像引用；与 DRAFT 产物绑定【待 A13 确认 A-04】" }
+      }
+    },
+    "detector": {
+      "type": "string",
+      "enum": ["BUILDCHECKER", "ECHECKER", "INSTRUCTOR_ORACLE", "B13_MANUAL_ORACLE"],
+      "description": "报告生成者/判断来源。BUILDCHECKER、ECHECKER 只用于对应工具的真实输出；INSTRUCTOR_ORACLE 只用于课程提供固定答案的样本；B13_MANUAL_ORACLE 用于 B13 自建人工样本"
+    },
+    "provenance": {
+      "type": "string",
+      "minLength": 1,
+      "description": "具体来源、版本与证据补充（与 detector 不同义）：课程样例写明课程手册位置；B13 人工样例写明对应 fixture、commit 和人工判断依据；工具报告写明工具版本"
+    },
+    "producer_job_id": {
+      "type": ["string", "null"],
+      "pattern": "^job-[A-Za-z0-9-]+$",
+      "description": "产生本报告的 FULL_CHECK / INCREMENTAL_CHECK 任务编号。detector 为 BUILDCHECKER/ECHECKER 时必填；人工 Oracle 报告允许省略或为 null，不得编造 Job ID"
+    },
+    "findings": {
+      "type": "array",
+      "description": "检测发现列表；可以为空数组（表示无 MD/RD）",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "target", "dependency", "makefile_path", "evidence"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["MISSING", "REDUNDANT"],
+            "description": "MISSING=实际依赖但未声明；REDUNDANT=声明了但本配置未使用"
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1,
+            "description": "出错的构建目标，项目内相对路径或目标名"
+          },
+          "dependency": {
+            "type": "string",
+            "minLength": 1,
+            "description": "缺失或冗余的依赖文件，项目内相对路径；不应包含 /usr/include 等项目外系统依赖【待 A13 确认 A-15】"
+          },
+          "makefile_path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "声明所在 Makefile 的路径。【草案】基准目录（仓库根目录还是 project_root）待 A13 确认后冻结（A-15）"
+          },
+          "location": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "line": { "type": "integer", "minimum": 1, "description": "声明所在行号（1 起）" },
+              "declaration": { "type": "string", "description": "出错声明行原文，便于人工核对" }
+            },
+            "description": "声明在 Makefile 中的位置；BuildChecker 可从 GNU Make 数据库注释获得文件名与行号"
+          },
+          "evidence": {
+            "type": "string",
+            "minLength": 1,
+            "description": "判定依据：实际依赖的来源（构建追踪记录、预处理器分析、人工分析过程）"
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "detector": { "enum": ["BUILDCHECKER", "ECHECKER"] } },
+        "required": ["detector"]
+      },
+      "then": { "required": ["producer_job_id"] }
+    }
+  ]
+}
