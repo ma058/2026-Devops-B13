@@ -1,0 +1,13 @@
+diff --git a/Makefile b/Makefile
+index 8c09f1f..59713b8 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ CC = cc
+ CFLAGS = -O0
+ 
+-DEPS = main.c
++DEPS = main.c config.h
+ 
+ all: app
+ 
