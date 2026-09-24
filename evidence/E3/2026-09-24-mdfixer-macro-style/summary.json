@@ -1,0 +1,158 @@
+{
+  "style": "macro-style",
+  "overall": "PASS",
+  "run_at": "2026-09-24T07:08:52.354482+00:00",
+  "fixture_dir": "fixtures/mdfixer/macro-style",
+  "fixture_commit": "5f599d2592fbf4a678950b7f7b2886b6844ad9e4",
+  "environment": {
+    "os": "linux",
+    "os_release": "6.6.87.2-microsoft-standard-WSL2",
+    "arch": "x86_64",
+    "python": "3.10.12",
+    "make_exe": "/usr/bin/make",
+    "cc_exe": "/usr/bin/cc",
+    "git_exe": "/usr/bin/git",
+    "make_version": "GNU Make 4.3",
+    "cc_version": "cc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "git_version": "git version 2.34.1"
+  },
+  "checks_passed": 16,
+  "checks_failed": 0,
+  "checks_warned": 0,
+  "checks": [
+    {
+      "id": "S1.build-before",
+      "description": "修复前完整构建退出码为 0",
+      "status": "PASS",
+      "detail": "exit=0"
+    },
+    {
+      "id": "S1.output-before",
+      "description": "VALUE=1 完整构建后程序输出 1",
+      "status": "PASS",
+      "detail": "stdout='1'"
+    },
+    {
+      "id": "S3.no-rebuild-before",
+      "description": "修复前修改 config.h 后普通 make 不重编译 main.o（复现 MD）",
+      "status": "PASS",
+      "detail": "make 输出: make: Nothing to be done for 'all'."
+    },
+    {
+      "id": "S3.stale-output",
+      "description": "修复前增量构建后程序仍输出旧值 1",
+      "status": "PASS",
+      "detail": "stdout='1'"
+    },
+    {
+      "id": "S3.oracle-before",
+      "description": "课程固定 Oracle 在修复前报告 1 条 MISSING(main.o→config.h)",
+      "status": "PASS",
+      "detail": "{\"target\": \"main.o\", \"declared\": [\"main.c\"], \"actual\": [\"config.h\", \"main.c\"], \"missing\": [\"config.h\"], \"redundant\": []}"
+    },
+    {
+      "id": "S4.apply-check",
+      "description": "git apply --check reference.patch 通过",
+      "status": "PASS",
+      "detail": "warning: Makefile has type 100755, expected 100644"
+    },
+    {
+      "id": "S4.apply",
+      "description": "git apply reference.patch 成功",
+      "status": "PASS",
+      "detail": "warning: Makefile has type 100755, expected 100644"
+    },
+    {
+      "id": "S4.patch-minimal",
+      "description": "补丁只修改必要的依赖声明",
+      "status": "PASS",
+      "detail": "改动行=['DEPS = main.c', 'DEPS = main.c config.h']"
+    },
+    {
+      "id": "S5.build-after",
+      "description": "修复后完整构建退出码为 0",
+      "status": "PASS",
+      "detail": "exit=0"
+    },
+    {
+      "id": "S5.output-after",
+      "description": "修复后完整构建输出当前 VALUE=2",
+      "status": "PASS",
+      "detail": "stdout='2'"
+    },
+    {
+      "id": "S7.incremental-rebuild",
+      "description": "修复后修改 config.h，普通 make 触发 main.o 重编译",
+      "status": "PASS",
+      "detail": "make 输出: /usr/bin/cc -O0 -c main.c -o main.o\n/usr/bin/cc main.o -o app"
+    },
+    {
+      "id": "S8.incremental-output",
+      "description": "修复后增量构建输出新值 3",
+      "status": "PASS",
+      "detail": "stdout='3'"
+    },
+    {
+      "id": "S9.oracle-after",
+      "description": "修复后课程固定 Oracle 重检 MD 数量为 0",
+      "status": "PASS",
+      "detail": "{\"target\": \"main.o\", \"declared\": [\"config.h\", \"main.c\"], \"actual\": [\"config.h\", \"main.c\"], \"missing\": [], \"redundant\": []}"
+    },
+    {
+      "id": "S10.style-consistency",
+      "description": "修复前后声明风格一致（MACRO → MACRO，期望 MACRO）",
+      "status": "PASS",
+      "detail": "before=MACRO after=MACRO"
+    },
+    {
+      "id": "S11.behavior-equivalence",
+      "description": "修复后 clean build（VALUE=1）程序行为与修复前一致",
+      "status": "PASS",
+      "detail": "stdout='1'"
+    },
+    {
+      "id": "S11.artifact-hash",
+      "description": "产物哈希稳定且一致 sha256=c34d0d6e9e90d8226f45e9500d107f63e1e1fe06d56211b81895a89896d2adc3",
+      "status": "PASS",
+      "detail": ""
+    }
+  ],
+  "hashes": {
+    "clean_before_fix_sha256": "c34d0d6e9e90d8226f45e9500d107f63e1e1fe06d56211b81895a89896d2adc3",
+    "clean_after_fix_sha256": "c34d0d6e9e90d8226f45e9500d107f63e1e1fe06d56211b81895a89896d2adc3"
+  },
+  "oracle": {
+    "before": {
+      "target": "main.o",
+      "declared": [
+        "main.c"
+      ],
+      "actual": [
+        "config.h",
+        "main.c"
+      ],
+      "missing": [
+        "config.h"
+      ],
+      "redundant": []
+    },
+    "after": {
+      "target": "main.o",
+      "declared": [
+        "config.h",
+        "main.c"
+      ],
+      "actual": [
+        "config.h",
+        "main.c"
+      ],
+      "missing": [],
+      "redundant": []
+    }
+  },
+  "style_classification": {
+    "before": "MACRO",
+    "after": "MACRO"
+  },
+  "evidence_format": "observations.md + verify.log + summary.json（成员3草案，待成员2统一）"
+}

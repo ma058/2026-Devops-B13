@@ -1,0 +1,95 @@
+== style=target-style
+== fixture_dir: /mnt/c/Users/Lenovo/AppData/Roaming/TRAE SOLO CN/ModularData/ai-agent/work-mode-projects/6ab1e675e64c8e2590415ad7/_dev/b13-work/fixtures/mdfixer/target-style
+== fixture_commit: 84f6e9df0ec021ed4e5fb41239aab4657b6f96ef
+== evidence_dir: /mnt/c/Users/Lenovo/AppData/Roaming/TRAE SOLO CN/ModularData/ai-agent/work-mode-projects/6ab1e675e64c8e2590415ad7/_dev/b13-work/evidence/E3/2026-09-24-mdfixer-target-style
+$ /usr/bin/make --version
+cwd=/mnt/c/Users/Lenovo/AppData/Roaming/TRAE SOLO CN/ModularData/ai-agent/work-mode-projects/6ab1e675e64c8e2590415ad7/_dev/b13-work exit=0
+stdout:
+GNU Make 4.3
+Built for x86_64-pc-linux-gnu
+Copyright (C) 1988-2020 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+$ /usr/bin/cc --version
+cwd=/mnt/c/Users/Lenovo/AppData/Roaming/TRAE SOLO CN/ModularData/ai-agent/work-mode-projects/6ab1e675e64c8e2590415ad7/_dev/b13-work exit=0
+stdout:
+cc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0
+Copyright (C) 2021 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+$ /usr/bin/git --version
+cwd=/mnt/c/Users/Lenovo/AppData/Roaming/TRAE SOLO CN/ModularData/ai-agent/work-mode-projects/6ab1e675e64c8e2590415ad7/_dev/b13-work exit=0
+stdout:
+git version 2.34.1
+== workdir: /tmp/mdfixer-target-style-4ynl4htq
+$ /usr/bin/make CC=/usr/bin/cc
+cwd=/tmp/mdfixer-target-style-4ynl4htq exit=0
+stdout:
+/usr/bin/cc -O0 -c main.c -o main.o
+/usr/bin/cc main.o -o app
+[PASS] S1.build-before — 修复前完整构建退出码为 0 | exit=0
+$ /tmp/mdfixer-target-style-4ynl4htq/app
+cwd=/tmp/mdfixer-target-style-4ynl4htq exit=0
+stdout:
+1
+[PASS] S1.output-before — VALUE=1 完整构建后程序输出 1 | stdout='1'
+$ /usr/bin/make CC=/usr/bin/cc
+cwd=/tmp/mdfixer-target-style-4ynl4htq exit=0
+stdout:
+make: Nothing to be done for 'all'.
+[PASS] S3.no-rebuild-before — 修复前修改 config.h 后普通 make 不重编译 main.o（复现 MD） | make 输出: make: Nothing to be done for 'all'.
+$ /tmp/mdfixer-target-style-4ynl4htq/app
+cwd=/tmp/mdfixer-target-style-4ynl4htq exit=0
+stdout:
+1
+[PASS] S3.stale-output — 修复前增量构建后程序仍输出旧值 1 | stdout='1'
+[PASS] S3.oracle-before — 课程固定 Oracle 在修复前报告 1 条 MISSING(main.o→config.h) | {"target": "main.o", "declared": ["main.c"], "actual": ["config.h", "main.c"], "missing": ["config.h"], "redundant": []}
+$ /usr/bin/git apply --check /mnt/c/Users/Lenovo/AppData/Roaming/TRAE SOLO CN/ModularData/ai-agent/work-mode-projects/6ab1e675e64c8e2590415ad7/_dev/b13-work/fixtures/mdfixer/target-style/reference.patch
+cwd=/tmp/mdfixer-target-style-4ynl4htq exit=0
+stderr:
+warning: Makefile has type 100755, expected 100644
+[PASS] S4.apply-check — git apply --check reference.patch 通过 | warning: Makefile has type 100755, expected 100644
+$ /usr/bin/git apply /mnt/c/Users/Lenovo/AppData/Roaming/TRAE SOLO CN/ModularData/ai-agent/work-mode-projects/6ab1e675e64c8e2590415ad7/_dev/b13-work/fixtures/mdfixer/target-style/reference.patch
+cwd=/tmp/mdfixer-target-style-4ynl4htq exit=0
+stderr:
+warning: Makefile has type 100755, expected 100644
+[PASS] S4.apply — git apply reference.patch 成功 | warning: Makefile has type 100755, expected 100644
+[PASS] S4.patch-minimal — 补丁只修改必要的依赖声明 | 改动行=['main.o: main.c', 'main.o: main.c config.h']
+$ /usr/bin/make CC=/usr/bin/cc
+cwd=/tmp/mdfixer-target-style-4ynl4htq exit=0
+stdout:
+/usr/bin/cc -O0 -c main.c -o main.o
+/usr/bin/cc main.o -o app
+[PASS] S5.build-after — 修复后完整构建退出码为 0 | exit=0
+$ /tmp/mdfixer-target-style-4ynl4htq/app
+cwd=/tmp/mdfixer-target-style-4ynl4htq exit=0
+stdout:
+2
+[PASS] S5.output-after — 修复后完整构建输出当前 VALUE=2 | stdout='2'
+$ /usr/bin/make CC=/usr/bin/cc
+cwd=/tmp/mdfixer-target-style-4ynl4htq exit=0
+stdout:
+/usr/bin/cc -O0 -c main.c -o main.o
+/usr/bin/cc main.o -o app
+[PASS] S7.incremental-rebuild — 修复后修改 config.h，普通 make 触发 main.o 重编译 | make 输出: /usr/bin/cc -O0 -c main.c -o main.o
+/usr/bin/cc main.o -o app
+$ /tmp/mdfixer-target-style-4ynl4htq/app
+cwd=/tmp/mdfixer-target-style-4ynl4htq exit=0
+stdout:
+3
+[PASS] S8.incremental-output — 修复后增量构建输出新值 3 | stdout='3'
+[PASS] S9.oracle-after — 修复后课程固定 Oracle 重检 MD 数量为 0 | {"target": "main.o", "declared": ["config.h", "main.c"], "actual": ["config.h", "main.c"], "missing": [], "redundant": []}
+[PASS] S10.style-consistency — 修复前后声明风格一致（TARGET → TARGET，期望 TARGET） | before=TARGET after=TARGET
+$ /usr/bin/make CC=/usr/bin/cc
+cwd=/tmp/mdfixer-target-style-equiv-50dxmetr exit=0
+stdout:
+/usr/bin/cc -O0 -c main.c -o main.o
+/usr/bin/cc main.o -o app
+$ /tmp/mdfixer-target-style-equiv-50dxmetr/app
+cwd=/tmp/mdfixer-target-style-equiv-50dxmetr exit=0
+stdout:
+1
+[PASS] S11.behavior-equivalence — 修复后 clean build（VALUE=1）程序行为与修复前一致 | stdout='1'
+[PASS] S11.artifact-hash — 产物哈希稳定且一致 sha256=c34d0d6e9e90d8226f45e9500d107f63e1e1fe06d56211b81895a89896d2adc3 
+== style=target-style 总体结果: PASS (PASS=16 FAIL=0 WARN=0)
