@@ -1,0 +1,45 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.broken
+#1 transferring dockerfile: 160B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for public.ecr.aws/ubuntu/ubuntu:20.04
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/4] FROM public.ecr.aws/ubuntu/ubuntu:20.04@sha256:7e9558e1203a9a2b0967554abf9ebdc5552f29013b01f6e7271bf2d776d51234
+#4 resolve public.ecr.aws/ubuntu/ubuntu:20.04@sha256:7e9558e1203a9a2b0967554abf9ebdc5552f29013b01f6e7271bf2d776d51234 0.0s done
+#4 DONE 0.0s
+
+#5 [2/4] WORKDIR /workspace/project
+#5 CACHED
+
+#6 [internal] load build context
+#6 transferring context: 55B done
+#6 DONE 0.0s
+
+#7 [3/4] COPY main.c Makefile ./
+#7 DONE 0.1s
+
+#8 [4/4] RUN make
+#8 0.252 /bin/sh: 1: make: not found
+#8 ERROR: process "/bin/sh -c make" did not complete successfully: exit code: 127
+------
+ > [4/4] RUN make:
+0.252 /bin/sh: 1: make: not found
+------
+Dockerfile.broken:4
+--------------------
+   2 |     WORKDIR /workspace/project
+   3 |     COPY main.c Makefile ./
+   4 | >>> RUN make
+   5 |     CMD ["./hello"]
+   6 |     
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c make" did not complete successfully: exit code: 127
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/oq6txr7r4u787s698rs7urt3r

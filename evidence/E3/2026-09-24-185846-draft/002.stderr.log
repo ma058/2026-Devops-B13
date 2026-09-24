@@ -1,0 +1,63 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.reference
+#1 transferring dockerfile: 298B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for public.ecr.aws/ubuntu/ubuntu:20.04
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/5] FROM public.ecr.aws/ubuntu/ubuntu:20.04@sha256:7e9558e1203a9a2b0967554abf9ebdc5552f29013b01f6e7271bf2d776d51234
+#4 resolve public.ecr.aws/ubuntu/ubuntu:20.04@sha256:7e9558e1203a9a2b0967554abf9ebdc5552f29013b01f6e7271bf2d776d51234 0.0s done
+#4 CACHED
+
+#5 [internal] load build context
+#5 transferring context: 55B done
+#5 DONE 0.0s
+
+#6 [2/5] RUN apt-get update && apt-get install -y --no-install-recommends gcc make libc6-dev git python3     && rm -rf /var/lib/apt/lists/*
+#6 0.264 Err:1 http://archive.ubuntu.com/ubuntu focal InRelease
+#6 0.264   500  writing response to archive.ubuntu.com:80: connecting to 127.0.0.1:10809: dial tcp 127.0.0.1:10809: connectex: No connection could be made because the target machine actively refused it. [IP: 91.189.92.24 80]
+#6 0.264 Err:2 http://security.ubuntu.com/ubuntu focal-security InRelease
+#6 0.264   500  writing response to security.ubuntu.com:80: connecting to 127.0.0.1:10809: dial tcp 127.0.0.1:10809: connectex: No connection could be made because the target machine actively refused it. [IP: 91.189.91.81 80]
+#6 0.266 Err:3 http://archive.ubuntu.com/ubuntu focal-updates InRelease
+#6 0.266   500  writing response to archive.ubuntu.com:80: connecting to 127.0.0.1:10809: dial tcp 127.0.0.1:10809: connectex: No connection could be made because the target machine actively refused it. [IP: 91.189.92.24 80]
+#6 0.268 Err:4 http://archive.ubuntu.com/ubuntu focal-backports InRelease
+#6 0.268   500  writing response to archive.ubuntu.com:80: connecting to 127.0.0.1:10809: dial tcp 127.0.0.1:10809: connectex: No connection could be made because the target machine actively refused it. [IP: 91.189.92.24 80]
+#6 0.273 Reading package lists...
+#6 0.280 E: The repository 'http://archive.ubuntu.com/ubuntu focal InRelease' is not signed.
+#6 0.280 E: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/focal/InRelease  500  writing response to archive.ubuntu.com:80: connecting to 127.0.0.1:10809: dial tcp 127.0.0.1:10809: connectex: No connection could be made because the target machine actively refused it. [IP: 91.189.92.24 80]
+#6 0.280 E: The repository 'http://security.ubuntu.com/ubuntu focal-security InRelease' is not signed.
+#6 0.280 E: Failed to fetch http://security.ubuntu.com/ubuntu/dists/focal-security/InRelease  500  writing response to security.ubuntu.com:80: connecting to 127.0.0.1:10809: dial tcp 127.0.0.1:10809: connectex: No connection could be made because the target machine actively refused it. [IP: 91.189.91.81 80]
+#6 0.280 E: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/focal-updates/InRelease  500  writing response to archive.ubuntu.com:80: connecting to 127.0.0.1:10809: dial tcp 127.0.0.1:10809: connectex: No connection could be made because the target machine actively refused it. [IP: 91.189.92.24 80]
+#6 0.280 E: The repository 'http://archive.ubuntu.com/ubuntu focal-updates InRelease' is not signed.
+#6 0.280 E: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/focal-backports/InRelease  500  writing response to archive.ubuntu.com:80: connecting to 127.0.0.1:10809: dial tcp 127.0.0.1:10809: connectex: No connection could be made because the target machine actively refused it. [IP: 91.189.92.24 80]
+#6 0.280 E: The repository 'http://archive.ubuntu.com/ubuntu focal-backports InRelease' is not signed.
+#6 ERROR: process "/bin/sh -c apt-get update && apt-get install -y --no-install-recommends gcc make libc6-dev git python3     && rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
+------
+ > [2/5] RUN apt-get update && apt-get install -y --no-install-recommends gcc make libc6-dev git python3     && rm -rf /var/lib/apt/lists/*:
+0.268   500  writing response to archive.ubuntu.com:80: connecting to 127.0.0.1:10809: dial tcp 127.0.0.1:10809: connectex: No connection could be made because the target machine actively refused it. [IP: 91.189.92.24 80]
+0.273 Reading package lists...
+0.280 E: The repository 'http://archive.ubuntu.com/ubuntu focal InRelease' is not signed.
+0.280 E: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/focal/InRelease  500  writing response to archive.ubuntu.com:80: connecting to 127.0.0.1:10809: dial tcp 127.0.0.1:10809: connectex: No connection could be made because the target machine actively refused it. [IP: 91.189.92.24 80]
+0.280 E: The repository 'http://security.ubuntu.com/ubuntu focal-security InRelease' is not signed.
+0.280 E: Failed to fetch http://security.ubuntu.com/ubuntu/dists/focal-security/InRelease  500  writing response to security.ubuntu.com:80: connecting to 127.0.0.1:10809: dial tcp 127.0.0.1:10809: connectex: No connection could be made because the target machine actively refused it. [IP: 91.189.91.81 80]
+0.280 E: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/focal-updates/InRelease  500  writing response to archive.ubuntu.com:80: connecting to 127.0.0.1:10809: dial tcp 127.0.0.1:10809: connectex: No connection could be made because the target machine actively refused it. [IP: 91.189.92.24 80]
+0.280 E: The repository 'http://archive.ubuntu.com/ubuntu focal-updates InRelease' is not signed.
+0.280 E: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/focal-backports/InRelease  500  writing response to archive.ubuntu.com:80: connecting to 127.0.0.1:10809: dial tcp 127.0.0.1:10809: connectex: No connection could be made because the target machine actively refused it. [IP: 91.189.92.24 80]
+0.280 E: The repository 'http://archive.ubuntu.com/ubuntu focal-backports InRelease' is not signed.
+------
+Dockerfile.reference:2
+--------------------
+   1 |     FROM public.ecr.aws/ubuntu/ubuntu:20.04
+   2 | >>> RUN apt-get update && apt-get install -y --no-install-recommends gcc make libc6-dev git python3 \
+   3 | >>>     && rm -rf /var/lib/apt/lists/*
+   4 |     WORKDIR /workspace/project
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c apt-get update && apt-get install -y --no-install-recommends gcc make libc6-dev git python3     && rm -rf /var/lib/apt/lists/*" did not complete successfully: exit code: 100
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/l6eexdpjrxgr11pl1haazktae

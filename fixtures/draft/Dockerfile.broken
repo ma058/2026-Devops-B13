@@ -1,0 +1,5 @@
+FROM public.ecr.aws/ubuntu/ubuntu:20.04
+WORKDIR /workspace/project
+COPY main.c Makefile ./
+RUN make
+CMD ["./hello"]
