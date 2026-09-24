@@ -1,0 +1,13 @@
+diff --git a/Makefile b/Makefile
+index feac2d5..7074c5b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ CC = cc
+ CFLAGS = -O0
+ 
+-HEADERS = 
++HEADERS = $(wildcard *.h)
+ 
+ all: app
+ 
