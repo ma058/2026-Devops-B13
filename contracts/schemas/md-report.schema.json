@@ -52,11 +52,11 @@
       "additionalProperties": false,
       "required": ["os", "arch"],
       "properties": {
-        "os": { "type": "string", "description": "如 linux、windows、macos" },
-        "arch": { "type": "string", "description": "如 x86_64、aarch64" },
-        "make_version": { "type": "string" },
-        "cc_version": { "type": "string" },
-        "image_ref": { "type": "string", "description": "检测所在镜像引用；与 DRAFT 产物绑定【待 A13 确认 A-04】" }
+        "os": { "type": "string", "minLength": 1, "description": "如 linux、windows、macos" },
+        "arch": { "type": "string", "minLength": 1, "description": "如 x86_64、aarch64" },
+        "make_version": { "type": "string", "minLength": 1 },
+        "cc_version": { "type": "string", "minLength": 1 },
+        "image_ref": { "type": "string", "minLength": 1, "description": "检测所在镜像引用；与 DRAFT 产物绑定【待 A13 确认 A-04】" }
       }
     },
     "detector": {
@@ -105,9 +105,10 @@
           "location": {
             "type": "object",
             "additionalProperties": false,
+            "required": ["line", "declaration"],
             "properties": {
               "line": { "type": "integer", "minimum": 1, "description": "声明所在行号（1 起）" },
-              "declaration": { "type": "string", "description": "出错声明行原文，便于人工核对" }
+              "declaration": { "type": "string", "minLength": 1, "description": "出错声明行原文，便于人工核对" }
             },
             "description": "声明在 Makefile 中的位置；BuildChecker 可从 GNU Make 数据库注释获得文件名与行号"
           },
@@ -126,7 +127,20 @@
         "properties": { "detector": { "enum": ["BUILDCHECKER", "ECHECKER"] } },
         "required": ["detector"]
       },
-      "then": { "required": ["producer_job_id"] }
+      "then": {
+        "required": ["producer_job_id"],
+        "properties": {
+          "producer_job_id": {
+            "type": "string",
+            "pattern": "^job-[A-Za-z0-9-]+$"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "producer_job_id": { "type": "null" }
+        }
+      }
     }
   ]
 }
