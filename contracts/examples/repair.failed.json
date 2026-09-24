@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "job_id": "job-repair-002",
+  "trace_id": "trace-pair13-demo-2",
+  "job_type": "REPAIR",
+  "status": "FAILED",
+  "input": {
+    "repository": {
+      "url": "https://github.com/example/tiny-greeting.git",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "md_report_uri": "artifact://pair13/job-full-001/md-report.json",
+    "makefile_path": "Makefile",
+    "environment": {
+      "configuration_id": "gcc-default",
+      "os": "linux",
+      "arch": "x86_64",
+      "image_ref": "nju-devops-e3-lab:20260906"
+    },
+    "build_command": "make clean && make",
+    "verify_command": "./app",
+    "policy": {
+      "consume": "MISSING_ONLY",
+      "if_no_missing": "NOT_APPLICABLE"
+    }
+  },
+  "output": null,
+  "error": {
+    "code": "INPUT_1002",
+    "message": "MD 报告与请求的版本不匹配：报告 repository.commit=cccccccccccccccccccccccccccccccccccccccc 与请求 commit=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 不一致。报告不属于当前源码版本，拒绝修复，防止把补丁打到错误基线上。",
+    "log_uri": "artifact://pair13/job-repair-002/error-detail.json",
+    "retryable": false,
+    "note": "INPUT_ 前缀为成员3提议的新错误分类（输入/版本校验失败），待成员1与 A13 确认（A-02）；现有草案前缀为 ENV_3xxx/EXEC_4xxx/ANALYSIS_5xxx，见 docs/E2/status-and-errors.md。系统执行错误才写入 error；无效候选被拒绝属于正常分析结果，写入 SUCCEEDED 响应的 output.rejected_candidates，不使用本通道。"
+  }
+}
