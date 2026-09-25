@@ -351,10 +351,14 @@ def verify_style(style, repo_root, make, cc, git, keep_work):
 
     started_at = utc_now()
 
-    # ---- source：源码版本与指纹（成员2 0.1 约定；在创建证据目录前采集，
-    # 使 git status 不混入本次新生成的证据文件）
+    # ---- source：源码版本与指纹（成员2 0.1 约定）。dirty 判定与 git_status
+    # 排除 evidence/ 输出（证据不是源码；同批运行前序风格产生的证据目录不应
+    # 使后续风格的源码状态被误报为 dirty）。
     head_sha = git_text(git, repo_root, "rev-parse", "HEAD")
-    git_status = git_text(git, repo_root, "status", "--porcelain")
+    raw_status = git_text(git, repo_root, "status", "--porcelain")
+    src_status = [ln for ln in raw_status.splitlines()
+                  if ln.strip() and "evidence/" not in ln.replace("\\", "/")]
+    git_status = "\n".join(src_status)
     remote_url = git_text(git, repo_root, "remote", "get-url", "origin")
     fcommit = fixture_commit(repo_root, git, style)
     tracked = ["scripts/verify_mdfixer_explicit.py"] + [
