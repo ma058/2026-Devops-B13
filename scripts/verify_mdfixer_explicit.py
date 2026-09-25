@@ -239,9 +239,15 @@ def git_text(git, repo_root, *args):
 
 
 def fixture_commit(repo_root, git, style):
-    """返回引入该 fixture 目录的真实提交 SHA（两段式提交的第一段）。"""
-    sha = git_text(git, repo_root, "log", "--diff-filter=A", "--format=%H",
-                   "-1", "--", "fixtures/mdfixer/%s" % style)
+    """返回定义该 fixture 被分析源码当前内容的真实提交 SHA（两段式提交的第一段）。
+
+    只对被分析的源码文件（Makefile.before/main.c/config.h）取 git log：若对整个
+    fixture 目录用 --diff-filter=A，后续新增的辅助文件（如 invalid.patch）会把
+    检测结果带偏到非「引入被分析源码」的提交。"""
+    sha = git_text(git, repo_root, "log", "--format=%H", "-1", "--",
+                   "fixtures/mdfixer/%s/Makefile.before" % style,
+                   "fixtures/mdfixer/%s/main.c" % style,
+                   "fixtures/mdfixer/%s/config.h" % style)
     return sha if re.fullmatch(r"[0-9a-fA-F]{40}", sha) else None
 
 
@@ -390,6 +396,15 @@ def verify_style(style, repo_root, make, cc, git, keep_work):
     logger.log("== HEAD=%s dirty=%s" % (head_sha, bool(git_status)))
     logger.log("== Oracle 来源: B13_MANUAL_ORACLE（课程固定 Oracle 程序化实现）；"
                "A13 EChecker 未执行")
+
+    # md-report.json 引用的提交必须与 git 历史中定义被分析源码内容的提交一致
+    # （若被分析源码日后变更，报告必须更新为新的真实提交，否则此处 FAIL）。
+    with open(os.path.join(fixture_dir, "md-report.json"), encoding="utf-8") as f:
+        report_commit = json.load(f)["repository"]["commit"]
+    recorder.check("S0.report-commit",
+                   "md-report.json 引用的 fixture 提交与 git 历史一致（真实提交）",
+                   "报告引用=%s，git 历史=%s" % (report_commit, fcommit),
+                   report_commit == fcommit)
 
     env = {"os": platform.system().lower(), "os_release": platform.release(),
            "arch": platform.machine(), "cwd": repo_root}
