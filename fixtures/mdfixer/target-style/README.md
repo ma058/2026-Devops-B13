@@ -4,10 +4,12 @@
 
 `reference.patch` 为 Target 转换参考修复：直接向 `main.o` 的依赖列表追加 `config.h`，不改变原有声明风格。
 
+`invalid.patch` 为无效修复候选：把编译 recipe 替换为 `false`。它可以被 `git apply` 干净应用，但应用后构建必然失败，用于验证「无效候选被拒绝；恢复原始 `Makefile` 后完整构建与程序行为一切如初」。
+
 验证（在仓库根目录执行）：
 
 ```bash
 python3 scripts/verify_mdfixer_explicit.py --style target-style
 ```
 
-脚本使用临时目录，不改动本目录原件。`md-report.json` 的报告 commit 为引入本 fixture 的真实提交 SHA（两段式提交：先提交本目录内容，再提交写入真实 SHA 的报告）。
+脚本使用临时目录，不改动本目录原件。证据按 B13 通用运行证据 0.1 生成到 `evidence/E3/<日期>-<时间>-mdfixer-target-style/`（observations.md、verify.log、summary.json 与每条命令的 stdout/stderr 分流日志，字段约定见 `evidence/README.md`）。`md-report.json` 的报告 commit 为引入本 fixture 的真实提交 SHA（两段式提交：先提交本目录内容，再提交写入真实 SHA 的报告）。

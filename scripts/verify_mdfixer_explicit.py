@@ -3,15 +3,17 @@
 """verify_mdfixer_explicit.py — E3 MDFixer 显式声明修复基线验证（成员3）
 
 对 fixtures/mdfixer/{target-style,macro-style,hybrid-style} 执行分工文档 7.3 的
-验证流程（修复前复现漏重建 → git apply 参考补丁 → 修复后增量重建 → 重检 MD=0
-→ 声明风格一致 → clean build 行为等价），并生成证据三件套：
+验证流程（修复前复现漏重建 → git apply 参考补丁 → 修复后增量重建 → 课程固定
+Oracle 重检 MD=0 → 声明风格一致 → clean build 行为等价 → 无效候选拒绝与恢复），
+并按 B13 通用运行证据 0.1（evidence/README.md，成员2 维护）生成证据：
 
-    evidence/E3/<日期>-mdfixer-<风格>/
-      observations.md   人读：环境、命令、观察结果、结论
-      verify.log        机跑完整日志（每条命令的 argv/退出码/stdout/stderr）
-      summary.json      机器可读：环境、fixture commit、各检查项状态、哈希
-
-证据结构为成员3草案，待成员2的 collect_evidence.py 统一格式定稿后适配【待统一】。
+    evidence/E3/<日期>-<时间>-mdfixer-<风格>/
+      observations.md     人读：环境、命令、观察结果、结论
+      verify.log          机跑完整日志（每条命令的 argv/退出码/stdout/stderr 两段）
+      summary.json        机器可读摘要（evidence_schema_version=0.1, B13_DRAFT）
+      001.stdout.log      第 1 条命令的原始 stdout（分流保存，不保留跨流交错顺序）
+      001.stderr.log      第 1 条命令的原始 stderr
+      ...
 
 用法（仓库根目录）：
     python3 scripts/verify_mdfixer_explicit.py --style target-style
@@ -21,6 +23,12 @@
 环境要求：GNU Make（Windows 上为 mingw32-make）、C 编译器（cc 或 gcc）、git、python3。
 脚本不依赖 make clean：所有完整构建都在全新工作目录或经 Python 删除产物后进行，
 Windows 上没有 rm 命令也可运行；Linux/WSL 与 Windows 均已实测。
+
+跨平台注意：临时工作目录中的 Makefile 一律以 UTF-8/LF/0644 重新写出，不复制
+fixture 文件的权限位与换行符。Windows 检出可能得到 CRLF，且 Windows/WSL 权限
+映射会把可执行位带入 Linux 临时目录，直接 copy2 会让临时 Makefile 变成
+100755/CRLF，导致按 LF/100644 生成的 reference.patch 在 git apply --check
+阶段连锁失败。
 """
 import argparse
 import datetime
@@ -39,6 +47,12 @@ import time
 STYLES = ["target-style", "macro-style", "hybrid-style"]
 SOURCE_FILES = ("Makefile.before", "main.c", "config.h")
 CONFIG_H = '#define VALUE {value}\n'
+EVIDENCE_SCHEMA_VERSION = "0.1"
+FORMAT_STATUS = "B13_DRAFT"
+
+
+def utc_now():
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
 
 
 # ---------------------------------------------------------------- 日志与命令执行
@@ -58,13 +72,49 @@ class Logger:
             f.write("\n".join(self.lines) + "\n")
 
 
-class Runner:
-    def __init__(self, logger):
+class Recorder:
+    """执行命令并按 B13 通用运行证据 0.1 采集 commands/checks 与分流日志。
+
+    每条命令的原始 stdout/stderr 分别写入 NNN.stdout.log / NNN.stderr.log
+    （分流保存，不声称保留两个流的交错时间顺序）；verify.log 按命令记录两段文本。
+    """
+
+    def __init__(self, logger, evidence_dir):
         self.logger = logger
+        self.evidence_dir = evidence_dir
+        self.commands = []
+        self.checks = []
+        self.last_command_id = None
 
     def run(self, argv, cwd, expect_success=None):
-        proc = subprocess.run(argv, cwd=cwd, capture_output=True, text=True)
-        self.logger.log("$ %s" % " ".join(str(a) for a in argv))
+        argv = [str(a) for a in argv]
+        cmd_id = "%03d" % (len(self.commands) + 1)
+        started = utc_now()
+        proc = subprocess.run(argv, cwd=cwd, capture_output=True, text=True,
+                                encoding="utf-8", errors="replace")
+        finished = utc_now()
+        stdout_name = "%s.stdout.log" % cmd_id
+        stderr_name = "%s.stderr.log" % cmd_id
+        with open(os.path.join(self.evidence_dir, stdout_name), "w",
+                  encoding="utf-8", newline="") as f:
+            f.write(proc.stdout if proc.stdout is not None else "")
+        with open(os.path.join(self.evidence_dir, stderr_name), "w",
+                  encoding="utf-8", newline="") as f:
+            f.write(proc.stderr if proc.stderr is not None else "")
+        self.commands.append({
+            "id": cmd_id,
+            "argv": argv,
+            "cwd": str(cwd),
+            "started_at": started,
+            "finished_at": finished,
+            "exit_code": proc.returncode,
+            "timed_out": False,
+            "execution_error": None,
+            "stdout_path": stdout_name,
+            "stderr_path": stderr_name,
+        })
+        self.last_command_id = cmd_id
+        self.logger.log("$ %s" % " ".join(argv))
         self.logger.log("cwd=%s exit=%d" % (cwd, proc.returncode))
         if proc.stdout:
             self.logger.log("stdout:\n" + proc.stdout.rstrip("\n"))
@@ -76,27 +126,36 @@ class Runner:
             raise AssertionError("command unexpectedly succeeded: %s" % " ".join(argv))
         return proc
 
+    def check(self, check_id, expected, actual, passed, required=True):
+        self._record(check_id, expected, actual,
+                     "PASS" if passed else "FAIL", required)
 
-class Checks:
-    def __init__(self, logger):
-        self.items = []
-        self.logger = logger
+    def skip(self, check_id, expected, actual, required=False):
+        self._record(check_id, expected, actual, "SKIPPED", required)
 
-    def add(self, check_id, description, status, detail=""):
-        assert status in ("PASS", "FAIL", "WARN")
-        self.items.append({"id": check_id, "description": description,
-                           "status": status, "detail": detail})
-        mark = {"PASS": "[PASS]", "FAIL": "[FAIL]", "WARN": "[WARN]"}[status]
-        self.logger.log("%s %s — %s %s" % (mark, check_id, description,
-                                           ("| " + detail) if detail else ""))
+    def _record(self, check_id, expected, actual, status, required):
+        self.checks.append({
+            "id": check_id,
+            "expected": expected,
+            "actual": actual,
+            "status": status,
+            "command_id": self.last_command_id,
+            "required": required,
+        })
+        self.logger.log("[%s] %s — 期望: %s | 实际: %s"
+                        % (status, check_id, expected, actual))
 
-    @property
-    def failed(self):
-        return [c for c in self.items if c["status"] == "FAIL"]
 
-    @property
-    def warned(self):
-        return [c for c in self.items if c["status"] == "WARN"]
+def overall_result(checks):
+    """成员2 0.1 判定规则：无检查则 NOT_RUN；有 FAIL 则 FAIL；无 FAIL 但有必需
+    检查被跳过/未执行则 INCOMPLETE；全部通过才 PASS。"""
+    if not checks:
+        return "NOT_RUN"
+    if any(c["status"] == "FAIL" for c in checks):
+        return "FAIL"
+    if any(c["status"] in ("SKIPPED", "NOT_RUN") and c["required"] for c in checks):
+        return "INCOMPLETE"
+    return "PASS"
 
 
 # ---------------------------------------------------------------- 小工具
@@ -108,9 +167,28 @@ def sha256_of(path):
     return h.hexdigest()
 
 
+def write_text_lf(path, text):
+    """以 UTF-8/LF/0644 写文本文件。"""
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(text)
+    os.chmod(path, 0o644)
+
+
+def copy_fixture_text(fixture_dir, names, workdir):
+    """把 fixture 源文件读为文本后以 LF/0644 写入工作目录（Makefile.before
+    改名为 Makefile）。不复制原文件的权限位与换行符：Windows 检出可能是 CRLF，
+    且 Windows/WSL 权限映射会把可执行位带入 Linux 临时目录，直接 copy2 会让
+    临时 Makefile 成为 100755/CRLF，导致按 LF/100644 生成的 reference.patch
+    在 git apply --check 阶段失败。"""
+    for name in names:
+        src = os.path.join(fixture_dir, name)
+        dst = os.path.join(workdir, "Makefile" if name == "Makefile.before" else name)
+        with open(src, "r", encoding="utf-8", newline=None) as f:
+            write_text_lf(dst, f.read())
+
+
 def write_config(workdir, value):
-    with open(os.path.join(workdir, "config.h"), "w", encoding="utf-8", newline="") as f:
-        f.write(CONFIG_H.format(value=value))
+    write_text_lf(os.path.join(workdir, "config.h"), CONFIG_H.format(value=value))
 
 
 def find_executable(workdir, name):
@@ -119,6 +197,13 @@ def find_executable(workdir, name):
         if os.path.exists(p):
             return p
     return None
+
+
+def remove_artifacts(workdir):
+    for art in ("app", "app.exe", "main.o"):
+        p = os.path.join(workdir, art)
+        if os.path.exists(p):
+            os.remove(p)
 
 
 def main_o_recompiled(make_output, workdir, mtime_before):
@@ -146,13 +231,17 @@ def detect_tools(make_override=None, cc_override=None):
     return make, cc, git
 
 
+def git_text(git, repo_root, *args):
+    proc = subprocess.run([git] + list(args), cwd=repo_root,
+                          capture_output=True, text=True,
+                          encoding="utf-8", errors="replace")
+    return (proc.stdout or "").strip()
+
+
 def fixture_commit(repo_root, git, style):
     """返回引入该 fixture 目录的真实提交 SHA（两段式提交的第一段）。"""
-    proc = subprocess.run(
-        [git, "log", "--diff-filter=A", "--format=%H", "-1", "--",
-         "fixtures/mdfixer/%s" % style],
-        cwd=repo_root, capture_output=True, text=True)
-    sha = proc.stdout.strip()
+    sha = git_text(git, repo_root, "log", "--diff-filter=A", "--format=%H",
+                   "-1", "--", "fixtures/mdfixer/%s" % style)
     return sha if re.fullmatch(r"[0-9a-fA-F]{40}", sha) else None
 
 
@@ -258,51 +347,74 @@ def verify_style(style, repo_root, make, cc, git, keep_work):
     with open(os.path.join(fixture_dir, "Makefile.before"), encoding="utf-8") as f:
         makefile_before = f.read()
     patch_path = os.path.join(fixture_dir, "reference.patch")
+    invalid_patch_path = os.path.join(fixture_dir, "invalid.patch")
 
-    today = datetime.datetime.now().strftime("%Y-%m-%d")
-    evidence_dir = os.path.join(repo_root, "evidence", "E3", "%s-mdfixer-%s" % (today, style))
-    if os.path.exists(evidence_dir):
-        evidence_dir += "-" + datetime.datetime.now().strftime("%H%M%S")
-    os.makedirs(evidence_dir, exist_ok=True)
-    logger = Logger()
-    runner = Runner(logger)
-    checks = Checks(logger)
+    started_at = utc_now()
 
+    # ---- source：源码版本与指纹（成员2 0.1 约定；在创建证据目录前采集，
+    # 使 git status 不混入本次新生成的证据文件）
+    head_sha = git_text(git, repo_root, "rev-parse", "HEAD")
+    git_status = git_text(git, repo_root, "status", "--porcelain")
+    remote_url = git_text(git, repo_root, "remote", "get-url", "origin")
     fcommit = fixture_commit(repo_root, git, style)
+    tracked = ["scripts/verify_mdfixer_explicit.py"] + [
+        "fixtures/mdfixer/%s/%s" % (style, name)
+        for name in ("Makefile.before", "main.c", "config.h", "reference.patch",
+                     "invalid.patch", "expected.json", "md-report.json", "README.md")
+    ]
+    file_hashes = {}
+    for rel in tracked:
+        p = os.path.join(repo_root, rel)
+        if os.path.exists(p):
+            file_hashes[rel] = sha256_of(p)
+    source = {"repository": remote_url, "commit_sha": head_sha,
+              "dirty": bool(git_status), "git_status": git_status,
+              "file_sha256": file_hashes}
+
+    run_id = "%s-mdfixer-%s" % (datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"), style)
+    evidence_dir = os.path.join(repo_root, "evidence", "E3", run_id)
+    if os.path.exists(evidence_dir):
+        raise FileExistsError("证据目录已存在，拒绝覆盖: %s" % evidence_dir)
+    os.makedirs(evidence_dir)
+
+    logger = Logger()
+    recorder = Recorder(logger, evidence_dir)
     logger.log("== style=%s" % style)
     logger.log("== fixture_dir: %s" % fixture_dir)
-    logger.log("== fixture_commit: %s" % fcommit)
+    logger.log("== fixture_commit（引入该 fixture 的真实提交）: %s" % fcommit)
     logger.log("== evidence_dir: %s" % evidence_dir)
+    logger.log("== HEAD=%s dirty=%s" % (head_sha, bool(git_status)))
+    logger.log("== Oracle 来源: B13_MANUAL_ORACLE（课程固定 Oracle 程序化实现）；"
+               "A13 EChecker 未执行")
 
     env = {"os": platform.system().lower(), "os_release": platform.release(),
-           "arch": platform.machine(), "python": platform.python_version(),
-           "make_exe": make, "cc_exe": cc, "git_exe": git}
-    v_make = runner.run([make, "--version"], cwd=repo_root).stdout.splitlines()
-    v_cc = runner.run([cc, "--version"], cwd=repo_root).stdout.splitlines()
-    v_git = runner.run([git, "--version"], cwd=repo_root).stdout.splitlines()
-    env["make_version"] = v_make[0] if v_make else ""
-    env["cc_version"] = v_cc[0] if v_cc else ""
-    env["git_version"] = v_git[0] if v_git else ""
+           "arch": platform.machine(), "cwd": repo_root}
+    v_make = recorder.run([make, "--version"], cwd=repo_root).stdout.splitlines()
+    v_cc = recorder.run([cc, "--version"], cwd=repo_root).stdout.splitlines()
+    v_git = recorder.run([git, "--version"], cwd=repo_root).stdout.splitlines()
+    tools = {
+        "python": {"value": platform.python_version(), "path": sys.executable},
+        "git": {"value": v_git[0] if v_git else "", "path": git},
+        "make": {"value": v_make[0] if v_make else "", "path": make},
+        "cc": {"value": v_cc[0] if v_cc else "", "path": cc},
+        "docker": {"value": None, "reason": "本验证套件不使用 Docker"},
+    }
 
     workdir = tempfile.mkdtemp(prefix="mdfixer-%s-" % style)
     logger.log("== workdir: %s" % workdir)
-    for name in SOURCE_FILES:
-        src = os.path.join(fixture_dir, name)
-        dst = os.path.join(workdir, "Makefile" if name == "Makefile.before" else name)
-        shutil.copy2(src, dst)
+    copy_fixture_text(fixture_dir, SOURCE_FILES, workdir)
 
     exp = expected["expect"]
 
     # ---------- 步骤 1：VALUE=1 完整构建，程序输出 1
-    p = runner.run([make, "CC=%s" % cc], cwd=workdir)
-    checks.add("S1.build-before", "修复前完整构建退出码为 0",
-               "PASS" if p.returncode == 0 else "FAIL", "exit=%d" % p.returncode)
+    p = recorder.run([make, "CC=%s" % cc], cwd=workdir)
+    recorder.check("S1.build-before", "修复前完整构建退出码为 0",
+                   "exit=%d" % p.returncode, p.returncode == 0)
     app = find_executable(workdir, expected["project"]["executable"])
-    p = runner.run([app], cwd=workdir) if app else None
+    p = recorder.run([app], cwd=workdir) if app else None
     out1 = (p.stdout.strip() if p else "")
-    checks.add("S1.output-before", "VALUE=1 完整构建后程序输出 1",
-               "PASS" if out1 == exp["prefix_clean_output"] else "FAIL",
-               "stdout=%r" % out1)
+    recorder.check("S1.output-before", "VALUE=1 完整构建后程序输出 1",
+                   "stdout=%r" % out1, out1 == exp["prefix_clean_output"])
     hash_prefix = sha256_of(app) if app else None
 
     # ---------- 步骤 2+3：只改 config.h 为 VALUE=2，普通 make 仍输出旧值 1（复现漏重建）
@@ -311,30 +423,30 @@ def verify_style(style, repo_root, make, cc, git, keep_work):
     time.sleep(1.2)
     write_config(workdir, 2)
     mtime_main_o_before = os.path.getmtime(os.path.join(workdir, "main.o"))
-    p = runner.run([make, "CC=%s" % cc], cwd=workdir)
+    p = recorder.run([make, "CC=%s" % cc], cwd=workdir)
     rebuilt_before_fix = main_o_recompiled(p.stdout + p.stderr, workdir, mtime_main_o_before)
-    checks.add("S3.no-rebuild-before", "修复前修改 config.h 后普通 make 不重编译 main.o（复现 MD）",
-               "PASS" if not rebuilt_before_fix else "FAIL",
-               "make 输出: %s" % (p.stdout.strip() or p.stderr.strip()))
-    p = runner.run([app], cwd=workdir)
+    recorder.check("S3.no-rebuild-before",
+                   "修复前只改 config.h 后普通 make 不重编译 main.o（复现漏重建）",
+                   "main.o 重编译=%s" % rebuilt_before_fix, not rebuilt_before_fix)
+    p = recorder.run([app], cwd=workdir)
     out2_stale = p.stdout.strip()
-    checks.add("S3.stale-output", "修复前增量构建后程序仍输出旧值 1",
-               "PASS" if out2_stale == exp["stale_output_before_fix"] else "FAIL",
-               "stdout=%r" % out2_stale)
+    recorder.check("S3.stale-output", "修复前增量构建后程序仍输出旧值 1",
+                   "stdout=%r" % out2_stale, out2_stale == exp["stale_output_before_fix"])
 
     oracle_before = oracle_detect(makefile_before, workdir)
-    checks.add("S3.oracle-before", "课程固定 Oracle 在修复前报告 1 条 MISSING(main.o→config.h)",
-               "PASS" if len(oracle_before["missing"]) == exp["oracle_md_before"]
-                        and oracle_before["missing"] == [expected["md"]["dependency"]] else "FAIL",
-               json.dumps(oracle_before, ensure_ascii=False))
+    recorder.check("S3.oracle-before",
+                   "课程固定 Oracle 在修复前报告 1 条 MISSING(main.o→config.h)",
+                   json.dumps(oracle_before, ensure_ascii=False),
+                   len(oracle_before["missing"]) == exp["oracle_md_before"]
+                   and oracle_before["missing"] == [expected["md"]["dependency"]])
 
     # ---------- 步骤 4：git apply --check，再 git apply reference.patch
-    p = runner.run([git, "apply", "--check", patch_path], cwd=workdir)
-    checks.add("S4.apply-check", "git apply --check reference.patch 通过",
-               "PASS" if p.returncode == 0 else "FAIL", p.stderr.strip())
-    p = runner.run([git, "apply", patch_path], cwd=workdir)
-    checks.add("S4.apply", "git apply reference.patch 成功",
-               "PASS" if p.returncode == 0 else "FAIL", p.stderr.strip())
+    p = recorder.run([git, "apply", "--check", patch_path], cwd=workdir)
+    recorder.check("S4.apply-check", "git apply --check reference.patch 通过",
+                   "exit=%d" % p.returncode, p.returncode == 0)
+    p = recorder.run([git, "apply", patch_path], cwd=workdir)
+    recorder.check("S4.apply", "git apply reference.patch 成功",
+                   "exit=%d" % p.returncode, p.returncode == 0)
     with open(os.path.join(workdir, "Makefile"), encoding="utf-8") as f:
         makefile_after = f.read()
 
@@ -348,184 +460,241 @@ def verify_style(style, repo_root, make, cc, git, keep_work):
                 changed_lines.append(line[1:].rstrip("\n"))
     patterns = [re.compile(x) for x in expected["patch_policy"]["allowed_change_patterns"]]
     bad_lines = [ln for ln in changed_lines if not any(rx.match(ln) for rx in patterns)]
-    checks.add("S4.patch-minimal", "补丁只修改必要的依赖声明",
-               "PASS" if not bad_lines else "FAIL",
-               "改动行=%s" % changed_lines)
+    recorder.check("S4.patch-minimal", "补丁只修改必要的依赖声明",
+                   "改动行=%s" % changed_lines, not bad_lines)
 
     # Hybrid 守卫：wildcard 命中的同类型文件必须全部是有效依赖且无无关文件
     if style == "hybrid-style":
         guard = expected["hybrid_guard"]
         matched = sorted(os.path.basename(p) for p in glob.glob(os.path.join(workdir, "*.h")))
         valid = sorted(guard["valid_dependencies"])
-        checks.add("S4.hybrid-guard",
-                   "Hybrid wildcard 守卫：%s 命中的 .h 全部为有效依赖且无无关文件" % guard["wildcard"],
-                   "PASS" if matched == valid else "FAIL",
-                   "wildcard 命中=%s, 有效依赖=%s" % (matched, valid))
+        recorder.check("S4.hybrid-guard",
+                       "Hybrid wildcard 守卫：%s 命中的 .h 全部为有效依赖且无无关文件" % guard["wildcard"],
+                       "wildcard 命中=%s, 有效依赖=%s" % (matched, valid),
+                       matched == valid)
 
     # ---------- 步骤 5：完整构建（Python 删除产物，等价 clean build），输出 2
-    for art in ("app", "app.exe", "main.o"):
-        ap = os.path.join(workdir, art)
-        if os.path.exists(ap):
-            os.remove(ap)
-    p = runner.run([make, "CC=%s" % cc], cwd=workdir)
-    checks.add("S5.build-after", "修复后完整构建退出码为 0",
-               "PASS" if p.returncode == 0 else "FAIL", "exit=%d" % p.returncode)
+    remove_artifacts(workdir)
+    p = recorder.run([make, "CC=%s" % cc], cwd=workdir)
+    recorder.check("S5.build-after", "修复后完整构建退出码为 0",
+                   "exit=%d" % p.returncode, p.returncode == 0)
     app = find_executable(workdir, expected["project"]["executable"])
-    p = runner.run([app], cwd=workdir)
+    p = recorder.run([app], cwd=workdir)
     out3 = p.stdout.strip()
-    checks.add("S5.output-after", "修复后完整构建输出当前 VALUE=2",
-               "PASS" if out3 == exp["after_fix_full_build_output"] else "FAIL",
-               "stdout=%r" % out3)
+    recorder.check("S5.output-after", "修复后完整构建输出当前 VALUE=2",
+                   "stdout=%r" % out3, out3 == exp["after_fix_full_build_output"])
 
     # ---------- 步骤 6-8：改 VALUE=3，不 clean 直接 make，应触发重建并输出 3
     time.sleep(1.2)  # 同样保证 config.h 的 mtime 严格晚于 main.o
     write_config(workdir, 3)
     mtime_main_o_mid = os.path.getmtime(os.path.join(workdir, "main.o"))
-    p = runner.run([make, "CC=%s" % cc], cwd=workdir)
+    p = recorder.run([make, "CC=%s" % cc], cwd=workdir)
     rebuilt_after_fix = main_o_recompiled(p.stdout + p.stderr, workdir, mtime_main_o_mid)
-    checks.add("S7.incremental-rebuild", "修复后修改 config.h，普通 make 触发 main.o 重编译",
-               "PASS" if rebuilt_after_fix else "FAIL",
-               "make 输出: %s" % (p.stdout.strip() or p.stderr.strip()))
-    p = runner.run([app], cwd=workdir)
+    recorder.check("S7.incremental-rebuild", "修复后修改 config.h，普通 make 触发 main.o 重编译",
+                   "main.o 重编译=%s" % rebuilt_after_fix, rebuilt_after_fix)
+    p = recorder.run([app], cwd=workdir)
     out4 = p.stdout.strip()
-    checks.add("S8.incremental-output", "修复后增量构建输出新值 3",
-               "PASS" if out4 == exp["after_fix_incremental_output"] else "FAIL",
-               "stdout=%r" % out4)
+    recorder.check("S8.incremental-output", "修复后增量构建输出新值 3",
+                   "stdout=%r" % out4, out4 == exp["after_fix_incremental_output"])
 
     # ---------- 步骤 9：课程固定 Oracle 重检，目标 MD 数量为 0
     oracle_after = oracle_detect(makefile_after, workdir)
-    checks.add("S9.oracle-after", "修复后课程固定 Oracle 重检 MD 数量为 0",
-               "PASS" if len(oracle_after["missing"]) == exp["oracle_md_after"] else "FAIL",
-               json.dumps(oracle_after, ensure_ascii=False))
+    recorder.check("S9.oracle-after", "修复后课程固定 Oracle 重检 MD 数量为 0",
+                   json.dumps(oracle_after, ensure_ascii=False),
+                   len(oracle_after["missing"]) == exp["oracle_md_after"])
 
     # ---------- 步骤 10：修复前后声明风格分类一致
     style_before = classify_style(makefile_before)
     style_after = classify_style(makefile_after)
-    checks.add("S10.style-consistency",
-               "修复前后声明风格一致（%s → %s，期望 %s）" % (style_before, style_after, expected["style"]),
-               "PASS" if (style_before == style_after == expected["style"]) else "FAIL",
-               "before=%s after=%s" % (style_before, style_after))
+    recorder.check("S10.style-consistency",
+                   "修复前后声明风格一致（期望 %s）" % expected["style"],
+                   "before=%s after=%s" % (style_before, style_after),
+                   style_before == style_after == expected["style"])
 
     # ---------- 步骤 11：修复前后 clean build 行为一致；记录产物哈希
     workdir_equiv = tempfile.mkdtemp(prefix="mdfixer-%s-equiv-" % style)
-    for name in SOURCE_FILES:
-        src = os.path.join(fixture_dir, name)
-        dst = os.path.join(workdir_equiv, "Makefile" if name == "Makefile.before" else name)
-        shutil.copy2(src, dst)
+    copy_fixture_text(fixture_dir, SOURCE_FILES, workdir_equiv)
     write_config(workdir_equiv, exp["behavior_equivalence_value"])
-    with open(os.path.join(workdir_equiv, "Makefile"), "w", encoding="utf-8", newline="") as f:
-        f.write(makefile_after)
-    p = runner.run([make, "CC=%s" % cc], cwd=workdir_equiv)
+    write_text_lf(os.path.join(workdir_equiv, "Makefile"), makefile_after)
+    p = recorder.run([make, "CC=%s" % cc], cwd=workdir_equiv)
     app_equiv = find_executable(workdir_equiv, expected["project"]["executable"])
-    p = runner.run([app_equiv], cwd=workdir_equiv) if app_equiv else None
+    p = recorder.run([app_equiv], cwd=workdir_equiv) if app_equiv else None
     out_equiv = (p.stdout.strip() if p else "")
-    checks.add("S11.behavior-equivalence",
-               "修复后 clean build（VALUE=1）程序行为与修复前一致",
-               "PASS" if out_equiv == exp["behavior_equivalence_output"] else "FAIL",
-               "stdout=%r" % out_equiv)
+    recorder.check("S11.behavior-equivalence",
+                   "修复后 clean build（VALUE=1）程序行为与修复前一致",
+                   "stdout=%r" % out_equiv, out_equiv == exp["behavior_equivalence_output"])
     hash_after_equiv = sha256_of(app_equiv) if app_equiv else None
-    if hash_prefix and hash_after_equiv:
-        if hash_prefix == hash_after_equiv:
-            checks.add("S11.artifact-hash",
-                       "产物哈希稳定且一致 sha256=%s" % hash_prefix, "PASS")
-        else:
-            checks.add("S11.artifact-hash",
-                       "产物哈希不同（工具链内嵌时间戳等非确定性因素），以行为一致为准",
-                       "WARN", "before=%s after=%s" % (hash_prefix, hash_after_equiv))
+    if hash_prefix and hash_after_equiv and hash_prefix == hash_after_equiv:
+        recorder.check("S11.artifact-hash",
+                       "补充检查：修复前后 VALUE=1 产物 SHA-256 一致",
+                       "sha256=%s" % hash_prefix, True, required=False)
+    else:
+        recorder.skip("S11.artifact-hash",
+                      "补充检查：修复前后 VALUE=1 产物 SHA-256 一致",
+                      "before=%s after=%s 不同（工具链内嵌时间戳等非确定性因素），"
+                      "以 S11.behavior-equivalence 行为一致为准" % (hash_prefix, hash_after_equiv))
+
+    # ---------- 步骤 12：无效修复候选的拒绝与恢复
+    # invalid.patch 把编译 recipe 替换为 `false`：可干净应用，但构建必然失败，
+    # 用于验证"无效候选被拒绝，且恢复原始 Makefile 后一切如初"。
+    rejdir = tempfile.mkdtemp(prefix="mdfixer-%s-reject-" % style)
+    copy_fixture_text(fixture_dir, SOURCE_FILES, rejdir)
+    p = recorder.run([git, "apply", "--check", invalid_patch_path], cwd=rejdir)
+    recorder.check("S12.invalid-apply-check",
+                   "git apply --check invalid.patch 通过（补丁格式合法、可干净应用）",
+                   "exit=%d" % p.returncode, p.returncode == 0)
+    p = recorder.run([git, "apply", invalid_patch_path], cwd=rejdir)
+    recorder.check("S12.invalid-apply", "git apply invalid.patch 成功",
+                   "exit=%d" % p.returncode, p.returncode == 0)
+    p = recorder.run([make, "CC=%s" % cc], cwd=rejdir)
+    recorder.check("S12.invalid-rejected",
+                   "应用无效候选后构建失败（退出码非 0），候选被拒绝",
+                   "exit=%d" % p.returncode, p.returncode != 0)
+    write_text_lf(os.path.join(rejdir, "Makefile"), makefile_before)
+    remove_artifacts(rejdir)
+    p = recorder.run([make, "CC=%s" % cc], cwd=rejdir)
+    app_rej = find_executable(rejdir, expected["project"]["executable"])
+    p2 = recorder.run([app_rej], cwd=rejdir) if (p.returncode == 0 and app_rej) else None
+    out_rej = (p2.stdout.strip() if p2 else "")
+    recorder.check("S12.recovery",
+                   "恢复原始 Makefile 后完整构建成功且程序输出 %s" % exp["prefix_clean_output"],
+                   "build_exit=%d stdout=%r" % (p.returncode, out_rej),
+                   p.returncode == 0 and out_rej == exp["prefix_clean_output"])
 
     # ---------- 汇总与证据落盘
-    overall = "PASS" if not checks.failed else "FAIL"
-    finished = datetime.datetime.now(datetime.timezone.utc).isoformat()
-    summary = {
-        "style": style,
-        "overall": overall,
-        "run_at": finished,
-        "fixture_dir": "fixtures/mdfixer/%s" % style,
-        "fixture_commit": fcommit,
-        "environment": env,
-        "checks_passed": len([c for c in checks.items if c["status"] == "PASS"]),
-        "checks_failed": len(checks.failed),
-        "checks_warned": len(checks.warned),
-        "checks": checks.items,
-        "hashes": {"clean_before_fix_sha256": hash_prefix,
-                   "clean_after_fix_sha256": hash_after_equiv},
-        "oracle": {"before": oracle_before, "after": oracle_after},
-        "style_classification": {"before": style_before, "after": style_after},
-        "evidence_format": "observations.md + verify.log + summary.json（成员3草案，待成员2统一）",
-    }
-    with open(os.path.join(evidence_dir, "summary.json"), "w", encoding="utf-8") as f:
-        json.dump(summary, f, ensure_ascii=False, indent=2)
-
-    logger.log("== style=%s 总体结果: %s (PASS=%d FAIL=%d WARN=%d)" %
-               (style, overall, summary["checks_passed"], summary["checks_failed"],
-                summary["checks_warned"]))
-    logger.save(os.path.join(evidence_dir, "verify.log"))
+    finished_at = utc_now()
+    result = overall_result(recorder.checks)
 
     _write_observations(os.path.join(evidence_dir, "observations.md"),
-                        style, summary, expected)
+                        style, run_id, started_at, finished_at, env, tools,
+                        source, fcommit, recorder.checks, result, expected,
+                        oracle_before, oracle_after, style_before, style_after,
+                        hash_prefix, hash_after_equiv)
+    n_pass = len([c for c in recorder.checks if c["status"] == "PASS"])
+    n_fail = len([c for c in recorder.checks if c["status"] == "FAIL"])
+    n_skip = len([c for c in recorder.checks if c["status"] == "SKIPPED"])
+    logger.log("== style=%s 总体结果: %s (PASS=%d FAIL=%d SKIPPED=%d)"
+               % (style, result, n_pass, n_fail, n_skip))
+    logger.save(os.path.join(evidence_dir, "verify.log"))
+
+    artifacts = []
+    for name in sorted(os.listdir(evidence_dir)):
+        if name == "summary.json":
+            continue  # 不对 summary 自身求哈希，避免循环引用
+        p = os.path.join(evidence_dir, name)
+        if os.path.isfile(p):
+            artifacts.append({"path": name, "sha256": sha256_of(p)})
+
+    summary = {
+        "evidence_schema_version": EVIDENCE_SCHEMA_VERSION,
+        "format_status": FORMAT_STATUS,
+        "run_id": run_id,
+        "suite": "E3",
+        "case": "mdfixer-%s" % style,
+        "started_at": started_at,
+        "finished_at": finished_at,
+        "source": source,
+        "environment": env,
+        "tools": tools,
+        "commands": recorder.commands,
+        "checks": recorder.checks,
+        "artifacts": artifacts,
+        "provenance": {
+            "oracle": "B13_MANUAL_ORACLE",
+            "basis": "课程固定 Oracle 的程序化实现（本脚本 oracle_detect）；"
+                     "人工判断依据 fixtures/mdfixer/%s 与其 expected.json" % style,
+            "detector_executed": False,
+            "note": "A13 EChecker 修复后重检尚未执行，本证据不声称真实检测器 MD=0",
+        },
+        "result": result,
+        "details": {
+            "fixture_dir": "fixtures/mdfixer/%s" % style,
+            "fixture_commit": fcommit,
+            "hashes": {"clean_before_fix_sha256": hash_prefix,
+                       "clean_after_fix_sha256": hash_after_equiv},
+            "oracle": {"before": oracle_before, "after": oracle_after},
+            "style_classification": {"before": style_before, "after": style_after},
+        },
+    }
+    with open(os.path.join(evidence_dir, "summary.json"), "w",
+              encoding="utf-8", newline="\n") as f:
+        json.dump(summary, f, ensure_ascii=False, indent=2)
+        f.write("\n")
 
     if not keep_work:
         shutil.rmtree(workdir, ignore_errors=True)
         shutil.rmtree(workdir_equiv, ignore_errors=True)
+        shutil.rmtree(rejdir, ignore_errors=True)
     else:
-        print("--keep-work 已保留工作目录: %s , %s" % (workdir, workdir_equiv))
-    return overall == "PASS"
+        print("--keep-work 已保留工作目录: %s , %s , %s" % (workdir, workdir_equiv, rejdir))
+    return result == "PASS"
 
 
-def _write_observations(path, style, summary, expected):
-    env = summary["environment"]
+def _write_observations(path, style, run_id, started_at, finished_at, env, tools,
+                        source, fcommit, checks, result, expected,
+                        oracle_before, oracle_after, style_before, style_after,
+                        hash_prefix, hash_after_equiv):
     lines = []
     lines.append("# E3 MDFixer 显式声明修复验证记录：%s" % style)
     lines.append("")
-    lines.append("- 运行时间（UTC）：%s" % summary["run_at"])
-    lines.append("- 执行环境：%s %s，GNU Make=%s，CC=%s，Git=%s，Python=%s" % (
-        env["os"], env["arch"], env["make_version"], env["cc_version"],
-        env["git_version"], env["python"]))
-    lines.append("- Fixture：`%s`，引入提交 `%s`" % (summary["fixture_dir"],
-                                                 summary["fixture_commit"]))
-    lines.append("- Oracle 来源：B13_MANUAL_ORACLE（课程固定 Oracle 的程序化实现），不是 A13 检测器结果")
-    lines.append("- 证据结构：成员3草案，待成员2统一证据格式【待统一】")
+    lines.append("- run_id：`%s`" % run_id)
+    lines.append("- 开始/结束（UTC）：%s → %s" % (started_at, finished_at))
+    lines.append("- 执行环境：%s %s（%s），GNU Make=%s，CC=%s，Git=%s，Python=%s" % (
+        env["os"], env["arch"], env["os_release"],
+        tools["make"]["value"], tools["cc"]["value"],
+        tools["git"]["value"], tools["python"]["value"]))
+    lines.append("- 源码：`%s`，HEAD `%s`，dirty=%s" % (
+        source["repository"], source["commit_sha"], source["dirty"]))
+    lines.append("- Fixture：`fixtures/mdfixer/%s`，引入提交 `%s`" % (style, fcommit))
+    lines.append("- Oracle 来源：B13_MANUAL_ORACLE（课程固定 Oracle 的程序化实现），"
+                 "不是 A13 检测器结果；A13 EChecker 修复后重检尚未执行")
+    lines.append("- 证据格式：B13 通用运行证据 %s（%s），与 evidence/README.md 一致" % (
+        EVIDENCE_SCHEMA_VERSION, FORMAT_STATUS))
     lines.append("")
     lines.append("## 实际观察")
     lines.append("")
-    ob = summary["oracle"]["before"]
-    oa = summary["oracle"]["after"]
     lines.append("1. 修复前：VALUE=1 完整构建输出 1；只改 config.h 为 VALUE=2 后普通 make "
                  "**不重编译** main.o，程序仍输出旧值 1（复现漏重建）。修复前 Oracle："
-                 "declared=%s，actual=%s，missing=%s。" % (ob["declared"], ob["actual"], ob["missing"]))
+                 "declared=%s，actual=%s，missing=%s。" % (
+                     oracle_before["declared"], oracle_before["actual"],
+                     oracle_before["missing"]))
     lines.append("2. `git apply --check` 与 `git apply` 退出码均为 0；补丁改动行仅为依赖声明"
                  "（patch_policy 校验通过）。")
     lines.append("3. 修复后完整构建输出 2；再把 config.h 改为 VALUE=3 后不 clean 直接 make，"
                  "main.o 被重编译，程序输出 3（增量重建恢复）。")
     lines.append("4. 修复后 Oracle 重检：declared=%s，missing=%s，目标 MD 数量为 0。"
-                 % (oa["declared"], oa["missing"]))
+                 % (oracle_after["declared"], oracle_after["missing"]))
     lines.append("5. 声明风格分类：修复前 %s，修复后 %s，一致（期望 %s）。" % (
-        summary["style_classification"]["before"],
-        summary["style_classification"]["after"], expected["style"]))
-    hb = summary["hashes"]["clean_before_fix_sha256"]
-    ha = summary["hashes"]["clean_after_fix_sha256"]
-    if hb == ha:
+        style_before, style_after, expected["style"]))
+    if hash_prefix == hash_after_equiv:
         lines.append("6. 修复前后 VALUE=1 clean build 的程序行为一致（输出 1），"
-                     "产物 SHA-256 相同：`%s`。" % hb)
+                     "产物 SHA-256 相同：`%s`。" % hash_prefix)
     else:
         lines.append("6. 修复前后 VALUE=1 clean build 的程序行为一致（输出 1）。"
                      "产物 SHA-256 不同（before=%s，after=%s）：工具链二进制含内嵌时间戳"
-                     "等非确定性内容，按课程要求以行为一致为准。" % (hb, ha))
+                     "等非确定性内容，按课程要求以行为一致为准。" % (hash_prefix, hash_after_equiv))
     if style == "hybrid-style":
         lines.append("7. Hybrid wildcard 守卫已实际检查：工作目录中 `*.h` 仅命中 config.h"
                      "（唯一有效依赖），无无关文件，满足论文 wildcard 两条前置条件。")
+    lines.append("8. 无效候选拒绝与恢复：`invalid.patch`（编译 recipe 替换为 `false`）可干净"
+                 "应用，应用后构建失败（退出码非 0，候选被拒绝）；恢复原始 Makefile 后完整"
+                 "构建成功，程序输出 1，一切如初。")
     lines.append("")
     lines.append("## 检查项汇总")
     lines.append("")
-    lines.append("| 检查项 | 说明 | 结果 |")
+    lines.append("| 检查项 | 期望 | 状态 |")
     lines.append("|---|---|---|")
-    for c in summary["checks"]:
-        lines.append("| %s | %s | %s |" % (c["id"], c["description"], c["status"]))
+    for c in checks:
+        lines.append("| %s | %s | %s |" % (c["id"], c["expected"], c["status"]))
+    lines.append("")
+    lines.append("总体结果：**%s**" % result)
     lines.append("")
     lines.append("## 限制")
     lines.append("")
     lines.append("- A13 的 EChecker 修复后重检尚未执行，不能声称真实检测结果的 MD 数量为 0。")
-    lines.append("- 完整命令日志见同目录 `verify.log`，机器可读摘要见 `summary.json`。")
+    lines.append("- 每条命令的原始 stdout/stderr 见同目录 `NNN.stdout.log`/`NNN.stderr.log`"
+                 "（分流保存，不保留跨流交错顺序）；机跑完整日志见 `verify.log`；"
+                 "机器可读摘要见 `summary.json`。")
     lines.append("")
     with open(path, "w", encoding="utf-8", newline="") as f:
         f.write("\n".join(lines))
