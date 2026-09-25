@@ -28,8 +28,13 @@ def _schema(name: str) -> dict[str, Any]:
 CREATE_SCHEMA = _schema("create-job.schema.json")
 JOB_SCHEMA = _schema("job.schema.json")
 ARTIFACT_SCHEMA = _schema("artifact.schema.json")
+MD_REPORT_SCHEMA = _schema("md-report.schema.json")
 JOB_TYPES = set(CREATE_SCHEMA["properties"]["job_type"]["enum"])
 STATUSES = set(JOB_SCHEMA["properties"]["status"]["enum"])
+DETECTORS = set(MD_REPORT_SCHEMA["properties"]["detector"]["enum"])
+FINDING_TYPES = set(
+    MD_REPORT_SCHEMA["properties"]["findings"]["items"]["properties"]["type"]["enum"]
+)
 
 
 def _nonempty(value: Any) -> bool:
@@ -150,6 +155,75 @@ def validate_artifact(data: Any, *, job_id: str | None = None, commit: str | Non
     return errors
 
 
+def validate_md_report(data: Any) -> list[str]:
+    """Validate the course-level MD/RD report without third-party packages."""
+
+    errors: list[str] = []
+    if not isinstance(data, dict):
+        return ["root: expected object"]
+
+    _required(data, MD_REPORT_SCHEMA["required"], "root", errors)
+    if data.get("schema_version") != "1.0":
+        errors.append("schema_version: expected 1.0")
+    _string(data, "report_id", "root", errors)
+
+    repository = _field_object(data, "repository", "root", errors)
+    if repository:
+        _string(repository, "url", "repository", errors)
+        _sha(repository, "commit", "repository", errors)
+
+    _string(data, "configuration_id", "root", errors)
+    environment = _field_object(data, "environment", "root", errors)
+    if environment:
+        for key in ("os", "arch"):
+            _string(environment, key, "environment", errors)
+        for key in ("make_version", "cc_version", "image_ref"):
+            if key in environment:
+                _string(environment, key, "environment", errors)
+
+    detector = data.get("detector")
+    if detector not in DETECTORS:
+        errors.append(f"detector: unsupported value {detector!r}")
+    _string(data, "provenance", "root", errors)
+
+    producer = data.get("producer_job_id")
+    if detector in {"BUILDCHECKER", "ECHECKER"}:
+        if not isinstance(producer, str) or not JOB_ID.fullmatch(producer):
+            errors.append("producer_job_id: tool detector requires a valid Job ID")
+    elif detector in {"INSTRUCTOR_ORACLE", "B13_MANUAL_ORACLE"}:
+        if "producer_job_id" in data and producer is not None:
+            errors.append("producer_job_id: manual Oracle requires null or omission")
+
+    findings = data.get("findings")
+    if not isinstance(findings, list):
+        errors.append("findings: expected array")
+        return errors
+
+    required_finding = MD_REPORT_SCHEMA["properties"]["findings"]["items"]["required"]
+    for index, finding in enumerate(findings):
+        path = f"findings[{index}]"
+        if not isinstance(finding, dict):
+            errors.append(f"{path}: expected object")
+            continue
+        _required(finding, required_finding, path, errors)
+        if finding.get("type") not in FINDING_TYPES:
+            errors.append(f"{path}.type: unsupported value {finding.get('type')!r}")
+        for key in ("target", "dependency", "makefile_path", "evidence"):
+            _string(finding, key, path, errors)
+
+        location = finding.get("location")
+        if location is not None:
+            if not isinstance(location, dict):
+                errors.append(f"{path}.location: expected object")
+                continue
+            _required(location, ["line", "declaration"], f"{path}.location", errors)
+            line = location.get("line")
+            if type(line) is not int or line < 1:
+                errors.append(f"{path}.location.line: expected positive integer")
+            _string(location, "declaration", f"{path}.location", errors)
+    return errors
+
+
 def validate_job(data: Any) -> list[str]:
     errors: list[str] = []
     if not isinstance(data, dict):
@@ -228,7 +302,10 @@ def validate_examples() -> list[str]:
         except json.JSONDecodeError as exc:
             failures.append(f"{path.name}: invalid JSON: {exc}")
             continue
-        issues = validate_create(data) if path.name.endswith(".request.json") else validate_job(data)
+        if path.name.startswith("md-report"):
+            issues = validate_md_report(data)
+        else:
+            issues = validate_create(data) if path.name.endswith(".request.json") else validate_job(data)
         if issues:
             failures.extend(f"{path.name}: {issue}" for issue in issues)
         else:
@@ -239,7 +316,10 @@ def validate_examples() -> list[str]:
         except json.JSONDecodeError as exc:
             failures.append(f"{path.name}: invalid JSON syntax cannot test contract: {exc}")
             continue
-        issues = validate_create(data) if "status" not in data else validate_job(data)
+        if path.name.startswith("md-report"):
+            issues = validate_md_report(data)
+        else:
+            issues = validate_create(data) if "status" not in data else validate_job(data)
         if not issues:
             failures.append(f"{path.name}: invalid sample was accepted")
         else:
