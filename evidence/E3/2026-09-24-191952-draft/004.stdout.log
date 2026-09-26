@@ -1,0 +1,48 @@
+[
+    {
+        "Id": "sha256:7e9558e1203a9a2b0967554abf9ebdc5552f29013b01f6e7271bf2d776d51234",
+        "RepoTags": [
+            "public.ecr.aws/ubuntu/ubuntu:20.04"
+        ],
+        "RepoDigests": [
+            "public.ecr.aws/ubuntu/ubuntu@sha256:7e9558e1203a9a2b0967554abf9ebdc5552f29013b01f6e7271bf2d776d51234"
+        ],
+        "Created": "2025-05-30T21:47:56.048314564Z",
+        "Config": {
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            "Cmd": [
+                "/bin/bash"
+            ],
+            "Labels": {
+                "org.opencontainers.image.ref.name": "ubuntu",
+                "org.opencontainers.image.version": "20.04"
+            }
+        },
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 27513731,
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:e7b3d1ccfa9cbf3f128b83f40f03caeb9a3a272a7bad2b020360ae51c00ab9c6"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "2026-09-13T07:57:47.89184098Z"
+        },
+        "Descriptor": {
+            "mediaType": "application/vnd.oci.image.index.v1+json",
+            "digest": "sha256:7e9558e1203a9a2b0967554abf9ebdc5552f29013b01f6e7271bf2d776d51234",
+            "size": 1405
+        },
+        "Identity": {
+            "Pull": [
+                {
+                    "Repository": "public.ecr.aws/ubuntu/ubuntu"
+                }
+            ]
+        }
+    }
+]

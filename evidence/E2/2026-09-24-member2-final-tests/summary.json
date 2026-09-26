@@ -1,0 +1,159 @@
+{
+  "evidence_schema_version": "0.1",
+  "format_status": "B13_DRAFT",
+  "run_id": "2026-09-24-member2-final-tests",
+  "suite": "E2",
+  "case": "tests",
+  "started_at": "2026-09-24T11:07:56.644715+00:00",
+  "finished_at": "2026-09-24T11:07:59.011987+00:00",
+  "source": {
+    "repository": {
+      "value": "https://github.com/ma058/2026-Devops-B13.git",
+      "reason": null
+    },
+    "commit_sha": "b6f47cdfb45665b1d0da184c64e52e4157245550",
+    "dirty": true,
+    "git_status": {
+      "value": "M CONTRIBUTIONS.md\n M README.md\n M contracts/examples/draft.request.json\n M contracts/examples/draft.succeeded.json\n M contracts/schemas/create-job.schema.json\n M contracts/schemas/job.schema.json\n M scripts/validate.py\n M tests/test_contracts.py\n?? contracts/examples/draft.accepted.json\n?? contracts/examples/draft.failed.json\n?? contracts/examples/draft.running.json\n?? contracts/examples/invalid/draft-context-over-limit.json\n?? contracts/examples/invalid/draft-invalid-timeout.json\n?? contracts/examples/invalid/draft-short-commit.json\n?? docs/E2/AI_USAGE.md\n?? docs/E2/draft-contract.md\n?? evidence/E2/2026-09-24-member2-contracts/\n?? evidence/E2/2026-09-24-member2-jsonschema/\n?? evidence/E2/2026-09-24-member2-tests/\n?? evidence/E3/2026-09-24-185846-draft/\n?? evidence/E3/2026-09-24-190000-draft/\n?? evidence/E3/2026-09-24-190715-draft/\n?? evidence/README.md\n?? fixtures/draft/\n?? scripts/collect_evidence.py\n?? scripts/verify_draft.py\n?? tests/test_evidence.py",
+      "reason": null
+    },
+    "file_sha256": {
+      "contracts/examples/draft.accepted.json": "0f8f457ab7da55ea8d2a9fb56f227c6cb423d06da0720d7132fad13bf77d5cf8",
+      "contracts/examples/draft.failed.json": "6a7fbb2a2c32ccdfde83329be4009e777383a7b64a7c9ba71c51d7776986728d",
+      "contracts/examples/draft.running.json": "dcd6d673413f9cb957e46395ce85ac75e92e8445f9d869434f64ccca14420300",
+      "contracts/examples/invalid/draft-context-over-limit.json": "531b792385dbe66ddc58e498e2a52ae81ad15dadf68269491fb65c021d419ca4",
+      "contracts/examples/invalid/draft-invalid-timeout.json": "5aaaa8c7e0695286ef10dde3347558c6a36da78bfda20c9a627c6140d8946e46",
+      "contracts/examples/invalid/draft-short-commit.json": "af9a13cab1643ce7bcb16963e9bea2b34265fb8ead734ffe909cd0aa86b4a9fc",
+      "docs/E2/AI_USAGE.md": "03150eae43942ab4994c74cbafd70860b9a5c15f0294e6444633928b1d73ac64",
+      "docs/E2/draft-contract.md": "5880f9f7562aecc6bbee1de7a5226cc3a3ecd870f8f7877a183c26be25b6ff56",
+      "fixtures/draft/Dockerfile.broken": "aff9d06345c7ac2c43774cbcf8c9acdf2e58e728cc2deb81718b8aefcf133e3e",
+      "fixtures/draft/Dockerfile.reference": "c2002dd6e2d82490a72b72a08c62f8db35323879c9ab6930f570353f18e56ae0",
+      "fixtures/draft/Makefile": "be7f11c0aba065948223ada3bb846fa0221a401709afef16b696959f1bf5140f",
+      "fixtures/draft/README.md": "c2eb80fdd379a136de9e91d04e01450402c284f86141bfe0152857aeba3fc02b",
+      "fixtures/draft/expected.json": "49bae373a30e38cc2802f7b9a408c3062bbed2363f224985203a91077186e7b5",
+      "fixtures/draft/main.c": "b1e9d3ae4d2089e5e3f4ed35e37f81efcca44c023752a7f7e6a7745d21ff4220",
+      "fixtures/draft/verify.sh": "465a029b5602816d0ae33daad0618da45ddce8bd94a20e7734776cf75bc9b85b",
+      "scripts/collect_evidence.py": "a07657bab136d259bcc7e67398140504b72868bb31f19d3256ddb0bd15030b47",
+      "scripts/verify_draft.py": "364d99ceb3889c18e465d57e8c30047a48c9f4157338b1bbd5c625100b89ba06",
+      "tests/test_evidence.py": "55d01c07d39fb5bdc81f2e4b8fe93981d11a193c2ad9386b3fd73444f1f3d618",
+      ".gitattributes": "2fd306a9b644413696257389b7b80b7bf325b1d3506887c806577daa7044d748",
+      ".gitignore": "2b6de96bab6def3d79e11511be0980503310f8228d49199aa46c6c707ddaa297",
+      "CONTRIBUTIONS.md": "2fc5bd93fe787d915cf356004b0ab6b0b100eccf35109760580a8d720a6d1569",
+      "README.md": "303f943cc21d7b5c26c62902769f16b2c517add832aa6c3279779cd66d905873",
+      "contracts/artifact-access.md": "940b4dd938fc4aa7beeccaea168c8c595679c01de71e42487bd2d83caeb54152",
+      "contracts/examples/README.md": "aa3b43b17c1d29eec3d98dd463360f41e7d9f3dd8c4f2a948a6f6f87b6117ae1",
+      "contracts/examples/draft.request.json": "598ecc241e04069a3e80764530d15b82b0bf80832257a42dc751842057c1599a",
+      "contracts/examples/draft.succeeded.json": "897c95b314f343f06522314fb6dd884ba4af9205fc97b5b9d433117973677407",
+      "contracts/examples/full-check.request.json": "2e317d112b125c395cfd582c616b290d21bb1d85e8e933657507fb1d4ea1dd99",
+      "contracts/examples/full-check.succeeded.json": "5f6b63612fabcb3b3e574f37016bc419478caa5315bab8cd6c4e4aa1fccd6fb3",
+      "contracts/examples/incremental-check.request.json": "40a106f5cbb3394abe13e35ea29fe5c602d6d99d475f6921e7a2b24f7cf5457a",
+      "contracts/examples/incremental-check.succeeded.json": "7b7b42098eb15118930638a51bce98b043beb363465144414406e15e2e8283a7",
+      "contracts/examples/invalid/failed-without-error.json": "aa7c7bfd7cadbf4f4ee8bf4a1c62d361a2e746535bba5603610513afa94c7740",
+      "contracts/examples/invalid/incremental-without-baseline.json": "3e2ec9a4ba81321b0547d02678e512e548513fc6f6bbee6f9c7bd7dae626371f",
+      "contracts/examples/invalid/unknown-job-type.json": "93d60f948ad4c4119bb9e3e0a60a045e17718af8569db2711c335710ffed708a",
+      "contracts/examples/repair.request.json": "6cefead366c531feb30325e1b4c7290b2f910e91e1f7e3484d039c63a459a02f",
+      "contracts/examples/repair.succeeded.json": "02cd750ae89eeef35b3259c34655a0c22d338a1138ff866c489ec740912d229d",
+      "contracts/schemas/artifact.schema.json": "090b173b1d0adae5726da3b329bf76fb98e59697e9e2fe3a64a70ac268ebec58",
+      "contracts/schemas/create-job.schema.json": "16632be1e1c367b4e4f1339f394a044a05d6811db0296508e7d4de7ccf7f73e9",
+      "contracts/schemas/job.schema.json": "c24eb2a7b5e3f9b0ade978057146e7a58094ccd607c1293783996cb2f4c06653",
+      "docs/E2/A13_MESSAGE.md": "7e39c4abe28a3158ef0f0dfbf3fe9e65280d439736d7e19f91cf98d8028e5e07",
+      "docs/E2/ADR-001-async-job.md": "434f569acfca5cee4e6f6ab93784976d801a083ee6612ab3d1922507b4419288",
+      "docs/E2/ADR-002-artifact-access.md": "2e9a02fae0b04cefc9fc99779bc09ca4752ad1b3c07b6d9b6c87c0e61fdd6a05",
+      "docs/E2/ADR-003-baseline-policy.md": "6c55bdffaa7bf7a596e11b56e1bae7bf988035fb20c8db2c7d29dde68f55e8cf",
+      "docs/E2/BACKLOG.md": "75ce0be888995b0a2fb77a66dd99e2d1053b95a3f603e00ebe369fe89d425a4a",
+      "docs/E2/pair-review.md": "b1673e71dd92fce407a5b1a98503320d532b0e7793ee69499585bfd280d8e373",
+      "docs/E2/status-and-errors.md": "2c3dbad064e0be4a1a083d0c32cf93e63bd0770392137f008e2e560e71cf5539",
+      "docs/TASK_FLOW.md": "60d5ec96753fde6766a82571bf6f1436314f685f0678d2ac0cf00f2555150ad6",
+      "fixtures/mdfixer/implicit-style/Makefile": "3ba5501665899374d21e6e0298f1c636982473458fafebfca157ba0b77b8a9d0",
+      "fixtures/mdfixer/implicit-style/README.md": "1a18f9114784e0afd007631f78295e0b0c69909cde8ccbab59a95dc4de7a07a1",
+      "fixtures/mdfixer/implicit-style/config.h": "ac32a92f4af359517c993d6e8583ea2d9b053c2ad171b4c602bc242894bd9696",
+      "fixtures/mdfixer/implicit-style/invalid.patch": "bee883cfbafab3198efcc8d1a8da4edf48e5c594d7ee263ce5c461a3e2d441e9",
+      "fixtures/mdfixer/implicit-style/main.c": "a1bbac023098d5bdd6302977e565b57c4959ee2c34d0787c1c5b2ea5c208ee9f",
+      "fixtures/mdfixer/implicit-style/md-report.template.json": "b9f8817e2c250a4ee81204a4a14c5f8c76528a1445d4348421d6cfb4eddb431d",
+      "fixtures/mdfixer/implicit-style/reference.patch": "009bcf9400bfb77e2462f9892db36e72f3a0e975b18cec4405bffc56ade44c69",
+      "requirements-dev.txt": "1e69a77124d1905b8b6148ac8ceb1f7f44ed6c42192782b0c5622396dff4fb64",
+      "scripts/check_jsonschema.py": "be478356ba74ea8db5b9c7d5dcecf6a2491c586975d89af3ba66b88414ac121a",
+      "scripts/validate.py": "cfe41be522ed8f9c143b843bb2d0c5cd944809ba7718faa2772d8f7a5f645faf",
+      "scripts/verify_implicit.py": "07fae709c9ca1cbdded855c8960702a94b16d342fa7c91ccbfbb498ae64d75db",
+      "tests/test_contracts.py": "0ee9ef867f85b14a641003cc0060a878e8cc0e7104b88de46df55de996bc3740"
+    }
+  },
+  "environment": {
+    "os": "Windows-10-10.0.26100-SP0",
+    "arch": "AMD64",
+    "cwd": "C:\\Users\\X\\桌面\\note\\devops\\project b13\\2026-Devops-B13",
+    "container": null
+  },
+  "tools": {
+    "python": {
+      "value": "Python 3.9.9",
+      "reason": null
+    },
+    "git": {
+      "value": "git version 2.42.0.windows.2",
+      "reason": null
+    },
+    "make": {
+      "value": null,
+      "reason": "[WinError 2] 系统找不到指定的文件。"
+    },
+    "gcc": {
+      "value": "gcc (x86_64-posix-seh-rev0, Built by MinGW-Builds project) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+      "reason": null
+    },
+    "docker": {
+      "value": "Client:\n Version:           29.6.2\n API version:       1.55\n Go version:        go1.26.5\n Git commit:        dfc4efb\n Built:             Thu Jul 16 16:14:59 2026\n OS/Arch:           windows/amd64\n Context:           desktop-linux\n\nServer: Docker Desktop 4.85.0 (235549)\n Engine:\n  Version:          29.6.2\n  API version:      1.55 (minimum version 1.40)\n  Go version:       go1.26.5\n  Git commit:       3d80467\n  Built:            Thu Jul 16 16:12:20 2026\n  OS/Arch:          linux/amd64\n  Experimental:     false\n containerd:\n  Version:          v2.2.5\n  GitCommit:        e53c7c1516c3b2bff98eb76f1f4117477e6f4e66\n runc:\n  Version:          1.3.6\n  GitCommit:        v1.3.6-0-g491b69ba\n docker-init:\n  Version:          0.19.0\n  GitCommit:        de40ad0",
+      "reason": null
+    }
+  },
+  "commands": [
+    {
+      "id": "cmd-1",
+      "argv": [
+        ".venv/Scripts/python.exe",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "cwd": "C:\\Users\\X\\桌面\\note\\devops\\project b13\\2026-Devops-B13",
+      "started_at": "2026-09-24T11:07:57.004165+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "finished_at": "2026-09-24T11:07:59.009988+00:00",
+      "stdout_path": "001.stdout.log",
+      "stderr_path": "001.stderr.log"
+    }
+  ],
+  "checks": [
+    {
+      "id": "command_exit",
+      "expected": 0,
+      "actual": 0,
+      "status": "PASS",
+      "command_id": "cmd-1"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "001.stderr.log",
+      "sha256": "1f8f5832681d50cee66b81b5a19b1c0208f5cf0115ce7eecb616a5827b573155"
+    },
+    {
+      "path": "001.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "verify.log",
+      "sha256": "8059777445e57c14ecc50f130338830f35269b9460884ffb06a81deeba0a73a3"
+    }
+  ],
+  "provenance": {
+    "kind": "B13_MANUAL_ORACLE",
+    "detector_executed": false
+  },
+  "result": "PASS"
+}

@@ -1,10 +1,28 @@
 {
   "schema_version": "1.0",
-  "job_id": "job-invalid-003",
-  "trace_id": "trace-invalid-003",
+  "job_id": "job-draft-001",
+  "trace_id": "trace-pair13-demo",
   "job_type": "DRAFT",
   "status": "FAILED",
-  "input": {"repository": {"commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}},
+  "input": {
+    "repository": {
+      "url": "https://github.com/example/tiny-greeting.git",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "context_files": [
+      "README.md"
+    ],
+    "build": {
+      "command": "make",
+      "verify_command": "./hello",
+      "timeout_seconds": 600,
+      "expected_stdout": "hello E3\n",
+      "clean_command": "make clean && make",
+      "working_directory": "/workspace/project"
+    },
+    "max_iterations": 5,
+    "configuration_id": "gcc-default"
+  },
   "output": null,
   "error": null
 }

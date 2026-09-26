@@ -3,31 +3,181 @@
   "$id": "https://example.invalid/b13/create-job.schema.json",
   "title": "B13/A13 create-job request (provisional)",
   "type": "object",
-  "required": ["schema_version", "trace_id", "job_type", "idempotency_key", "input"],
+  "required": [
+    "schema_version",
+    "trace_id",
+    "job_type",
+    "idempotency_key",
+    "input"
+  ],
   "properties": {
-    "schema_version": {"const": "1.0"},
-    "trace_id": {"type": "string", "minLength": 1},
-    "job_type": {"enum": ["DRAFT", "FULL_CHECK", "INCREMENTAL_CHECK", "REPAIR"]},
-    "idempotency_key": {"type": "string", "minLength": 1},
-    "input": {"type": "object", "minProperties": 1}
+    "schema_version": {
+      "const": "1.0"
+    },
+    "trace_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "job_type": {
+      "enum": [
+        "DRAFT",
+        "FULL_CHECK",
+        "INCREMENTAL_CHECK",
+        "REPAIR"
+      ]
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 1
+    },
+    "input": {
+      "type": "object",
+      "minProperties": 1
+    }
   },
   "allOf": [
     {
-      "if": {"properties": {"job_type": {"const": "INCREMENTAL_CHECK"}}, "required": ["job_type"]},
+      "if": {
+        "properties": {
+          "job_type": {
+            "const": "INCREMENTAL_CHECK"
+          }
+        },
+        "required": [
+          "job_type"
+        ]
+      },
       "then": {
         "properties": {
           "input": {
-            "required": ["repository", "base_commit", "baseline"],
+            "required": [
+              "repository",
+              "base_commit",
+              "baseline"
+            ],
             "properties": {
-              "base_commit": {"type": "string", "pattern": "^[0-9a-fA-F]{40}$"},
+              "base_commit": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{40}$"
+              },
               "baseline": {
                 "type": "object",
-                "required": ["actual_graph_uri", "commit", "configuration_id"],
+                "required": [
+                  "actual_graph_uri",
+                  "commit",
+                  "configuration_id"
+                ],
                 "properties": {
-                  "actual_graph_uri": {"type": "string", "pattern": "^artifact://"},
-                  "commit": {"type": "string", "pattern": "^[0-9a-fA-F]{40}$"},
-                  "configuration_id": {"type": "string", "minLength": 1}
+                  "actual_graph_uri": {
+                    "type": "string",
+                    "pattern": "^artifact://"
+                  },
+                  "commit": {
+                    "type": "string",
+                    "pattern": "^[0-9a-fA-F]{40}$"
+                  },
+                  "configuration_id": {
+                    "type": "string",
+                    "minLength": 1
+                  }
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "job_type": {
+            "const": "DRAFT"
+          }
+        },
+        "required": [
+          "job_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "input": {
+            "type": "object",
+            "required": [
+              "repository",
+              "context_files",
+              "build",
+              "max_iterations",
+              "configuration_id"
+            ],
+            "properties": {
+              "repository": {
+                "type": "object",
+                "required": [
+                  "url",
+                  "commit"
+                ],
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "commit": {
+                    "type": "string",
+                    "pattern": "^[0-9a-fA-F]{40}$"
+                  }
+                }
+              },
+              "context_files": {
+                "type": "array",
+                "maxItems": 2,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "build": {
+                "type": "object",
+                "required": [
+                  "command",
+                  "verify_command",
+                  "timeout_seconds",
+                  "expected_stdout",
+                  "clean_command",
+                  "working_directory"
+                ],
+                "properties": {
+                  "command": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "verify_command": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "timeout_seconds": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "expected_stdout": {
+                    "type": "string"
+                  },
+                  "clean_command": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "working_directory": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "max_iterations": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "configuration_id": {
+                "type": "string",
+                "minLength": 1
               }
             }
           }
