@@ -1,0 +1,2 @@
+/usr/bin/cc -O0 -c main.c -o main.o
+/usr/bin/cc main.o -o app

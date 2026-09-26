@@ -1,0 +1,752 @@
+{
+  "evidence_schema_version": "0.1",
+  "format_status": "B13_DRAFT",
+  "run_id": "2026-09-27-001755-mdfixer-hybrid-style",
+  "suite": "E3",
+  "case": "mdfixer-hybrid-style",
+  "started_at": "2026-09-26T16:17:54.355083+00:00",
+  "finished_at": "2026-09-26T16:17:59.957787+00:00",
+  "source": {
+    "repository": "https://yqy241880115@github.com/ma058/2026-Devops-B13.git",
+    "commit_sha": "fbb794b6075b3a9f69e21b390ddcc1fef68db54a",
+    "dirty": false,
+    "git_status": "",
+    "file_sha256": {
+      "scripts/verify_mdfixer_explicit.py": "f5d5c928f250381ca7a429ed8654be4618daead58c6e0bde52eae851ec5dc5b7",
+      "fixtures/mdfixer/hybrid-style/Makefile.before": "5aad6357573b547233b05de7f43e6edf9aee501416863c1c0428adfcb7e0478c",
+      "fixtures/mdfixer/hybrid-style/main.c": "a1bbac023098d5bdd6302977e565b57c4959ee2c34d0787c1c5b2ea5c208ee9f",
+      "fixtures/mdfixer/hybrid-style/config.h": "ac32a92f4af359517c993d6e8583ea2d9b053c2ad171b4c602bc242894bd9696",
+      "fixtures/mdfixer/hybrid-style/reference.patch": "dd0281a2d8845e39586a04ae9c5b5f59538f780f80c1052970b479ab597dd31b",
+      "fixtures/mdfixer/hybrid-style/invalid.patch": "05381ff867133277fb2f1f0643d32e17693aa530a91930fec5e31f1b0e98a7b0",
+      "fixtures/mdfixer/hybrid-style/expected.json": "e7440eed27f21c5473c676b108d1e9c74a9f80a5a00919c469c5e5d3a381c023",
+      "fixtures/mdfixer/hybrid-style/md-report.json": "3549fb289e9909366c0a588cfcbb8823cc90a42a49f4c17987f06164094e2f28",
+      "fixtures/mdfixer/hybrid-style/README.md": "81aa89e25bf37acd2bd94c88b102a7264325a0dbee55c713b9c68da95d00ba03"
+    }
+  },
+  "environment": {
+    "os": "linux",
+    "os_release": "6.6.87.2-microsoft-standard-WSL2",
+    "arch": "x86_64",
+    "cwd": "/mnt/c/Users/Lenovo/AppData/Roaming/TRAE SOLO CN/ModularData/ai-agent/work-mode-projects/6ab1e675e64c8e2590415ad7/_dev/b13-work"
+  },
+  "tools": {
+    "python": {
+      "value": "3.10.12",
+      "path": "/usr/bin/python3"
+    },
+    "git": {
+      "value": "git version 2.34.1",
+      "path": "/usr/bin/git"
+    },
+    "make": {
+      "value": "GNU Make 4.3",
+      "path": "/usr/bin/make"
+    },
+    "cc": {
+      "value": "cc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+      "path": "/usr/bin/cc"
+    },
+    "docker": {
+      "value": null,
+      "reason": "本验证套件不使用 Docker"
+    }
+  },
+  "commands": [
+    {
+      "id": "001",
+      "argv": [
+        "/usr/bin/make",
+        "--version"
+      ],
+      "cwd": "/mnt/c/Users/Lenovo/AppData/Roaming/TRAE SOLO CN/ModularData/ai-agent/work-mode-projects/6ab1e675e64c8e2590415ad7/_dev/b13-work",
+      "started_at": "2026-09-26T16:17:55.990289+00:00",
+      "finished_at": "2026-09-26T16:17:55.991096+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "001.stdout.log",
+      "stderr_path": "001.stderr.log"
+    },
+    {
+      "id": "002",
+      "argv": [
+        "/usr/bin/cc",
+        "--version"
+      ],
+      "cwd": "/mnt/c/Users/Lenovo/AppData/Roaming/TRAE SOLO CN/ModularData/ai-agent/work-mode-projects/6ab1e675e64c8e2590415ad7/_dev/b13-work",
+      "started_at": "2026-09-26T16:17:56.009350+00:00",
+      "finished_at": "2026-09-26T16:17:56.010151+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "002.stdout.log",
+      "stderr_path": "002.stderr.log"
+    },
+    {
+      "id": "003",
+      "argv": [
+        "/usr/bin/git",
+        "--version"
+      ],
+      "cwd": "/mnt/c/Users/Lenovo/AppData/Roaming/TRAE SOLO CN/ModularData/ai-agent/work-mode-projects/6ab1e675e64c8e2590415ad7/_dev/b13-work",
+      "started_at": "2026-09-26T16:17:56.024348+00:00",
+      "finished_at": "2026-09-26T16:17:56.025254+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "003.stdout.log",
+      "stderr_path": "003.stderr.log"
+    },
+    {
+      "id": "004",
+      "argv": [
+        "/usr/bin/make",
+        "CC=/usr/bin/cc"
+      ],
+      "cwd": "/tmp/mdfixer-hybrid-style-iv7kqrep",
+      "started_at": "2026-09-26T16:17:56.050786+00:00",
+      "finished_at": "2026-09-26T16:17:56.298540+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "004.stdout.log",
+      "stderr_path": "004.stderr.log"
+    },
+    {
+      "id": "005",
+      "argv": [
+        "/tmp/mdfixer-hybrid-style-iv7kqrep/app"
+      ],
+      "cwd": "/tmp/mdfixer-hybrid-style-iv7kqrep",
+      "started_at": "2026-09-26T16:17:56.314719+00:00",
+      "finished_at": "2026-09-26T16:17:56.315326+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "005.stdout.log",
+      "stderr_path": "005.stderr.log"
+    },
+    {
+      "id": "006",
+      "argv": [
+        "/usr/bin/make",
+        "CC=/usr/bin/cc"
+      ],
+      "cwd": "/tmp/mdfixer-hybrid-style-iv7kqrep",
+      "started_at": "2026-09-26T16:17:57.532134+00:00",
+      "finished_at": "2026-09-26T16:17:57.533738+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "006.stdout.log",
+      "stderr_path": "006.stderr.log"
+    },
+    {
+      "id": "007",
+      "argv": [
+        "/tmp/mdfixer-hybrid-style-iv7kqrep/app"
+      ],
+      "cwd": "/tmp/mdfixer-hybrid-style-iv7kqrep",
+      "started_at": "2026-09-26T16:17:57.544808+00:00",
+      "finished_at": "2026-09-26T16:17:57.545377+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "007.stdout.log",
+      "stderr_path": "007.stderr.log"
+    },
+    {
+      "id": "008",
+      "argv": [
+        "/usr/bin/git",
+        "apply",
+        "--check",
+        "/mnt/c/Users/Lenovo/AppData/Roaming/TRAE SOLO CN/ModularData/ai-agent/work-mode-projects/6ab1e675e64c8e2590415ad7/_dev/b13-work/fixtures/mdfixer/hybrid-style/reference.patch"
+      ],
+      "cwd": "/tmp/mdfixer-hybrid-style-iv7kqrep",
+      "started_at": "2026-09-26T16:17:57.560858+00:00",
+      "finished_at": "2026-09-26T16:17:57.564725+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "008.stdout.log",
+      "stderr_path": "008.stderr.log"
+    },
+    {
+      "id": "009",
+      "argv": [
+        "/usr/bin/git",
+        "apply",
+        "/mnt/c/Users/Lenovo/AppData/Roaming/TRAE SOLO CN/ModularData/ai-agent/work-mode-projects/6ab1e675e64c8e2590415ad7/_dev/b13-work/fixtures/mdfixer/hybrid-style/reference.patch"
+      ],
+      "cwd": "/tmp/mdfixer-hybrid-style-iv7kqrep",
+      "started_at": "2026-09-26T16:17:57.574183+00:00",
+      "finished_at": "2026-09-26T16:17:57.579183+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "009.stdout.log",
+      "stderr_path": "009.stderr.log"
+    },
+    {
+      "id": "010",
+      "argv": [
+        "/usr/bin/make",
+        "CC=/usr/bin/cc"
+      ],
+      "cwd": "/tmp/mdfixer-hybrid-style-iv7kqrep",
+      "started_at": "2026-09-26T16:17:57.603830+00:00",
+      "finished_at": "2026-09-26T16:17:57.924024+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "010.stdout.log",
+      "stderr_path": "010.stderr.log"
+    },
+    {
+      "id": "011",
+      "argv": [
+        "/tmp/mdfixer-hybrid-style-iv7kqrep/app"
+      ],
+      "cwd": "/tmp/mdfixer-hybrid-style-iv7kqrep",
+      "started_at": "2026-09-26T16:17:57.944110+00:00",
+      "finished_at": "2026-09-26T16:17:57.944727+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "011.stdout.log",
+      "stderr_path": "011.stderr.log"
+    },
+    {
+      "id": "012",
+      "argv": [
+        "/usr/bin/make",
+        "CC=/usr/bin/cc"
+      ],
+      "cwd": "/tmp/mdfixer-hybrid-style-iv7kqrep",
+      "started_at": "2026-09-26T16:17:59.159248+00:00",
+      "finished_at": "2026-09-26T16:17:59.331062+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "012.stdout.log",
+      "stderr_path": "012.stderr.log"
+    },
+    {
+      "id": "013",
+      "argv": [
+        "/tmp/mdfixer-hybrid-style-iv7kqrep/app"
+      ],
+      "cwd": "/tmp/mdfixer-hybrid-style-iv7kqrep",
+      "started_at": "2026-09-26T16:17:59.341971+00:00",
+      "finished_at": "2026-09-26T16:17:59.342542+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "013.stdout.log",
+      "stderr_path": "013.stderr.log"
+    },
+    {
+      "id": "014",
+      "argv": [
+        "/usr/bin/make",
+        "CC=/usr/bin/cc"
+      ],
+      "cwd": "/tmp/mdfixer-hybrid-style-equiv-8ip03fk_",
+      "started_at": "2026-09-26T16:17:59.372299+00:00",
+      "finished_at": "2026-09-26T16:17:59.540184+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "014.stdout.log",
+      "stderr_path": "014.stderr.log"
+    },
+    {
+      "id": "015",
+      "argv": [
+        "/tmp/mdfixer-hybrid-style-equiv-8ip03fk_/app"
+      ],
+      "cwd": "/tmp/mdfixer-hybrid-style-equiv-8ip03fk_",
+      "started_at": "2026-09-26T16:17:59.555833+00:00",
+      "finished_at": "2026-09-26T16:17:59.556389+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "015.stdout.log",
+      "stderr_path": "015.stderr.log"
+    },
+    {
+      "id": "016",
+      "argv": [
+        "/usr/bin/git",
+        "apply",
+        "--check",
+        "/mnt/c/Users/Lenovo/AppData/Roaming/TRAE SOLO CN/ModularData/ai-agent/work-mode-projects/6ab1e675e64c8e2590415ad7/_dev/b13-work/fixtures/mdfixer/hybrid-style/invalid.patch"
+      ],
+      "cwd": "/tmp/mdfixer-hybrid-style-reject-jhl2ir9l",
+      "started_at": "2026-09-26T16:17:59.600801+00:00",
+      "finished_at": "2026-09-26T16:17:59.606203+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "016.stdout.log",
+      "stderr_path": "016.stderr.log"
+    },
+    {
+      "id": "017",
+      "argv": [
+        "/usr/bin/git",
+        "apply",
+        "/mnt/c/Users/Lenovo/AppData/Roaming/TRAE SOLO CN/ModularData/ai-agent/work-mode-projects/6ab1e675e64c8e2590415ad7/_dev/b13-work/fixtures/mdfixer/hybrid-style/invalid.patch"
+      ],
+      "cwd": "/tmp/mdfixer-hybrid-style-reject-jhl2ir9l",
+      "started_at": "2026-09-26T16:17:59.614731+00:00",
+      "finished_at": "2026-09-26T16:17:59.619022+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "017.stdout.log",
+      "stderr_path": "017.stderr.log"
+    },
+    {
+      "id": "018",
+      "argv": [
+        "/usr/bin/make",
+        "CC=/usr/bin/cc"
+      ],
+      "cwd": "/tmp/mdfixer-hybrid-style-reject-jhl2ir9l",
+      "started_at": "2026-09-26T16:17:59.628882+00:00",
+      "finished_at": "2026-09-26T16:17:59.631211+00:00",
+      "exit_code": 2,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "018.stdout.log",
+      "stderr_path": "018.stderr.log"
+    },
+    {
+      "id": "019",
+      "argv": [
+        "/usr/bin/make",
+        "CC=/usr/bin/cc"
+      ],
+      "cwd": "/tmp/mdfixer-hybrid-style-reject-jhl2ir9l",
+      "started_at": "2026-09-26T16:17:59.643720+00:00",
+      "finished_at": "2026-09-26T16:17:59.917670+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "019.stdout.log",
+      "stderr_path": "019.stderr.log"
+    },
+    {
+      "id": "020",
+      "argv": [
+        "/tmp/mdfixer-hybrid-style-reject-jhl2ir9l/app"
+      ],
+      "cwd": "/tmp/mdfixer-hybrid-style-reject-jhl2ir9l",
+      "started_at": "2026-09-26T16:17:59.937595+00:00",
+      "finished_at": "2026-09-26T16:17:59.938224+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "stdout_path": "020.stdout.log",
+      "stderr_path": "020.stderr.log"
+    }
+  ],
+  "checks": [
+    {
+      "id": "S0.report-commit",
+      "expected": "md-report.json 引用的 fixture 提交与 git 历史一致（真实提交）",
+      "actual": "报告引用=2810e238b99f3989120d58593eb5328282f38d41，git 历史=2810e238b99f3989120d58593eb5328282f38d41",
+      "status": "PASS",
+      "command_id": null,
+      "required": true
+    },
+    {
+      "id": "S1.build-before",
+      "expected": "修复前完整构建退出码为 0",
+      "actual": "exit=0",
+      "status": "PASS",
+      "command_id": "004",
+      "required": true
+    },
+    {
+      "id": "S1.output-before",
+      "expected": "VALUE=1 完整构建后程序输出 1 且正常退出",
+      "actual": "exit=0 stdout='1'",
+      "status": "PASS",
+      "command_id": "005",
+      "required": true
+    },
+    {
+      "id": "S3.no-rebuild-before",
+      "expected": "修复前只改 config.h 后普通 make 成功且不重编译 main.o（复现漏重建）",
+      "actual": "make_exit=0，main.o 重编译=False",
+      "status": "PASS",
+      "command_id": "006",
+      "required": true
+    },
+    {
+      "id": "S3.stale-output",
+      "expected": "修复前增量构建后程序仍输出旧值 1 且正常退出",
+      "actual": "exit=0 stdout='1'",
+      "status": "PASS",
+      "command_id": "007",
+      "required": true
+    },
+    {
+      "id": "S3.oracle-before",
+      "expected": "课程固定 Oracle 在修复前报告 1 条 MISSING(main.o→config.h)",
+      "actual": "{\"target\": \"main.o\", \"declared\": [\"main.c\"], \"actual\": [\"config.h\", \"main.c\"], \"missing\": [\"config.h\"], \"redundant\": []}",
+      "status": "PASS",
+      "command_id": "007",
+      "required": true
+    },
+    {
+      "id": "S4.apply-check",
+      "expected": "git apply --check reference.patch 通过",
+      "actual": "exit=0",
+      "status": "PASS",
+      "command_id": "008",
+      "required": true
+    },
+    {
+      "id": "S4.apply",
+      "expected": "git apply reference.patch 成功",
+      "actual": "exit=0",
+      "status": "PASS",
+      "command_id": "009",
+      "required": true
+    },
+    {
+      "id": "S4.patch-minimal",
+      "expected": "补丁只修改指定 Makefile 的必要依赖声明（文件范围+行内容+应用后实际变更）",
+      "actual": "diff 文件=['Makefile']，范围问题=[]，违例行=[]，实际变更=['Makefile']，意外文件=[]",
+      "status": "PASS",
+      "command_id": "009",
+      "required": true
+    },
+    {
+      "id": "S4.hybrid-guard",
+      "expected": "Hybrid wildcard 守卫：*.h 命中的 .h 全部为有效依赖且无无关文件",
+      "actual": "wildcard 命中=['config.h'], 有效依赖=['config.h']",
+      "status": "PASS",
+      "command_id": "009",
+      "required": true
+    },
+    {
+      "id": "S5.build-after",
+      "expected": "修复后完整构建退出码为 0",
+      "actual": "exit=0",
+      "status": "PASS",
+      "command_id": "010",
+      "required": true
+    },
+    {
+      "id": "S5.output-after",
+      "expected": "修复后完整构建输出当前 VALUE=2 且正常退出",
+      "actual": "exit=0 stdout='2'",
+      "status": "PASS",
+      "command_id": "011",
+      "required": true
+    },
+    {
+      "id": "S7.incremental-rebuild",
+      "expected": "修复后修改 config.h，普通 make 成功且触发 main.o 重编译",
+      "actual": "make_exit=0，main.o 重编译=True",
+      "status": "PASS",
+      "command_id": "012",
+      "required": true
+    },
+    {
+      "id": "S8.incremental-output",
+      "expected": "修复后增量构建输出新值 3 且正常退出",
+      "actual": "exit=0 stdout='3'",
+      "status": "PASS",
+      "command_id": "013",
+      "required": true
+    },
+    {
+      "id": "S9.oracle-after",
+      "expected": "修复后课程固定 Oracle 重检 MD 数量为 0",
+      "actual": "{\"target\": \"main.o\", \"declared\": [\"config.h\", \"main.c\"], \"actual\": [\"config.h\", \"main.c\"], \"missing\": [], \"redundant\": []}",
+      "status": "PASS",
+      "command_id": "013",
+      "required": true
+    },
+    {
+      "id": "S10.style-consistency",
+      "expected": "修复前后声明风格一致（期望 HYBRID）",
+      "actual": "before=HYBRID after=HYBRID",
+      "status": "PASS",
+      "command_id": "013",
+      "required": true
+    },
+    {
+      "id": "S11.behavior-equivalence",
+      "expected": "修复后 clean build（VALUE=1）构建成功且程序行为与修复前一致",
+      "actual": "make_exit=0 app_exit=0 stdout='1'",
+      "status": "PASS",
+      "command_id": "015",
+      "required": true
+    },
+    {
+      "id": "S11.artifact-hash",
+      "expected": "补充检查：修复前后 VALUE=1 产物 SHA-256 一致",
+      "actual": "sha256=c34d0d6e9e90d8226f45e9500d107f63e1e1fe06d56211b81895a89896d2adc3",
+      "status": "PASS",
+      "command_id": "015",
+      "required": false
+    },
+    {
+      "id": "S12.invalid-apply-check",
+      "expected": "git apply --check invalid.patch 通过（补丁格式合法、可干净应用）",
+      "actual": "exit=0",
+      "status": "PASS",
+      "command_id": "016",
+      "required": true
+    },
+    {
+      "id": "S12.invalid-apply",
+      "expected": "git apply invalid.patch 成功",
+      "actual": "exit=0",
+      "status": "PASS",
+      "command_id": "017",
+      "required": true
+    },
+    {
+      "id": "S12.invalid-rejected",
+      "expected": "应用无效候选后构建失败（退出码非 0），候选被拒绝",
+      "actual": "exit=2",
+      "status": "PASS",
+      "command_id": "018",
+      "required": true
+    },
+    {
+      "id": "S12.recovery",
+      "expected": "恢复原始 Makefile 后完整构建成功且程序输出 1 并正常退出",
+      "actual": "build_exit=0 app_exit=0 stdout='1'",
+      "status": "PASS",
+      "command_id": "020",
+      "required": true
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "001.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "001.stdout.log",
+      "sha256": "8ee498ee2fc27e8dcdf99191b454077df95e3840d841ec94321748b6d7f36819"
+    },
+    {
+      "path": "002.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "002.stdout.log",
+      "sha256": "5fa6bf5b83f57f14020be375ac663df894027e2d672d6b7d82d7e8d8f7b49c8b"
+    },
+    {
+      "path": "003.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "003.stdout.log",
+      "sha256": "30279da57eb04a496cb207bc2f7c7e04d9c94788be5bc68824e6727e283b264b"
+    },
+    {
+      "path": "004.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "004.stdout.log",
+      "sha256": "547e2689594be8ddfd2aa54898a8de9e4c958dafdaca162e94f2c764fdfaae5c"
+    },
+    {
+      "path": "005.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "005.stdout.log",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": "006.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "006.stdout.log",
+      "sha256": "68c5f548009ee20966e380682cc0b78f39bea9c8895af0403577a7204fef2e99"
+    },
+    {
+      "path": "007.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "007.stdout.log",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": "008.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "008.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "009.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "009.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "010.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "010.stdout.log",
+      "sha256": "547e2689594be8ddfd2aa54898a8de9e4c958dafdaca162e94f2c764fdfaae5c"
+    },
+    {
+      "path": "011.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "011.stdout.log",
+      "sha256": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3"
+    },
+    {
+      "path": "012.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "012.stdout.log",
+      "sha256": "547e2689594be8ddfd2aa54898a8de9e4c958dafdaca162e94f2c764fdfaae5c"
+    },
+    {
+      "path": "013.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "013.stdout.log",
+      "sha256": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2"
+    },
+    {
+      "path": "014.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "014.stdout.log",
+      "sha256": "547e2689594be8ddfd2aa54898a8de9e4c958dafdaca162e94f2c764fdfaae5c"
+    },
+    {
+      "path": "015.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "015.stdout.log",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": "016.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "016.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "017.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "017.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "018.stderr.log",
+      "sha256": "7f3f4a0aea7f54bb322d1b0c4e1dbdb8b79bfb7d05ef30cfaf280b76e7b9132e"
+    },
+    {
+      "path": "018.stdout.log",
+      "sha256": "7413e1a639cfe2831a7841dbb3c2d5dc1e00de5ea7358a60cf578c7a82ee8e9f"
+    },
+    {
+      "path": "019.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "019.stdout.log",
+      "sha256": "547e2689594be8ddfd2aa54898a8de9e4c958dafdaca162e94f2c764fdfaae5c"
+    },
+    {
+      "path": "020.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "020.stdout.log",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": "observations.md",
+      "sha256": "fd940b2c2f6bc5c529687e28b655d5ef8f32913a59ee1d2ca354067e4cec43dc"
+    },
+    {
+      "path": "verify.log",
+      "sha256": "c28911dd44a1147e7220b2246213ae468bb646c5694bfe6200e9e816730a8975"
+    }
+  ],
+  "provenance": {
+    "oracle": "B13_MANUAL_ORACLE",
+    "basis": "课程固定 Oracle 的程序化实现（本脚本 oracle_detect）；人工判断依据 fixtures/mdfixer/hybrid-style 与其 expected.json",
+    "detector_executed": false,
+    "note": "A13 EChecker 修复后重检尚未执行，本证据不声称真实检测器 MD=0"
+  },
+  "result": "PASS",
+  "details": {
+    "fixture_dir": "fixtures/mdfixer/hybrid-style",
+    "fixture_commit": "2810e238b99f3989120d58593eb5328282f38d41",
+    "hashes": {
+      "clean_before_fix_sha256": "c34d0d6e9e90d8226f45e9500d107f63e1e1fe06d56211b81895a89896d2adc3",
+      "clean_after_fix_sha256": "c34d0d6e9e90d8226f45e9500d107f63e1e1fe06d56211b81895a89896d2adc3"
+    },
+    "oracle": {
+      "before": {
+        "target": "main.o",
+        "declared": [
+          "main.c"
+        ],
+        "actual": [
+          "config.h",
+          "main.c"
+        ],
+        "missing": [
+          "config.h"
+        ],
+        "redundant": []
+      },
+      "after": {
+        "target": "main.o",
+        "declared": [
+          "config.h",
+          "main.c"
+        ],
+        "actual": [
+          "config.h",
+          "main.c"
+        ],
+        "missing": [],
+        "redundant": []
+      }
+    },
+    "style_classification": {
+      "before": "HYBRID",
+      "after": "HYBRID"
+    }
+  }
+}
