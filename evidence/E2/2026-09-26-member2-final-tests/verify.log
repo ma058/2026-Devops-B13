@@ -1,0 +1,33 @@
+{"id": "cmd-1", "argv": [".venv/Scripts/python.exe", "-m", "unittest", "discover", "-s", "tests", "-v"], "cwd": "C:\\Users\\X\\桌面\\note\\devops\\project b13\\2026-Devops-B13", "started_at": "2026-09-26T06:07:38.156732+00:00", "exit_code": 0, "timed_out": false, "execution_error": null, "finished_at": "2026-09-26T06:07:39.724112+00:00", "stdout_path": "001.stdout.log", "stderr_path": "001.stderr.log"}
+[stdout]
+
+[stderr]
+test_artifact_producer_mismatch (test_contracts.ContractTests) ... ok
+test_context_files_max_two (test_contracts.ContractTests) ... ok
+test_draft_environment_and_output_must_match (test_contracts.ContractTests) ... ok
+test_draft_status_examples (test_contracts.ContractTests) ... ok
+test_draft_timeout_and_boolean_exit_rejected (test_contracts.ContractTests) ... ok
+test_failed_job_requires_error (test_contracts.ContractTests) ... ok
+test_failed_without_error_has_only_intended_rejection (test_contracts.ContractTests) ... ok
+test_finding_does_not_fail_job (test_contracts.ContractTests) ... ok
+test_four_request_types (test_contracts.ContractTests) ... ok
+test_four_success_results (test_contracts.ContractTests) ... ok
+test_invalid_job_type (test_contracts.ContractTests) ... ok
+test_manual_report_rejects_invented_producer_job (test_contracts.ContractTests) ... ok
+test_md_report_allows_empty_findings (test_contracts.ContractTests) ... ok
+test_md_report_location_is_complete (test_contracts.ContractTests) ... ok
+test_md_report_rejects_short_sha (test_contracts.ContractTests) ... ok
+test_md_report_rejects_unknown_detector (test_contracts.ContractTests) ... ok
+test_missing_baseline (test_contracts.ContractTests) ... ok
+test_tool_report_requires_non_null_producer_job (test_contracts.ContractTests) ... ok
+test_valid_md_report_and_implicit_template (test_contracts.ContractTests) ... ok
+test_wrong_baseline_version (test_contracts.ContractTests) ... ok
+test_expected_failure_preserves_both_streams (test_evidence.EvidenceTests) ... ok
+test_missing_required_check_is_incomplete (test_evidence.EvidenceTests) ... ok
+test_timeout_and_missing_executable_leave_evidence (test_evidence.EvidenceTests) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 1.427s
+
+OK
+
