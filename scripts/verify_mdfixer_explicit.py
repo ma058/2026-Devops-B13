@@ -19,6 +19,7 @@ Oracle 重检 MD=0 → 声明风格一致 → clean build 行为等价 → 无�
     python3 scripts/verify_mdfixer_explicit.py --style target-style
     python3 scripts/verify_mdfixer_explicit.py --style all
     python3 scripts/verify_mdfixer_explicit.py --style all --keep-work
+    python3 scripts/verify_mdfixer_explicit.py --self-test   # 负向回归（注入缺陷必须 FAIL）
 
 环境要求：GNU Make（Windows 上为 mingw32-make）、C 编译器（cc 或 gcc）、git、python3。
 脚本不依赖 make clean：所有完整构建都在全新工作目录或经 Python 删除产物后进行，
@@ -346,13 +347,23 @@ def classify_style(makefile_text):
 
 # ---------------------------------------------------------------- 主验证流程
 
-def verify_style(style, repo_root, make, cc, git, keep_work):
+def verify_style(style, repo_root, make, cc, git, keep_work,
+                 mutation=None, patch_override=None, tag=None, note=None):
+    """执行一个风格的完整验证并落盘证据。
+
+    常规运行不传 mutation/patch_override。--self-test 负向回归会：
+    - mutation：对工作目录中的源码注入缺陷（如 main.c 的 return 0 → return 7），
+      要求验证器的退出码检查把它判为 FAIL；
+    - patch_override：用被篡改的参考补丁（追加创建无关文件）替换 reference.patch，
+      要求 S4.patch-minimal 的文件范围检查把它判为 FAIL。
+    注入运行的 summary.result=FAIL 是预期结果，不是回归失败。
+    """
     fixture_dir = os.path.join(repo_root, "fixtures", "mdfixer", style)
     with open(os.path.join(fixture_dir, "expected.json"), encoding="utf-8") as f:
         expected = json.load(f)
     with open(os.path.join(fixture_dir, "Makefile.before"), encoding="utf-8") as f:
         makefile_before = f.read()
-    patch_path = os.path.join(fixture_dir, "reference.patch")
+    patch_path = patch_override or os.path.join(fixture_dir, "reference.patch")
     invalid_patch_path = os.path.join(fixture_dir, "invalid.patch")
 
     started_at = utc_now()
@@ -382,6 +393,8 @@ def verify_style(style, repo_root, make, cc, git, keep_work):
               "file_sha256": file_hashes}
 
     run_id = "%s-mdfixer-%s" % (datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S"), style)
+    if tag:
+        run_id += "-" + tag
     evidence_dir = os.path.join(repo_root, "evidence", "E3", run_id)
     if os.path.exists(evidence_dir):
         raise FileExistsError("证据目录已存在，拒绝覆盖: %s" % evidence_dir)
@@ -422,6 +435,10 @@ def verify_style(style, repo_root, make, cc, git, keep_work):
     workdir = tempfile.mkdtemp(prefix="mdfixer-%s-" % style)
     logger.log("== workdir: %s" % workdir)
     copy_fixture_text(fixture_dir, SOURCE_FILES, workdir)
+    if note:
+        logger.log("== 负向回归说明: %s" % note)
+    if mutation is not None:
+        mutation(workdir)
 
     exp = expected["expect"]
 
@@ -432,8 +449,10 @@ def verify_style(style, repo_root, make, cc, git, keep_work):
     app = find_executable(workdir, expected["project"]["executable"])
     p = recorder.run([app], cwd=workdir) if app else None
     out1 = (p.stdout.strip() if p else "")
-    recorder.check("S1.output-before", "VALUE=1 完整构建后程序输出 1",
-                   "stdout=%r" % out1, out1 == exp["prefix_clean_output"])
+    recorder.check("S1.output-before", "VALUE=1 完整构建后程序输出 1 且正常退出",
+                   "exit=%s stdout=%r" % (p.returncode if p else None, out1),
+                   app is not None and p.returncode == 0
+                   and out1 == exp["prefix_clean_output"])
     hash_prefix = sha256_of(app) if app else None
 
     # ---------- 步骤 2+3：只改 config.h 为 VALUE=2，普通 make 仍输出旧值 1（复现漏重建）
@@ -445,12 +464,14 @@ def verify_style(style, repo_root, make, cc, git, keep_work):
     p = recorder.run([make, "CC=%s" % cc], cwd=workdir)
     rebuilt_before_fix = main_o_recompiled(p.stdout + p.stderr, workdir, mtime_main_o_before)
     recorder.check("S3.no-rebuild-before",
-                   "修复前只改 config.h 后普通 make 不重编译 main.o（复现漏重建）",
-                   "main.o 重编译=%s" % rebuilt_before_fix, not rebuilt_before_fix)
+                   "修复前只改 config.h 后普通 make 成功且不重编译 main.o（复现漏重建）",
+                   "make_exit=%d，main.o 重编译=%s" % (p.returncode, rebuilt_before_fix),
+                   p.returncode == 0 and not rebuilt_before_fix)
     p = recorder.run([app], cwd=workdir)
     out2_stale = p.stdout.strip()
-    recorder.check("S3.stale-output", "修复前增量构建后程序仍输出旧值 1",
-                   "stdout=%r" % out2_stale, out2_stale == exp["stale_output_before_fix"])
+    recorder.check("S3.stale-output", "修复前增量构建后程序仍输出旧值 1 且正常退出",
+                   "exit=%d stdout=%r" % (p.returncode, out2_stale),
+                   p.returncode == 0 and out2_stale == exp["stale_output_before_fix"])
 
     oracle_before = oracle_detect(makefile_before, workdir)
     recorder.check("S3.oracle-before",
@@ -460,6 +481,10 @@ def verify_style(style, repo_root, make, cc, git, keep_work):
                    and oracle_before["missing"] == [expected["md"]["dependency"]])
 
     # ---------- 步骤 4：git apply --check，再 git apply reference.patch
+    # 应用前快照源文件内容：补丁应用后核对实际变更范围（只允许 Makefile 变化）
+    snapshot = {name: sha256_of(os.path.join(workdir, name))
+                for name in ("Makefile", "main.c", "config.h")
+                if os.path.exists(os.path.join(workdir, name))}
     p = recorder.run([git, "apply", "--check", patch_path], cwd=workdir)
     recorder.check("S4.apply-check", "git apply --check reference.patch 通过",
                    "exit=%d" % p.returncode, p.returncode == 0)
@@ -469,18 +494,40 @@ def verify_style(style, repo_root, make, cc, git, keep_work):
     with open(os.path.join(workdir, "Makefile"), encoding="utf-8") as f:
         makefile_after = f.read()
 
-    # 补丁最小性：只允许改动依赖声明（allowed_change_patterns）
+    # 补丁最小性（三层）：
+    # (a) 文件范围：diff --git 头只允许出现 Makefile，禁止新增/删除/重命名/模式变化/二进制；
+    # (b) 行内容：增删行必须匹配 allowed_change_patterns；
+    # (c) 应用后实际变更：工作目录中只有 Makefile 内容变化，且不允许出现快照之外的
+    #     任何新文件（源文件+构建产物白名单之外一律拒绝）。
+    with open(patch_path, encoding="utf-8", newline=None) as f:
+        patch_text = f.read()
+    scope_files, scope_problems = analyze_patch_scope(patch_text)
     changed_lines = []
-    with open(patch_path, encoding="utf-8") as f:
-        for line in f:
-            if line.startswith(("+++", "---")):
-                continue
-            if line.startswith(("+", "-")):
-                changed_lines.append(line[1:].rstrip("\n"))
+    for line in patch_text.splitlines():
+        if line.startswith(("+++", "---")):
+            continue
+        if line.startswith(("+", "-")):
+            changed_lines.append(line[1:])
     patterns = [re.compile(x) for x in expected["patch_policy"]["allowed_change_patterns"]]
     bad_lines = [ln for ln in changed_lines if not any(rx.match(ln) for rx in patterns)]
-    recorder.check("S4.patch-minimal", "补丁只修改必要的依赖声明",
-                   "改动行=%s" % changed_lines, not bad_lines)
+    actual_changes = []
+    for name, before_hash in snapshot.items():
+        cur = os.path.join(workdir, name)
+        if not os.path.exists(cur):
+            actual_changes.append("%s 被删除" % name)
+        elif sha256_of(cur) != before_hash:
+            actual_changes.append(name)
+    allowed_files = {"Makefile", "main.c", "config.h", "app", "app.exe", "main.o"}
+    unexpected_files = sorted(set(os.listdir(workdir)) - allowed_files)
+    minimal_ok = (scope_files == ["Makefile"] and not scope_problems
+                   and not bad_lines and actual_changes == ["Makefile"]
+                   and not unexpected_files)
+    recorder.check("S4.patch-minimal",
+                   "补丁只修改指定 Makefile 的必要依赖声明（文件范围+行内容+应用后实际变更）",
+                   "diff 文件=%s，范围问题=%s，违例行=%s，实际变更=%s，意外文件=%s"
+                   % (scope_files, scope_problems, bad_lines, actual_changes,
+                      unexpected_files),
+                   minimal_ok)
 
     # Hybrid 守卫：wildcard 命中的同类型文件必须全部是有效依赖且无无关文件
     if style == "hybrid-style":
@@ -498,10 +545,12 @@ def verify_style(style, repo_root, make, cc, git, keep_work):
     recorder.check("S5.build-after", "修复后完整构建退出码为 0",
                    "exit=%d" % p.returncode, p.returncode == 0)
     app = find_executable(workdir, expected["project"]["executable"])
-    p = recorder.run([app], cwd=workdir)
-    out3 = p.stdout.strip()
-    recorder.check("S5.output-after", "修复后完整构建输出当前 VALUE=2",
-                   "stdout=%r" % out3, out3 == exp["after_fix_full_build_output"])
+    p = recorder.run([app], cwd=workdir) if app else None
+    out3 = (p.stdout.strip() if p else "")
+    recorder.check("S5.output-after", "修复后完整构建输出当前 VALUE=2 且正常退出",
+                   "exit=%s stdout=%r" % (p.returncode if p else None, out3),
+                   app is not None and p.returncode == 0
+                   and out3 == exp["after_fix_full_build_output"])
 
     # ---------- 步骤 6-8：改 VALUE=3，不 clean 直接 make，应触发重建并输出 3
     time.sleep(1.2)  # 同样保证 config.h 的 mtime 严格晚于 main.o
@@ -509,12 +558,14 @@ def verify_style(style, repo_root, make, cc, git, keep_work):
     mtime_main_o_mid = os.path.getmtime(os.path.join(workdir, "main.o"))
     p = recorder.run([make, "CC=%s" % cc], cwd=workdir)
     rebuilt_after_fix = main_o_recompiled(p.stdout + p.stderr, workdir, mtime_main_o_mid)
-    recorder.check("S7.incremental-rebuild", "修复后修改 config.h，普通 make 触发 main.o 重编译",
-                   "main.o 重编译=%s" % rebuilt_after_fix, rebuilt_after_fix)
+    recorder.check("S7.incremental-rebuild", "修复后修改 config.h，普通 make 成功且触发 main.o 重编译",
+                   "make_exit=%d，main.o 重编译=%s" % (p.returncode, rebuilt_after_fix),
+                   p.returncode == 0 and rebuilt_after_fix)
     p = recorder.run([app], cwd=workdir)
     out4 = p.stdout.strip()
-    recorder.check("S8.incremental-output", "修复后增量构建输出新值 3",
-                   "stdout=%r" % out4, out4 == exp["after_fix_incremental_output"])
+    recorder.check("S8.incremental-output", "修复后增量构建输出新值 3 且正常退出",
+                   "exit=%d stdout=%r" % (p.returncode, out4),
+                   p.returncode == 0 and out4 == exp["after_fix_incremental_output"])
 
     # ---------- 步骤 9：课程固定 Oracle 重检，目标 MD 数量为 0
     oracle_after = oracle_detect(makefile_after, workdir)
@@ -536,12 +587,17 @@ def verify_style(style, repo_root, make, cc, git, keep_work):
     write_config(workdir_equiv, exp["behavior_equivalence_value"])
     write_text_lf(os.path.join(workdir_equiv, "Makefile"), makefile_after)
     p = recorder.run([make, "CC=%s" % cc], cwd=workdir_equiv)
+    make_equiv_exit = p.returncode
     app_equiv = find_executable(workdir_equiv, expected["project"]["executable"])
     p = recorder.run([app_equiv], cwd=workdir_equiv) if app_equiv else None
     out_equiv = (p.stdout.strip() if p else "")
     recorder.check("S11.behavior-equivalence",
-                   "修复后 clean build（VALUE=1）程序行为与修复前一致",
-                   "stdout=%r" % out_equiv, out_equiv == exp["behavior_equivalence_output"])
+                   "修复后 clean build（VALUE=1）构建成功且程序行为与修复前一致",
+                   "make_exit=%d app_exit=%s stdout=%r"
+                   % (make_equiv_exit, p.returncode if p else None, out_equiv),
+                   make_equiv_exit == 0 and app_equiv is not None
+                   and p.returncode == 0
+                   and out_equiv == exp["behavior_equivalence_output"])
     hash_after_equiv = sha256_of(app_equiv) if app_equiv else None
     if hash_prefix and hash_after_equiv and hash_prefix == hash_after_equiv:
         recorder.check("S11.artifact-hash",
@@ -576,9 +632,12 @@ def verify_style(style, repo_root, make, cc, git, keep_work):
     p2 = recorder.run([app_rej], cwd=rejdir) if (p.returncode == 0 and app_rej) else None
     out_rej = (p2.stdout.strip() if p2 else "")
     recorder.check("S12.recovery",
-                   "恢复原始 Makefile 后完整构建成功且程序输出 %s" % exp["prefix_clean_output"],
-                   "build_exit=%d stdout=%r" % (p.returncode, out_rej),
-                   p.returncode == 0 and out_rej == exp["prefix_clean_output"])
+                   "恢复原始 Makefile 后完整构建成功且程序输出 %s 并正常退出"
+                   % exp["prefix_clean_output"],
+                   "build_exit=%d app_exit=%s stdout=%r"
+                   % (p.returncode, p2.returncode if p2 else None, out_rej),
+                   p.returncode == 0 and p2 is not None and p2.returncode == 0
+                   and out_rej == exp["prefix_clean_output"])
 
     # ---------- 汇总与证据落盘
     finished_at = utc_now()
@@ -588,7 +647,7 @@ def verify_style(style, repo_root, make, cc, git, keep_work):
                         style, run_id, started_at, finished_at, env, tools,
                         source, fcommit, recorder.checks, result, expected,
                         oracle_before, oracle_after, style_before, style_after,
-                        hash_prefix, hash_after_equiv)
+                        hash_prefix, hash_after_equiv, note)
     n_pass = len([c for c in recorder.checks if c["status"] == "PASS"])
     n_fail = len([c for c in recorder.checks if c["status"] == "FAIL"])
     n_skip = len([c for c in recorder.checks if c["status"] == "SKIPPED"])
@@ -635,6 +694,13 @@ def verify_style(style, repo_root, make, cc, git, keep_work):
             "style_classification": {"before": style_before, "after": style_after},
         },
     }
+    if mutation is not None or patch_override is not None:
+        summary["details"]["self_test"] = {
+            "injected_defect": note,
+            "expected_inner_result": "FAIL",
+            "meaning": "负向回归运行：故意注入缺陷，验证器必须将其判为 FAIL；"
+                       "本目录 result=FAIL 是预期结果，不是回归失败",
+        }
     with open(os.path.join(evidence_dir, "summary.json"), "w",
               encoding="utf-8", newline="\n") as f:
         json.dump(summary, f, ensure_ascii=False, indent=2)
@@ -646,16 +712,21 @@ def verify_style(style, repo_root, make, cc, git, keep_work):
         shutil.rmtree(rejdir, ignore_errors=True)
     else:
         print("--keep-work 已保留工作目录: %s , %s , %s" % (workdir, workdir_equiv, rejdir))
-    return result == "PASS"
+    return summary
 
 
 def _write_observations(path, style, run_id, started_at, finished_at, env, tools,
                         source, fcommit, checks, result, expected,
                         oracle_before, oracle_after, style_before, style_after,
-                        hash_prefix, hash_after_equiv):
+                        hash_prefix, hash_after_equiv, note=None):
     lines = []
     lines.append("# E3 MDFixer 显式声明修复验证记录：%s" % style)
     lines.append("")
+    if note:
+        lines.append("> **负向回归运行**：%s" % note)
+        lines.append("> 本目录 `result=FAIL` 是预期结果（缺陷被验证器捕获），"
+                     "不是回归失败。")
+        lines.append("")
     lines.append("- run_id：`%s`" % run_id)
     lines.append("- 开始/结束（UTC）：%s → %s" % (started_at, finished_at))
     lines.append("- 执行环境：%s %s（%s），GNU Make=%s，CC=%s，Git=%s，Python=%s" % (
@@ -719,6 +790,109 @@ def _write_observations(path, style, run_id, started_at, finished_at, env, tools
         f.write("\n".join(lines))
 
 
+# ---------------------------------------------------------------- 补丁范围分析
+
+DIFF_FILE_RE = re.compile(r"^diff --git a/(.+?) b/(.+)$")
+# 出现任一标记即说明补丁涉及新增/删除/重命名文件、权限位变化或二进制内容，
+# 都不属于「只修改指定 Makefile 的必要依赖声明」。
+PATCH_SCOPE_FORBIDDEN_MARKERS = (
+    "new file mode", "deleted file mode", "rename from", "rename to",
+    "copy from", "copy to", "old mode", "new mode", "Binary files",
+    "GIT binary patch",
+)
+
+
+def analyze_patch_scope(patch_text):
+    """解析补丁的文件范围：返回 (涉及的文件列表, 范围问题列表)。"""
+    files = []
+    problems = []
+    for line in patch_text.splitlines():
+        m = DIFF_FILE_RE.match(line)
+        if m:
+            files.append(m.group(2))
+            continue
+        for marker in PATCH_SCOPE_FORBIDDEN_MARKERS:
+            if line.startswith(marker):
+                problems.append(line)
+                break
+    return files, problems
+
+
+# ---------------------------------------------------------------- 负向回归注入
+
+def mutate_exit_code(workdir):
+    """注入缺陷：main.c 的 return 0 → return 7（输出不变、退出码 7）。
+
+    用于验证输出类检查同时校验退出码；若验证器只比 stdout 不看退出码，
+    该缺陷将被放行（成员2审查反馈 P2-1 的复现方式）。"""
+    path = os.path.join(workdir, "main.c")
+    with open(path, "r", encoding="utf-8", newline=None) as f:
+        text = f.read()
+    if "return 0;" not in text:
+        raise AssertionError("main.c 中未找到 return 0; 无法注入退出码缺陷")
+    write_text_lf(path, text.replace("return 0;", "return 7;"))
+
+
+# 追加到参考补丁末尾的“夹带文件”diff：创建 unrelated.txt，其内容恰好匹配
+# allowed_change_patterns，因此只检查行内容时会放行（成员2审查反馈 P2-2 的复现方式）。
+EXTRA_FILE_DIFF = (
+    "diff --git a/unrelated.txt b/unrelated.txt\n"
+    "new file mode 100644\n"
+    "--- /dev/null\n"
+    "+++ b/unrelated.txt\n"
+    "@@ -0,0 +1 @@\n"
+    "+main.o: main.c config.h\n"
+)
+
+
+def build_extra_file_patch(repo_root, style):
+    """把原始参考补丁 + 夹带文件 diff 写入临时文件，返回其路径。"""
+    original = os.path.join(repo_root, "fixtures", "mdfixer", style, "reference.patch")
+    with open(original, "r", encoding="utf-8", newline=None) as f:
+        text = f.read()
+    if not text.endswith("\n"):
+        text += "\n"
+    tampered_dir = tempfile.mkdtemp(prefix="mdfixer-selftest-patch-")
+    tampered = os.path.join(tampered_dir, "reference.patch")
+    write_text_lf(tampered, text + EXTRA_FILE_DIFF)
+    return tampered
+
+
+def run_self_test(repo_root, make, cc, git):
+    """负向回归：故意注入两类缺陷，验证验证器必须把它们判为 FAIL。
+
+    元结论 PASS = 两类缺陷均被捕获；任一缺陷被放行则元结论 FAIL（脚本非零退出）。
+    每次注入运行的完整证据照常落盘（其 result=FAIL 为预期）。"""
+    note_exit = ("注入缺陷：main.c 的 return 0 → return 7（stdout 不变、退出码 7）；"
+                 "期望输出类检查因退出码非 0 判 FAIL，整体 FAIL")
+    s1 = verify_style("target-style", repo_root, make, cc, git, False,
+                     mutation=mutate_exit_code, tag="selftest-exit7",
+                     note=note_exit)
+    caught_exit = (s1["result"] == "FAIL"
+                   and any(c["id"] == "S1.output-before" and c["status"] == "FAIL"
+                           for c in s1["checks"]))
+    print("[SELFTEST] exit-code 注入被捕获: %s（run_id=%s，inner result=%s）"
+          % (caught_exit, s1["run_id"], s1["result"]))
+
+    tampered_patch = build_extra_file_patch(repo_root, "target-style")
+    note_patch = ("注入缺陷：reference.patch 追加创建 unrelated.txt"
+                 "（内容匹配 allowed_change_patterns）；期望 S4.patch-minimal 的"
+                 "文件范围/实际变更检查判 FAIL，整体 FAIL")
+    s2 = verify_style("target-style", repo_root, make, cc, git, False,
+                     patch_override=tampered_patch, tag="selftest-extra-file",
+                     note=note_patch)
+    shutil.rmtree(os.path.dirname(tampered_patch), ignore_errors=True)
+    caught_extra = (s2["result"] == "FAIL"
+                    and any(c["id"] == "S4.patch-minimal" and c["status"] == "FAIL"
+                            for c in s2["checks"]))
+    print("[SELFTEST] extra-file 注入被捕获: %s（run_id=%s，inner result=%s）"
+          % (caught_extra, s2["run_id"], s2["result"]))
+
+    ok = caught_exit and caught_extra
+    print("[SELFTEST] 负向回归总体: %s" % ("PASS" if ok else "FAIL"))
+    return ok
+
+
 def main():
     parser = argparse.ArgumentParser(description="E3 MDFixer 显式声明修复基线验证（成员3）")
     parser.add_argument("--style", choices=STYLES + ["all"], default="all")
@@ -727,6 +901,8 @@ def main():
     parser.add_argument("--keep-work", action="store_true", help="保留临时工作目录以便人工检查")
     parser.add_argument("--make", default=None, help="make 可执行文件路径或名称")
     parser.add_argument("--cc", default=None, help="C 编译器路径或名称")
+    parser.add_argument("--self-test", action="store_true",
+                        help="负向回归：注入退出码缺陷与夹带文件补丁，验证验证器能将其判为 FAIL")
     args = parser.parse_args()
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -734,10 +910,14 @@ def main():
     make, cc, git = detect_tools(args.make, args.cc)
     print("工具: make=%s cc=%s git=%s" % (make, cc, git))
 
+    if args.self_test:
+        sys.exit(0 if run_self_test(repo_root, make, cc, git) else 1)
+
     styles = STYLES if args.style == "all" else [args.style]
     results = {}
     for style in styles:
-        results[style] = verify_style(style, repo_root, make, cc, git, args.keep_work)
+        summary = verify_style(style, repo_root, make, cc, git, args.keep_work)
+        results[style] = summary["result"] == "PASS"
     print("\n===== 汇总 =====")
     for style, ok in results.items():
         print("%-14s %s" % (style, "PASS" if ok else "FAIL"))
