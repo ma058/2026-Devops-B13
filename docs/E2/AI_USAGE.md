@@ -20,3 +20,5 @@
 - GitHub 身份经 API 核实为 Lacrym1ra；Issue #9。PR、Review 以实际返回链接登记。
 - 成员3 PR #7 复现了跳过状态聚合与日志字节保真问题；仅审查，未改动成员3分支。
 - 未执行 A13 EChecker；未向 A13 或群聊发送消息。
+
+- 实际贡献：Issue #9、Draft PR #10；已请求 ma058、yqy241880115 Review。已在 PR #6/#7 提交 COMMENT Review。
