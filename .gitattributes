@@ -44,3 +44,6 @@ Makefile.* text eol=lf
 *.exe binary
 *.dll binary
 *.o binary
+
+# Evidence hashes refer to the original bytes, including captured line endings.
+evidence/** -text -whitespace

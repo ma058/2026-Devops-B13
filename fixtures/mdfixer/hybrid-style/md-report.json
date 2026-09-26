@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "report_id": "mdr-e3-hybrid-style-001",
+  "repository": {
+    "url": "https://github.com/ma058/2026-Devops-B13",
+    "commit": "2810e238b99f3989120d58593eb5328282f38d41"
+  },
+  "configuration_id": "gcc-O0",
+  "environment": {
+    "os": "linux",
+    "arch": "x86_64",
+    "make_version": "GNU Make 4.3",
+    "cc_version": "gcc 11.4.0 (Ubuntu 11.4.0-1ubuntu1~22.04.3)"
+  },
+  "detector": "B13_MANUAL_ORACLE",
+  "provenance": "B13 自建人工样本（fixtures/mdfixer/hybrid-style，引入提交 2810e238b99f3989120d58593eb5328282f38d41）。人工判断依据：main.o 的声明混用普通文件与宏（Makefile.before 第 11 行 main.o: main.c $(HEADERS)），HEADERS（第 4 行）为空宏，缺少实际依赖 config.h。行为证据：只改 config.h 为 VALUE=2 后普通 make 不重编译 main.o，程序仍输出 1；完整重建输出 2。若该 fixture 的源码或 Makefile 变更，必须更新为新的真实 fixture commit。",
+  "findings": [
+    {
+      "type": "MISSING",
+      "target": "main.o",
+      "dependency": "config.h",
+      "makefile_path": "Makefile",
+      "location": {
+        "line": 4,
+        "declaration": "HEADERS ="
+      },
+      "evidence": "人工依据：main.c 包含 config.h；main.o 声明中 HEADERS 宏为空，展开后只有 main.c。声明风格为 HYBRID（普通文件与宏并存，DIS 同时含 1 与 >=2），修复方式为 Hybrid 转换：保留直接项 main.c，头文件宏更新为 HEADERS = $(wildcard *.h)。wildcard 守卫已验证：工作目录中 *.h 仅命中 config.h（唯一有效依赖），无无关文件，满足论文两条前置条件；条件不成立时必须回退为 HEADERS = config.h 显式列举。验证记录见 evidence/E3/2026-09-24-mdfixer-hybrid-style/。"
+    }
+  ]
+}

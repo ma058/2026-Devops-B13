@@ -1,0 +1,23 @@
+{
+  "style": "HYBRID",
+  "project": { "main_source": "main.c", "header": "config.h", "executable": "app" },
+  "md": { "target": "main.o", "dependency": "config.h" },
+  "expect": {
+    "prefix_clean_output": "1",
+    "stale_output_before_fix": "1",
+    "after_fix_full_build_output": "2",
+    "after_fix_incremental_output": "3",
+    "oracle_md_before": 1,
+    "oracle_md_after": 0,
+    "behavior_equivalence_value": 1,
+    "behavior_equivalence_output": "1"
+  },
+  "patch_policy": {
+    "allowed_change_patterns": ["^HEADERS\\s*=\\s*(\\$\\(wildcard \\*\\.h\\))?$"]
+  },
+  "hybrid_guard": {
+    "wildcard": "*.h",
+    "valid_dependencies": ["config.h"],
+    "proof": "fixture 工作目录中 *.h 仅命中 config.h，而 config.h 正是 main.c 实际包含的头文件（唯一有效依赖）；不存在任何无关 .h 文件。满足 MDFixer 论文 Hybrid 转换使用 wildcard 宏的两条前置条件：(1) 同目录被匹配的同类型文件全部是有效依赖；(2) 不引入额外无关文件。若未来目录中出现第二个头文件，必须重新证明两条条件，否则回退为显式列举 HEADERS = config.h。"
+  }
+}

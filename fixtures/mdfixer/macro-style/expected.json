@@ -1,0 +1,19 @@
+{
+  "style": "MACRO",
+  "project": { "main_source": "main.c", "header": "config.h", "executable": "app" },
+  "md": { "target": "main.o", "dependency": "config.h" },
+  "expect": {
+    "prefix_clean_output": "1",
+    "stale_output_before_fix": "1",
+    "after_fix_full_build_output": "2",
+    "after_fix_incremental_output": "3",
+    "oracle_md_before": 1,
+    "oracle_md_after": 0,
+    "behavior_equivalence_value": 1,
+    "behavior_equivalence_output": "1"
+  },
+  "patch_policy": {
+    "allowed_change_patterns": ["^DEPS\\s*=\\s*main\\.c(\\s+config\\.h)?$"]
+  },
+  "hybrid_guard": null
+}
