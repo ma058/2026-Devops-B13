@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "report_id": "mdr-e2-invalid-short-sha",
+  "repository": {
+    "url": "https://github.com/example/md-rd-demo.git",
+    "commit": "c65226b"
+  },
+  "configuration_id": "gcc-O0",
+  "environment": {
+    "os": "linux",
+    "arch": "x86_64"
+  },
+  "detector": "INSTRUCTOR_ORACLE",
+  "provenance": "预期拒绝样例：唯一错误是 repository.commit 为 7 位短 SHA，违反 40 位十六进制约束。",
+  "findings": [
+    {
+      "type": "MISSING",
+      "target": "main.o",
+      "dependency": "config.h",
+      "makefile_path": "Makefile",
+      "evidence": "预期拒绝原因：repository.commit 不是完整 40 位十六进制 SHA。"
+    }
+  ]
+}
