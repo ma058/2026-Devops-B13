@@ -85,3 +85,15 @@ finally:
 见本次 evidence/E2 和 evidence/E3 实际目录。现有 Implicit 可使用命令包装接入；
 显式三风格脚本不在当前仓库，由成员3接入后生成自己的记录。
 本工具不实现远程 Artifact 发布，不自动提交 Git，也不覆盖任何人的旧证据。
+
+## 干净提交复验（成员2，2026-09-26）
+
+先提交代码，再将本批输出写到仓库外的新目录；全部完成后复制到 evidence/ 并单独提交。
+这样每项记录采集的 Git 状态都是实际完整工作区状态，不需要过滤未提交证据来得到 dirty=false。
+
+现有镜像复验入口：`python scripts/recheck_draft_image.py --image <本地镜像ID或标签> --output <仓库外新目录>`。
+它固定 inspect 返回的镜像 ID，检查两次运行、当前 fixture clean build 和容器工具信息；
+不声称重建 Dockerfile 或再次验证 broken 镜像。首次完整基线仍见 2026-09-24 记录。
+
+显式样本 PR #7 已有独立采集器；尚未合入本分支。包装命令只增加 command_exit，
+不会自动把内部检查转换为逐项检查；各风格 summary.json 仍需保留并校验。

@@ -1,14 +1,30 @@
 {
-  "provenance": "B13_MANUAL_ORACLE",
-  "repository_commit": "REPLACE_WITH_REAL_40_HEX_COMMIT_SHA",
+  "schema_version": "1.0",
+  "report_id": "mdr-e3-implicit-style-001",
+  "repository": {
+    "url": "https://github.com/ma058/2026-Devops-B13",
+    "commit": "c65226b27043e0a688d1a4b41249cd7b0893f164"
+  },
   "configuration_id": "gcc-O0",
+  "environment": {
+    "os": "linux",
+    "arch": "x86_64",
+    "make_version": "GNU Make 4.3",
+    "cc_version": "gcc 13.3.0"
+  },
+  "detector": "B13_MANUAL_ORACLE",
+  "provenance": "B13 自建人工样本（fixtures/mdfixer/implicit-style，引入提交 c65226b27043e0a688d1a4b41249cd7b0893f164）。人工判断依据：main.c 第 2 行 #include \"config.h\" 构成 main.o 的实际依赖；隐式规则 %.o: %.c 不追踪头文件，只改 config.h 后普通 make 不重建 main.o（程序仍输出旧值 1），clean build 输出新值。人工标签仅作可核验预期答案，不计入任何工具准确率。若该 fixture 的源码或 Makefile 变更，必须更新为新的真实 fixture commit。",
   "findings": [
     {
       "type": "MISSING",
       "target": "main.o",
       "dependency": "config.h",
-      "makefile": "Makefile",
-      "evidence": "main.c includes config.h, while the implicit %.o: %.c rule does not track header changes"
+      "makefile_path": "Makefile",
+      "location": {
+        "line": 9,
+        "declaration": "%.o: %.c"
+      },
+      "evidence": "隐式声明样本：%.o: %.c 规则只表达源文件到目标文件的推导，不声明头文件；make 数据库中 main.o 无 config.h 依赖。修复策略为编译期生成 .d 依赖文件并 -include（课程采用 .d 作为参考修复；MDFixer 论文中隐式声明修复还可由 LLM 生成项目特定补丁）。"
     }
   ]
 }

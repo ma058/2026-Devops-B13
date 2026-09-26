@@ -10,8 +10,18 @@
     },
     "md_report_uri": "artifact://pair13/job-full-001/md-report.json",
     "makefile_path": "Makefile",
-    "environment": {"configuration_id": "gcc-default"},
+    "environment": {
+      "configuration_id": "gcc-default",
+      "os": "linux",
+      "arch": "x86_64",
+      "image_ref": "nju-devops-e3-lab:20260906"
+    },
     "build_command": "make clean && make",
-    "verify_command": "./app"
+    "verify_command": "./app",
+    "policy": {
+      "consume": "MISSING_ONLY",
+      "if_no_missing": "NOT_APPLICABLE",
+      "note": "REPAIR 只消费 MISSING（与 MDFixer 论文一致：论文输入即 target 及其 MD 列表）。报告同时含 REDUNDANT 时按本策略过滤而非拒绝整份——课程工程化扩展，待 A13 确认（A-03/A-08）后写入 ADR。"
+    }
   }
 }

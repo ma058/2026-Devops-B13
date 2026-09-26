@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "report_id": "mdr-e2-example-001",
+  "repository": {
+    "url": "https://github.com/example/md-rd-demo.git",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "configuration_id": "gcc-O0",
+  "environment": {
+    "os": "linux",
+    "arch": "x86_64",
+    "make_version": "GNU Make 4.3",
+    "cc_version": "gcc 13.3.0",
+    "image_ref": "nju-devops-e3-lab:20260906"
+  },
+  "detector": "INSTRUCTOR_ORACLE",
+  "provenance": "逐字段复刻课程 E3 实验手册备查页步骤 8（A 组步骤 8：保存固定发现报告）的人工 Oracle 样例：md-rd 小项目中 main.c 包含 config.h 但 Makefile 未声明（MISSING），unused.h 被声明但未被使用（REDUNDANT）。课程手册提供固定答案，本样例仅作契约格式演示；repository、environment 与 URI 均为合成值，不计入任何工具准确率。",
+  "findings": [
+    {
+      "type": "MISSING",
+      "target": "main.o",
+      "dependency": "config.h",
+      "makefile_path": "Makefile",
+      "location": {
+        "line": 6,
+        "declaration": "main.o: main.c unused.h"
+      },
+      "evidence": "课程手册人工依据：clean build 时编译 main.o 会读取 config.h，但声明中只有 main.c 与 unused.h；只改 config.h 后普通 make 不重建 main.o，程序输出旧值，clean build 后输出新值，差异证明漏声明。"
+    },
+    {
+      "type": "REDUNDANT",
+      "target": "main.o",
+      "dependency": "unused.h",
+      "makefile_path": "Makefile",
+      "location": {
+        "line": 6,
+        "declaration": "main.o: main.c unused.h"
+      },
+      "evidence": "课程手册人工依据：构建全程没有进程读取 unused.h；仅改动 unused.h 注释即触发 main.o 多余重编译，功能结果不变。REPAIR 不消费本条 finding。"
+    }
+  ]
+}

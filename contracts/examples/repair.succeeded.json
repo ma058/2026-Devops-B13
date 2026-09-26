@@ -5,14 +5,85 @@
   "job_type": "REPAIR",
   "status": "SUCCEEDED",
   "input": {
-    "repository": {"commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
-    "md_report_uri": "artifact://pair13/job-full-001/md-report.json"
+    "repository": {
+      "url": "https://github.com/example/tiny-greeting.git",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "md_report_uri": "artifact://pair13/job-full-001/md-report.json",
+    "makefile_path": "Makefile",
+    "environment": {
+      "configuration_id": "gcc-default",
+      "os": "linux",
+      "arch": "x86_64",
+      "image_ref": "nju-devops-e3-lab:20260906"
+    },
+    "build_command": "make clean && make",
+    "verify_command": "./app",
+    "policy": {
+      "consume": "MISSING_ONLY",
+      "if_no_missing": "NOT_APPLICABLE"
+    }
   },
   "output": {
+    "repair_status": "PATCH_ACCEPTED",
     "patch_uri": "artifact://pair13/job-repair-001/fix.patch",
     "build_exit_code": 0,
     "verify_exit_code": 0,
-    "remaining_md_count": 0
+    "remaining_md_count": 0,
+    "consumed_findings": [
+      {
+        "type": "MISSING",
+        "target": "main.o",
+        "dependency": "config.h"
+      }
+    ],
+    "skipped_findings": [
+      {
+        "type": "REDUNDANT",
+        "target": "main.o",
+        "dependency": "unused.h",
+        "reason": "REPAIR 只消费 MISSING，不修复 REDUNDANT（MDFixer 论文修复范围即 MD；跳过 RD 不是失败）"
+      }
+    ],
+    "declaration_style": {
+      "before": "TARGET",
+      "after": "TARGET",
+      "consistent": true
+    },
+    "build": {
+      "status": "PASSED",
+      "command": "make clean && make",
+      "exit_code": 0,
+      "log_uri": "artifact://pair13/job-repair-001/build-after-fix.log"
+    },
+    "test": {
+      "status": "PASSED",
+      "command": "./app",
+      "expected_exit_code": 0,
+      "observed_exit_code": 0,
+      "note": "修复后完整构建输出新值；再次只改头文件后不 clean 直接 make，程序输出随之更新，证明增量重建已恢复"
+    },
+    "recheck": {
+      "tool": "COURSE_ORACLE",
+      "remaining_md_count": 0,
+      "report_uri": "artifact://pair13/job-repair-001/recheck-report.json",
+      "note": "课程固定 Oracle 重检 MD 数量为 0。联调阶段替换为 A13 EChecker 重检入口【待 A13 确认 A-17】"
+    },
+    "artifact_equivalence": {
+      "clean_build_behavior_identical": true,
+      "hash_compared": true,
+      "sha256_before": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "sha256_after": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "note": "修复前后同一配置的 clean build 程序行为一致；工具链输出稳定时产物哈希一致，否则记录差异原因"
+    },
+    "rejected_candidates": [
+      {
+        "candidate_id": "cand-01",
+        "summary": "在 app 链接规则上追加 config.h 而非在 main.o 编译规则上声明",
+        "rejection_reason": "候选未把缺失依赖声明到实际读取它的目标 main.o 上：修复后修改 config.h 仍不触发 main.o 重编译，重检 MD 数量仍为 1，验证失败，拒绝该候选",
+        "evidence_uri": "artifact://pair13/job-repair-001/cand-01-reject.log"
+      }
+    ]
   },
   "error": null
 }
