@@ -1,0 +1,7 @@
+{
+  "oracle": "B13_MANUAL_ORACLE",
+  "broken": {"exit": "nonzero", "diagnostic": "make: not found"},
+  "reference": {"build_exit_code": 0, "verify_exit_code": 0, "stdout": "hello E3\n"},
+  "repeat_count": 2,
+  "a13_detector_executed": false
+}

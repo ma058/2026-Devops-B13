@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "trace_id": "trace-pair13-demo",
+  "job_type": "DRAFT",
+  "idempotency_key": "b13-draft-demo-001",
+  "input": {
+    "repository": {
+      "url": "https://github.com/example/tiny-greeting.git",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "context_files": [
+      "a",
+      "b",
+      "c"
+    ],
+    "build": {
+      "command": "make",
+      "verify_command": "./hello",
+      "timeout_seconds": 600,
+      "expected_stdout": "hello E3\n",
+      "clean_command": "make clean && make",
+      "working_directory": "/workspace/project"
+    },
+    "max_iterations": 5,
+    "configuration_id": "gcc-default"
+  }
+}

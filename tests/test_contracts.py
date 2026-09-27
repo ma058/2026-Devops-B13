@@ -47,6 +47,15 @@ class ContractTests(unittest.TestCase):
         data["output"] = None
         self.assertTrue(any("requires object" in error for error in validate_job(data)))
 
+    def test_failed_without_error_has_only_intended_rejection(self):
+        valid = example("draft.failed.json")
+        invalid = example("invalid/failed-without-error.json")
+        self.assertEqual([], validate_job(valid))
+        expected = copy.deepcopy(valid)
+        expected["error"] = None
+        self.assertEqual(expected, invalid)
+        self.assertEqual(["error: failed terminal state requires object"], validate_job(invalid))
+
     def test_finding_does_not_fail_job(self):
         data = example("full-check.succeeded.json")
         self.assertEqual("MISSING", data["output"]["findings"][0]["type"])
@@ -63,6 +72,26 @@ class ContractTests(unittest.TestCase):
         data["input"]["context_files"] = ["README.md", "INSTALL.md", "HOWTO.md"]
         self.assertTrue(any("at most two" in error for error in validate_create(data)))
 
+    def test_draft_status_examples(self):
+        for name in ("accepted", "running", "failed"):
+            self.assertEqual([], validate_job(example(f"draft.{name}.json")))
+
+    def test_draft_timeout_and_boolean_exit_rejected(self):
+        data = example("draft.request.json")
+        data["input"]["build"]["timeout_seconds"] = 0
+        self.assertTrue(validate_create(data))
+        data = example("draft.succeeded.json")
+        data["output"]["build_exit_code"] = False
+        self.assertTrue(validate_job(data))
+
+    def test_draft_environment_and_output_must_match(self):
+        for key, value in (("repository_commit", "c" * 40), ("configuration_id", "other")):
+            data = example("draft.succeeded.json")
+            data["output"]["environment"][key] = value
+            self.assertTrue(validate_job(data))
+        data = example("draft.succeeded.json")
+        data["output"]["verify_stdout"] = "wrong\n"
+        self.assertTrue(validate_job(data))
     def test_valid_md_report_and_implicit_template(self):
         self.assertEqual([], validate_md_report(example("md-report.json")))
         template = json.loads(

@@ -1,0 +1,159 @@
+{
+  "evidence_schema_version": "0.1",
+  "format_status": "B13_DRAFT",
+  "run_id": "2026-09-24-member2-tests",
+  "suite": "E2",
+  "case": "tests",
+  "started_at": "2026-09-24T11:04:22.826982+00:00",
+  "finished_at": "2026-09-24T11:04:24.822125+00:00",
+  "source": {
+    "repository": {
+      "value": "https://github.com/ma058/2026-Devops-B13.git",
+      "reason": null
+    },
+    "commit_sha": "b6f47cdfb45665b1d0da184c64e52e4157245550",
+    "dirty": true,
+    "git_status": {
+      "value": "M contracts/examples/draft.request.json\n M contracts/examples/draft.succeeded.json\n M contracts/schemas/create-job.schema.json\n M contracts/schemas/job.schema.json\n M scripts/validate.py\n M tests/test_contracts.py\n?? contracts/examples/draft.accepted.json\n?? contracts/examples/draft.failed.json\n?? contracts/examples/draft.running.json\n?? contracts/examples/invalid/draft-context-over-limit.json\n?? contracts/examples/invalid/draft-invalid-timeout.json\n?? contracts/examples/invalid/draft-short-commit.json\n?? docs/E2/AI_USAGE.md\n?? docs/E2/draft-contract.md\n?? evidence/E2/2026-09-24-member2-contracts/\n?? evidence/E3/2026-09-24-185846-draft/\n?? evidence/E3/2026-09-24-190000-draft/\n?? evidence/README.md\n?? fixtures/draft/\n?? scripts/collect_evidence.py\n?? scripts/verify_draft.py\n?? tests/test_evidence.py",
+      "reason": null
+    },
+    "file_sha256": {
+      "contracts/examples/draft.accepted.json": "66cf1a51425e8d9249fc3702fc35f0f6dc8dbae5371267835adc5709a3b3b017",
+      "contracts/examples/draft.failed.json": "085f404386e5d7eb6bff664e47afc140fc92971dc6813d54f3dc1db58c35f001",
+      "contracts/examples/draft.running.json": "aea711260a1df63db6251f844e7865322c6b7f91e57475ed6f680b55ebbfb48c",
+      "contracts/examples/invalid/draft-context-over-limit.json": "497cdf133850d929c358b6c8ad6f35e53f3e6090259a4d9fe923a0c2644ef4ee",
+      "contracts/examples/invalid/draft-invalid-timeout.json": "a7b7247adb68d78720f905e9492e4eb874a26575b8c80170aca0716b10358370",
+      "contracts/examples/invalid/draft-short-commit.json": "179d13900f3c0e29d3ae5a967107a066309d9782b5460e2b360cac64362aa790",
+      "docs/E2/AI_USAGE.md": "03150eae43942ab4994c74cbafd70860b9a5c15f0294e6444633928b1d73ac64",
+      "docs/E2/draft-contract.md": "5880f9f7562aecc6bbee1de7a5226cc3a3ecd870f8f7877a183c26be25b6ff56",
+      "fixtures/draft/Dockerfile.broken": "aff9d06345c7ac2c43774cbcf8c9acdf2e58e728cc2deb81718b8aefcf133e3e",
+      "fixtures/draft/Dockerfile.reference": "c2002dd6e2d82490a72b72a08c62f8db35323879c9ab6930f570353f18e56ae0",
+      "fixtures/draft/Makefile": "be7f11c0aba065948223ada3bb846fa0221a401709afef16b696959f1bf5140f",
+      "fixtures/draft/README.md": "c2eb80fdd379a136de9e91d04e01450402c284f86141bfe0152857aeba3fc02b",
+      "fixtures/draft/expected.json": "49bae373a30e38cc2802f7b9a408c3062bbed2363f224985203a91077186e7b5",
+      "fixtures/draft/main.c": "b1e9d3ae4d2089e5e3f4ed35e37f81efcca44c023752a7f7e6a7745d21ff4220",
+      "fixtures/draft/verify.sh": "465a029b5602816d0ae33daad0618da45ddce8bd94a20e7734776cf75bc9b85b",
+      "scripts/collect_evidence.py": "ec35ac354d781025f6c8ec4af7e9b49aaf78f1bbd45b61c45a20d3621ddd5116",
+      "scripts/verify_draft.py": "364d99ceb3889c18e465d57e8c30047a48c9f4157338b1bbd5c625100b89ba06",
+      "tests/test_evidence.py": "00de1669992bc2e137041a0b54eee00c702cffefb96dcb08638ccebbeb7ddf82",
+      ".gitattributes": "2fd306a9b644413696257389b7b80b7bf325b1d3506887c806577daa7044d748",
+      ".gitignore": "2b6de96bab6def3d79e11511be0980503310f8228d49199aa46c6c707ddaa297",
+      "CONTRIBUTIONS.md": "24414f9db92f6f3e20bfed2d87e37d06fa43e4b649084695a951b5a985832add",
+      "README.md": "7b414d9174e7a59d7b84a559cf87eea3ade8b99cb2b00706d277e4cae9b6da89",
+      "contracts/artifact-access.md": "940b4dd938fc4aa7beeccaea168c8c595679c01de71e42487bd2d83caeb54152",
+      "contracts/examples/README.md": "aa3b43b17c1d29eec3d98dd463360f41e7d9f3dd8c4f2a948a6f6f87b6117ae1",
+      "contracts/examples/draft.request.json": "c3598ad55fd091f932bb1722e496693d0d537833445794e83368508edde3a5b7",
+      "contracts/examples/draft.succeeded.json": "fcfa6b63c246ffb87e04a2079ba81589ff6de37cc1fad1aba62ebafb84fcbf91",
+      "contracts/examples/full-check.request.json": "2e317d112b125c395cfd582c616b290d21bb1d85e8e933657507fb1d4ea1dd99",
+      "contracts/examples/full-check.succeeded.json": "5f6b63612fabcb3b3e574f37016bc419478caa5315bab8cd6c4e4aa1fccd6fb3",
+      "contracts/examples/incremental-check.request.json": "40a106f5cbb3394abe13e35ea29fe5c602d6d99d475f6921e7a2b24f7cf5457a",
+      "contracts/examples/incremental-check.succeeded.json": "7b7b42098eb15118930638a51bce98b043beb363465144414406e15e2e8283a7",
+      "contracts/examples/invalid/failed-without-error.json": "aa7c7bfd7cadbf4f4ee8bf4a1c62d361a2e746535bba5603610513afa94c7740",
+      "contracts/examples/invalid/incremental-without-baseline.json": "3e2ec9a4ba81321b0547d02678e512e548513fc6f6bbee6f9c7bd7dae626371f",
+      "contracts/examples/invalid/unknown-job-type.json": "93d60f948ad4c4119bb9e3e0a60a045e17718af8569db2711c335710ffed708a",
+      "contracts/examples/repair.request.json": "6cefead366c531feb30325e1b4c7290b2f910e91e1f7e3484d039c63a459a02f",
+      "contracts/examples/repair.succeeded.json": "02cd750ae89eeef35b3259c34655a0c22d338a1138ff866c489ec740912d229d",
+      "contracts/schemas/artifact.schema.json": "090b173b1d0adae5726da3b329bf76fb98e59697e9e2fe3a64a70ac268ebec58",
+      "contracts/schemas/create-job.schema.json": "b442e4252764528644496fd1074fe628417e032b795bda5b413fb48aaf5d4855",
+      "contracts/schemas/job.schema.json": "bc1531d0aed7eecc5c24dbf22329364c16dfc50a1d8f64be3ae3024cc2bb68e2",
+      "docs/E2/A13_MESSAGE.md": "7e39c4abe28a3158ef0f0dfbf3fe9e65280d439736d7e19f91cf98d8028e5e07",
+      "docs/E2/ADR-001-async-job.md": "434f569acfca5cee4e6f6ab93784976d801a083ee6612ab3d1922507b4419288",
+      "docs/E2/ADR-002-artifact-access.md": "2e9a02fae0b04cefc9fc99779bc09ca4752ad1b3c07b6d9b6c87c0e61fdd6a05",
+      "docs/E2/ADR-003-baseline-policy.md": "6c55bdffaa7bf7a596e11b56e1bae7bf988035fb20c8db2c7d29dde68f55e8cf",
+      "docs/E2/BACKLOG.md": "75ce0be888995b0a2fb77a66dd99e2d1053b95a3f603e00ebe369fe89d425a4a",
+      "docs/E2/pair-review.md": "b1673e71dd92fce407a5b1a98503320d532b0e7793ee69499585bfd280d8e373",
+      "docs/E2/status-and-errors.md": "2c3dbad064e0be4a1a083d0c32cf93e63bd0770392137f008e2e560e71cf5539",
+      "docs/TASK_FLOW.md": "60d5ec96753fde6766a82571bf6f1436314f685f0678d2ac0cf00f2555150ad6",
+      "fixtures/mdfixer/implicit-style/Makefile": "3ba5501665899374d21e6e0298f1c636982473458fafebfca157ba0b77b8a9d0",
+      "fixtures/mdfixer/implicit-style/README.md": "1a18f9114784e0afd007631f78295e0b0c69909cde8ccbab59a95dc4de7a07a1",
+      "fixtures/mdfixer/implicit-style/config.h": "ac32a92f4af359517c993d6e8583ea2d9b053c2ad171b4c602bc242894bd9696",
+      "fixtures/mdfixer/implicit-style/invalid.patch": "bee883cfbafab3198efcc8d1a8da4edf48e5c594d7ee263ce5c461a3e2d441e9",
+      "fixtures/mdfixer/implicit-style/main.c": "a1bbac023098d5bdd6302977e565b57c4959ee2c34d0787c1c5b2ea5c208ee9f",
+      "fixtures/mdfixer/implicit-style/md-report.template.json": "b9f8817e2c250a4ee81204a4a14c5f8c76528a1445d4348421d6cfb4eddb431d",
+      "fixtures/mdfixer/implicit-style/reference.patch": "009bcf9400bfb77e2462f9892db36e72f3a0e975b18cec4405bffc56ade44c69",
+      "requirements-dev.txt": "1e69a77124d1905b8b6148ac8ceb1f7f44ed6c42192782b0c5622396dff4fb64",
+      "scripts/check_jsonschema.py": "be478356ba74ea8db5b9c7d5dcecf6a2491c586975d89af3ba66b88414ac121a",
+      "scripts/validate.py": "cfe41be522ed8f9c143b843bb2d0c5cd944809ba7718faa2772d8f7a5f645faf",
+      "scripts/verify_implicit.py": "07fae709c9ca1cbdded855c8960702a94b16d342fa7c91ccbfbb498ae64d75db",
+      "tests/test_contracts.py": "0ee9ef867f85b14a641003cc0060a878e8cc0e7104b88de46df55de996bc3740"
+    }
+  },
+  "environment": {
+    "os": "Windows-10-10.0.26100-SP0",
+    "arch": "AMD64",
+    "cwd": "C:\\Users\\X\\桌面\\note\\devops\\project b13\\2026-Devops-B13",
+    "container": null
+  },
+  "tools": {
+    "python": {
+      "value": "Python 3.9.9",
+      "reason": null
+    },
+    "git": {
+      "value": "git version 2.42.0.windows.2",
+      "reason": null
+    },
+    "make": {
+      "value": null,
+      "reason": "[WinError 2] 系统找不到指定的文件。"
+    },
+    "gcc": {
+      "value": "gcc (x86_64-posix-seh-rev0, Built by MinGW-Builds project) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.",
+      "reason": null
+    },
+    "docker": {
+      "value": "Client:\n Version:           29.6.2\n API version:       1.55\n Go version:        go1.26.5\n Git commit:        dfc4efb\n Built:             Thu Jul 16 16:14:59 2026\n OS/Arch:           windows/amd64\n Context:           desktop-linux\n\nServer: Docker Desktop 4.85.0 (235549)\n Engine:\n  Version:          29.6.2\n  API version:      1.55 (minimum version 1.40)\n  Go version:       go1.26.5\n  Git commit:       3d80467\n  Built:            Thu Jul 16 16:12:20 2026\n  OS/Arch:          linux/amd64\n  Experimental:     false\n containerd:\n  Version:          v2.2.5\n  GitCommit:        e53c7c1516c3b2bff98eb76f1f4117477e6f4e66\n runc:\n  Version:          1.3.6\n  GitCommit:        v1.3.6-0-g491b69ba\n docker-init:\n  Version:          0.19.0\n  GitCommit:        de40ad0",
+      "reason": null
+    }
+  },
+  "commands": [
+    {
+      "id": "cmd-1",
+      "argv": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "cwd": "C:\\Users\\X\\桌面\\note\\devops\\project b13\\2026-Devops-B13",
+      "started_at": "2026-09-24T11:04:23.252525+00:00",
+      "exit_code": 0,
+      "timed_out": false,
+      "execution_error": null,
+      "finished_at": "2026-09-24T11:04:24.821124+00:00",
+      "stdout_path": "001.stdout.log",
+      "stderr_path": "001.stderr.log"
+    }
+  ],
+  "checks": [
+    {
+      "id": "command_exit",
+      "expected": 0,
+      "actual": 0,
+      "status": "PASS",
+      "command_id": "cmd-1"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "001.stderr.log",
+      "sha256": "9b80031afd8bbdf218e5af9d4740285348476f7a205db02eb5a47ce493cbe540"
+    },
+    {
+      "path": "001.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "verify.log",
+      "sha256": "b6e7fdf52d38af09d95bc3ef19a8bcd1e171fe8a94939ef037c955b16cff4115"
+    }
+  ],
+  "provenance": {
+    "kind": "B13_MANUAL_ORACLE",
+    "detector_executed": false
+  },
+  "result": "PASS"
+}

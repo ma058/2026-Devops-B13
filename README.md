@@ -4,6 +4,11 @@
 
 当前仓库处于**跨组契约草案阶段**：E2 中跨组字段需要 A13 确认；E3 的 Implicit 小项目已在 WSL Ubuntu 实测，但尚未使用 A13 的 EChecker 复检。示例 JSON 是合成数据，不能当作服务运行结果；参考补丁有独立的本地验证记录。
 
+成员2已补充 [DRAFT 契约](docs/E2/draft-contract.md)、[Docker 人工基线](fixtures/draft/README.md)
+与 [通用证据格式](evidence/README.md)。执行 `python scripts/verify_draft.py` 可运行 Docker 基线；
+执行 `python scripts/collect_evidence.py --help` 查看其他成员脚本的接入方式。
+各次运行是否成功以对应 evidence 目录的 summary.json 为准，环境失败记录也会保留。
+
 实验执行顺序、成员分工和验收条件见 [任务流程](docs/TASK_FLOW.md)。
 
 ## 当前可运行的检查

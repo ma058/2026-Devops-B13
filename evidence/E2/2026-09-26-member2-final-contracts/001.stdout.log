@@ -1,0 +1,22 @@
+PASS contracts\examples\draft.accepted.json
+PASS contracts\examples\draft.failed.json
+PASS contracts\examples\draft.request.json
+PASS contracts\examples\draft.running.json
+PASS contracts\examples\draft.succeeded.json
+PASS contracts\examples\full-check.request.json
+PASS contracts\examples\full-check.succeeded.json
+PASS contracts\examples\incremental-check.request.json
+PASS contracts\examples\incremental-check.succeeded.json
+PASS contracts\examples\md-report.json
+PASS contracts\examples\repair.failed.json
+PASS contracts\examples\repair.request.json
+PASS contracts\examples\repair.succeeded.json
+EXPECTED REJECTION contracts\examples\invalid\draft-context-over-limit.json: input.context_files: expected array of at most two non-empty paths
+EXPECTED REJECTION contracts\examples\invalid\draft-invalid-timeout.json: input.build.timeout_seconds: expected positive integer
+EXPECTED REJECTION contracts\examples\invalid\draft-short-commit.json: input.repository.commit: expected full 40-hex commit SHA
+EXPECTED REJECTION contracts\examples\invalid\failed-without-error.json: error: failed terminal state requires object
+EXPECTED REJECTION contracts\examples\invalid\incremental-without-baseline.json: input.baseline: expected non-empty object
+EXPECTED REJECTION contracts\examples\invalid\md-report.invalid-detector.json: detector: unsupported value 'B13_HOMEBREW_ORACLE'
+EXPECTED REJECTION contracts\examples\invalid\md-report.invalid-short-sha.json: repository.commit: expected full 40-hex commit SHA
+EXPECTED REJECTION contracts\examples\invalid\unknown-job-type.json: job_type: unsupported value 'ABC'
+All contract examples passed their expected outcome.

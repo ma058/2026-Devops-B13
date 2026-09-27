@@ -1,0 +1,56 @@
+[
+    {
+        "Id": "sha256:18135e3075fd8211e4b2feeed0c972958835076339907782dc8c56e53940359b",
+        "RepoTags": [
+            "b13-draft-reference:20260924191953"
+        ],
+        "RepoDigests": [
+            "b13-draft-reference@sha256:18135e3075fd8211e4b2feeed0c972958835076339907782dc8c56e53940359b"
+        ],
+        "Comment": "buildkit.dockerfile.v0",
+        "Created": "2026-09-24T11:21:05.502079532Z",
+        "Config": {
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            "Cmd": [
+                "./hello"
+            ],
+            "WorkingDir": "/workspace/project",
+            "Labels": {
+                "org.opencontainers.image.ref.name": "ubuntu",
+                "org.opencontainers.image.version": "20.04"
+            },
+            "ArgsEscaped": true
+        },
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 116990410,
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:e7b3d1ccfa9cbf3f128b83f40f03caeb9a3a272a7bad2b020360ae51c00ab9c6",
+                "sha256:26df0d242fde79971d1e897db2e61d7757d976756abfc6796f55b304814fdec2",
+                "sha256:958a22bd65a88d72a9e6d38ec3c8832fe90270b939e094255cbf2d4493e1a1c4",
+                "sha256:fcb3b0b388d3adef9580cf66f7b38616a5024366b0d79598a73b16b5237fc9e6",
+                "sha256:66960ac7176ca54e5c0a0d817592742f64c4d21e056c319819269ac14b0bc58e"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "2026-09-24T11:21:13.242097287Z"
+        },
+        "Descriptor": {
+            "mediaType": "application/vnd.oci.image.index.v1+json",
+            "digest": "sha256:18135e3075fd8211e4b2feeed0c972958835076339907782dc8c56e53940359b",
+            "size": 856
+        },
+        "Identity": {
+            "Build": [
+                {
+                    "Ref": "yuzpcjk4drfe6a0ngavdp7hrp",
+                    "CreatedAt": "2026-09-24T11:21:14.876859002Z"
+                }
+            ]
+        }
+    }
+]

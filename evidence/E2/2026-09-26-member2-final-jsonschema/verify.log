@@ -1,0 +1,31 @@
+{"id": "cmd-1", "argv": [".venv/Scripts/python.exe", "scripts/check_jsonschema.py"], "cwd": "C:\\Users\\X\\桌面\\note\\devops\\project b13\\2026-Devops-B13", "started_at": "2026-09-26T06:07:40.222281+00:00", "exit_code": 0, "timed_out": false, "execution_error": null, "finished_at": "2026-09-26T06:07:40.485632+00:00", "stdout_path": "001.stdout.log", "stderr_path": "001.stderr.log"}
+[stdout]
+SCHEMA OK contracts\schemas\artifact.schema.json
+SCHEMA OK contracts\schemas\create-job.schema.json
+SCHEMA OK contracts\schemas\job.schema.json
+SCHEMA OK contracts\schemas\md-report.schema.json
+INSTANCE OK contracts\examples\draft.accepted.json
+INSTANCE OK contracts\examples\draft.failed.json
+INSTANCE OK contracts\examples\draft.request.json
+INSTANCE OK contracts\examples\draft.running.json
+INSTANCE OK contracts\examples\draft.succeeded.json
+INSTANCE OK contracts\examples\full-check.request.json
+INSTANCE OK contracts\examples\full-check.succeeded.json
+INSTANCE OK contracts\examples\incremental-check.request.json
+INSTANCE OK contracts\examples\incremental-check.succeeded.json
+INSTANCE OK contracts\examples\md-report.json
+INSTANCE OK contracts\examples\repair.failed.json
+INSTANCE OK contracts\examples\repair.request.json
+INSTANCE OK contracts\examples\repair.succeeded.json
+EXPECTED REJECTION contracts\examples\invalid\draft-context-over-limit.json: ['a', 'b', 'c'] is too long
+EXPECTED REJECTION contracts\examples\invalid\draft-invalid-timeout.json: 0 is less than the minimum of 1
+EXPECTED REJECTION contracts\examples\invalid\draft-short-commit.json: 'abc123' does not match '^[0-9a-fA-F]{40}$'
+EXPECTED REJECTION contracts\examples\invalid\failed-without-error.json: None is not of type 'object'
+EXPECTED REJECTION contracts\examples\invalid\incremental-without-baseline.json: 'baseline' is a required property
+EXPECTED REJECTION contracts\examples\invalid\md-report.invalid-detector.json: 'B13_HOMEBREW_ORACLE' is not one of ['BUILDCHECKER', 'ECHECKER', 'INSTRUCTOR_ORACLE', 'B13_MANUAL_ORACLE']
+EXPECTED REJECTION contracts\examples\invalid\md-report.invalid-short-sha.json: 'c65226b' does not match '^[0-9a-fA-F]{40}$'
+EXPECTED REJECTION contracts\examples\invalid\unknown-job-type.json: 'ABC' is not one of ['DRAFT', 'FULL_CHECK', 'INCREMENTAL_CHECK', 'REPAIR']
+INSTANCE OK fixtures\mdfixer\implicit-style\md-report.template.json
+
+[stderr]
+

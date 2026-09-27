@@ -50,6 +50,10 @@ def main() -> None:
         issues = list(validator.iter_errors(instance))
         if not issues:
             raise AssertionError(f"{path.name}: expected schema rejection")
+        if path.name == "failed-without-error.json":
+            assert len(issues) == 1, [issue.message for issue in issues]
+            assert list(issues[0].absolute_path) == ["error"]
+            assert issues[0].validator == "type"
         print(f"EXPECTED REJECTION {path.relative_to(ROOT)}: {issues[0].message}")
 
     fixture = ROOT / "fixtures" / "mdfixer" / "implicit-style" / "md-report.template.json"

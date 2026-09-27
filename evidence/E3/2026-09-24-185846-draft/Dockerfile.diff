@@ -1,0 +1,9 @@
+--- Dockerfile.broken
++++ Dockerfile.reference
+@@ -1,4 +1,6 @@
+ FROM public.ecr.aws/ubuntu/ubuntu:20.04
++RUN apt-get update && apt-get install -y --no-install-recommends gcc make libc6-dev git python3 \
++    && rm -rf /var/lib/apt/lists/*
+ WORKDIR /workspace/project
+ COPY main.c Makefile ./
+ RUN make

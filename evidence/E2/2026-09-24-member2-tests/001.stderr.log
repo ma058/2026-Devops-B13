@@ -1,0 +1,19 @@
+test_artifact_producer_mismatch (test_contracts.ContractTests) ... ok
+test_context_files_max_two (test_contracts.ContractTests) ... ok
+test_draft_environment_and_output_must_match (test_contracts.ContractTests) ... ok
+test_draft_status_examples (test_contracts.ContractTests) ... ok
+test_draft_timeout_and_boolean_exit_rejected (test_contracts.ContractTests) ... ok
+test_failed_job_requires_error (test_contracts.ContractTests) ... ok
+test_finding_does_not_fail_job (test_contracts.ContractTests) ... ok
+test_four_request_types (test_contracts.ContractTests) ... ok
+test_four_success_results (test_contracts.ContractTests) ... ok
+test_invalid_job_type (test_contracts.ContractTests) ... ok
+test_missing_baseline (test_contracts.ContractTests) ... ok
+test_wrong_baseline_version (test_contracts.ContractTests) ... ok
+test_expected_failure_preserves_both_streams (test_evidence.EvidenceTests) ... ok
+test_timeout_and_missing_executable_leave_evidence (test_evidence.EvidenceTests) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 1.338s
+
+OK
