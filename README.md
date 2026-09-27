@@ -1,17 +1,43 @@
-# 2026 DevOps B13
+# 2026 DevOps B13 — E2 / E3
 
-本仓库用于 B13 与配对组 A13 的 E2 接口契约和 E3 测试基线。B13 负责 DRAFT 与 MDFixer；A13 负责 BuildChecker 与 EChecker。
+本仓库是 B13 小组（3 人）的 E2、E3 实验交付。B13 负责 DRAFT 与 MDFixer，并提供公共任务契约、REPAIR/MD 报告契约、可复现测试样本、自动校验脚本和运行证据。
 
-当前仓库处于**跨组契约草案阶段**：E2 中跨组字段需要 A13 确认；E3 的 Implicit 小项目已在 WSL Ubuntu 实测，但尚未使用 A13 的 EChecker 复检。示例 JSON 是合成数据，不能当作服务运行结果；参考补丁有独立的本地验证记录。
+补交入口见 [提交说明](docs/SUBMISSION.md)，个人 GitHub 活动见 [贡献登记表](CONTRIBUTIONS.md)。固定提交版本使用 Git 标签 [`submission-2026-09-27`](https://github.com/ma058/2026-Devops-B13/tree/submission-2026-09-27)。
 
-成员2已补充 [DRAFT 契约](docs/E2/draft-contract.md)、[Docker 人工基线](fixtures/draft/README.md)
-与 [通用证据格式](evidence/README.md)。执行 `python scripts/verify_draft.py` 可运行 Docker 基线；
-执行 `python scripts/collect_evidence.py --help` 查看其他成员脚本的接入方式。
-各次运行是否成功以对应 evidence 目录的 summary.json 为准，环境失败记录也会保留。
+## E2 交付
 
-实验执行顺序、成员分工和验收条件见 [任务流程](docs/TASK_FLOW.md)。
+- `contracts/schemas/`：Artifact、Create Job、Job、MD Report 四份 JSON Schema
+- `contracts/examples/`：DRAFT、FULL_CHECK、INCREMENTAL_CHECK、REPAIR 与 MD Report 的有效及无效样例
+- `docs/E2/`：契约说明、设计决策与 AI 使用记录
+- `scripts/validate.py`：不依赖第三方包的快速校验器
+- `scripts/check_jsonschema.py`：基于 Draft 2020-12 的正式 Schema 校验
+- `tests/`：契约与证据采集单元测试
 
-## 当前可运行的检查
+## E3 交付
+
+- `fixtures/draft/`：DRAFT Docker 人工基线
+- `fixtures/mdfixer/implicit-style/`：Implicit 声明修复、参考补丁和无效补丁
+- `fixtures/mdfixer/target-style/`：Target 风格声明修复样本
+- `fixtures/mdfixer/macro-style/`：Macro 风格声明修复样本
+- `fixtures/mdfixer/hybrid-style/`：Hybrid 风格声明修复样本
+- `scripts/verify_implicit.py`：Implicit 样本端到端验证
+- `scripts/verify_mdfixer_explicit.py`：Target、Macro、Hybrid 三类样本端到端验证
+- `evidence/`：命令输出、结构化摘要、环境信息和产物哈希
+
+## 最终验收结果
+
+最终 `main` 独立复验结果：
+
+- 标准库契约校验：13 份有效样例通过，8 份无效样例均按预期拒绝
+- Draft 2020-12 校验：4 份 Schema 及全部样例符合预期
+- 单元测试：23 / 23 通过
+- Implicit：问题复现、修复、增量重建、行为等价、无效候选拒绝与恢复全部通过
+- Target：21 / 21 通过
+- Macro：21 / 21 通过
+- Hybrid：22 / 22 通过
+- DRAFT 镜像复验：5 / 5 通过
+
+## 复现命令
 
 在仓库根目录执行：
 
@@ -20,16 +46,13 @@ python scripts/validate.py
 python -m unittest discover -s tests -v
 ```
 
-校验器使用 Python 标准库，不依赖联网安装。它检查仓库中的示例是否符合本仓库的公共契约；正式与 A13 冻结前，服务专有字段仍为草案。
-
-在 Linux/WSL Ubuntu 中还可运行：
+在 Linux 或 WSL Ubuntu 中执行：
 
 ```bash
 python3 -m pip install -r requirements-dev.txt
 python3 scripts/check_jsonschema.py
 python3 scripts/verify_implicit.py
+python3 scripts/verify_mdfixer_explicit.py
 ```
 
-依赖安装应在项目专用的虚拟环境或 Conda 环境中执行。`check_jsonschema.py` 使用 Python `jsonschema` 包校验 JSON Schema 文件和样例；`verify_implicit.py` 还需要 Git、GNU Make 和 GCC，并在隔离副本中复现问题、验证修复和失败恢复。已完成的运行记录见 `evidence/E2/` 与 `evidence/E3/`。
-
-仓库成员应使用各自的 GitHub 身份、个人分支和独立提交完成负责内容，并在 [贡献登记表](CONTRIBUTIONS.md) 中补充真实的 Issue、Commit、PR、Review 和运行证据。跨组契约只有在 A13 留下可追溯的确认记录后，才能从“草案”改为“已确认”。
+上述脚本在隔离副本或临时目录中测试修复，不会用破坏性命令覆盖真实工作区。
