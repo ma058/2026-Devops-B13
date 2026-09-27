@@ -1,0 +1,13 @@
+diff --git a/Makefile b/Makefile
+index 8c09f1f..ce23f5b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -9,7 +9,7 @@ app: main.o
+ 	$(CC) main.o -o app
+ 
+ main.o: $(DEPS)
+-	$(CC) $(CFLAGS) -c main.c -o main.o
++	false # intentionally invalid candidate
+ 
+ clean:
+ 	rm -f main.o app

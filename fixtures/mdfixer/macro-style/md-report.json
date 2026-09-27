@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "report_id": "mdr-e3-macro-style-001",
+  "repository": {
+    "url": "https://github.com/ma058/2026-Devops-B13",
+    "commit": "5f599d2592fbf4a678950b7f7b2886b6844ad9e4"
+  },
+  "configuration_id": "gcc-O0",
+  "environment": {
+    "os": "linux",
+    "arch": "x86_64",
+    "make_version": "GNU Make 4.3",
+    "cc_version": "gcc 11.4.0 (Ubuntu 11.4.0-1ubuntu1~22.04.3)"
+  },
+  "detector": "B13_MANUAL_ORACLE",
+  "provenance": "B13 自建人工样本（fixtures/mdfixer/macro-style，引入提交 5f599d2592fbf4a678950b7f7b2886b6844ad9e4）。人工判断依据：main.o 的声明完全通过宏 DEPS（Makefile.before 第 4 行 DEPS = main.c，第 11 行 main.o: $(DEPS)），宏展开后缺少实际依赖 config.h。行为证据：只改 config.h 为 VALUE=2 后普通 make 不重编译 main.o，程序仍输出 1；完整重建输出 2。若该 fixture 的源码或 Makefile 变更，必须更新为新的真实 fixture commit。",
+  "findings": [
+    {
+      "type": "MISSING",
+      "target": "main.o",
+      "dependency": "config.h",
+      "makefile_path": "Makefile",
+      "location": {
+        "line": 4,
+        "declaration": "DEPS = main.c"
+      },
+      "evidence": "人工依据：main.c 包含 config.h；main.o 的声明经宏 DEPS 展开后只有 main.c。声明风格为 MACRO（声明右侧全部为宏引用，DIS>=2），修复方式为 Macro 转换：在 DEPS 宏中追加 config.h，不改动规则行。验证记录见 evidence/E3/2026-09-24-mdfixer-macro-style/。"
+    }
+  ]
+}

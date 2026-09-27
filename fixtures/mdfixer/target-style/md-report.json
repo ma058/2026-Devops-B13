@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "report_id": "mdr-e3-target-style-001",
+  "repository": {
+    "url": "https://github.com/ma058/2026-Devops-B13",
+    "commit": "84f6e9df0ec021ed4e5fb41239aab4657b6f96ef"
+  },
+  "configuration_id": "gcc-O0",
+  "environment": {
+    "os": "linux",
+    "arch": "x86_64",
+    "make_version": "GNU Make 4.3",
+    "cc_version": "gcc 11.4.0 (Ubuntu 11.4.0-1ubuntu1~22.04.3)"
+  },
+  "detector": "B13_MANUAL_ORACLE",
+  "provenance": "B13 自建人工样本（fixtures/mdfixer/target-style，引入提交 84f6e9df0ec021ed4e5fb41239aab4657b6f96ef）。人工判断依据：main.c 第 2 行 #include \"config.h\" 构成 main.o 的实际依赖，Makefile.before 第 9 行声明 main.o: main.c 未包含 config.h。行为证据：只把 config.h 从 VALUE=1 改为 VALUE=2 后普通 make 不重编译 main.o，程序仍输出旧值 1；完整重建后输出 2。若该 fixture 的源码或 Makefile 变更，必须更新为新的真实 fixture commit。",
+  "findings": [
+    {
+      "type": "MISSING",
+      "target": "main.o",
+      "dependency": "config.h",
+      "makefile_path": "Makefile",
+      "location": {
+        "line": 9,
+        "declaration": "main.o: main.c"
+      },
+      "evidence": "人工依据：main.c 包含 config.h；增量构建不重建 main.o（旧值 1）而 clean build 输出新值 2，差异证明漏声明。声明风格为 TARGET（声明右侧全部为普通文件，DIS=1），修复方式为 Target 转换：直接向 main.o 的依赖列表追加 config.h。验证记录见 evidence/E3/2026-09-24-mdfixer-target-style/。"
+    }
+  ]
+}
