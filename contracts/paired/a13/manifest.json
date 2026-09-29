@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "source_repository": "https://github.com/Dufunare/2026-Devops-A13",
+  "source_commit": "bc1ed352dc0b8ff9e77a69222a69deb03e49a618",
+  "source_pull_request": "https://github.com/Dufunare/2026-Devops-A13/pull/2",
+  "retrieved_at": "2026-09-29",
+  "files": [
+    {
+      "snapshot_path": "artifacts/job-full-a13-001/actual.json",
+      "source_path": "contracts/artifacts/job-full-a13-001/actual.json",
+      "upstream_sha256": "e9cb6ef8ceafd197e687b7c72303d4067866e30efa9b8925ad649b18db3e9a34",
+      "snapshot_sha256": "e3496ab007554aefc8cd29e1ca90534fce9bc40e79c8f49345e2b4d63d6d5361"
+    },
+    {
+      "snapshot_path": "artifacts/job-full-a13-001/declared.json",
+      "source_path": "contracts/artifacts/job-full-a13-001/declared.json",
+      "upstream_sha256": "4380a25c1067964d48361a2164625eb6da64edeeca9d566aa78f014b3e5ec4a8",
+      "snapshot_sha256": "4529cf3c1af0a012654ffe49b4a3babeadebe3053962cfffab2f2016edff3bd4"
+    },
+    {
+      "snapshot_path": "artifacts/job-full-a13-001/md-report.json",
+      "source_path": "contracts/artifacts/job-full-a13-001/md-report.json",
+      "upstream_sha256": "5c5e20dc5eed1445cf823a5571340b7b76b6d672da8296ee076dd57ebfe2322b",
+      "snapshot_sha256": "6ff14f4efbc67799c0bd2ac8b8ec18476029b2ae5a86464f40152466e197a527"
+    },
+    {
+      "snapshot_path": "artifacts/job-incremental-a13-001/actual.json",
+      "source_path": "contracts/artifacts/job-incremental-a13-001/actual.json",
+      "upstream_sha256": "cbea3ae19eed52b05faedd56faac6c6518a96b9d5e330c84267b13bc66297a63",
+      "snapshot_sha256": "cd722a5422f27ff3dc6d0494e341ad3c9079814c4cb686a5457360b14ec6a235"
+    },
+    {
+      "snapshot_path": "artifacts/job-incremental-a13-001/md-report.json",
+      "source_path": "contracts/artifacts/job-incremental-a13-001/md-report.json",
+      "upstream_sha256": "a02a4ce6f1bb5c4c522e6d0615ca42306618d05b25276a1f62e582c19c2fcd2c",
+      "snapshot_sha256": "d645d07eaa6e44f72672ac12e389d24fb2e30df4e1541f972c35d6bf79828cf1"
+    },
+    {
+      "snapshot_path": "schemas/a13-finding-report.schema.json",
+      "source_path": "contracts/schemas/a13-finding-report.schema.json",
+      "upstream_sha256": "e681b3858de9fd3b3c01c5771337b71383664e7269b283d825023d3368958cdb",
+      "snapshot_sha256": "b3bbb47b65bcef0e1da39f771759322a160388054496c0dc535a3314e6e961cb"
+    }
+  ]
+}

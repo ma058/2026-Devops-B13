@@ -1,9 +1,39 @@
-# Artifact 访问草案
+# Artifact 访问约定
 
-建议 URI 形如 `artifact://pair13/<producer_job_id>/<filename>`。URI 是逻辑标识，本身不是可直接下载的网络地址。
+逻辑 URI 使用：
 
-每条记录应包含 `artifact_id`、`type`、`uri`、`media_type`、`producer_job_id`、完整源码 commit SHA 和 `configuration_id`；可选 `sha256`。
+```text
+artifact://pair13/<producer_job_id>/<filename>
+```
 
-**待与 A13 对齐**：实际存储位置、下载方式、访问权限、保留期限、SHA-256 是否必需。E2 验收要求另一组能读取样例产物；未完成此约定前不得把 URI 标为已联通。
+逻辑 URI 不直接承担下载功能。跨组样例采用 repository-backed locator：
 
-消费方读取前检查：产物存在、生产任务可追溯、源码 commit 与构建配置匹配；若提供 `sha256`，还需检查内容完整性。不要用本地绝对路径代替跨组访问规则。
+```json
+{
+  "uri": "artifact://pair13/job-full-a13-001/md-report.json",
+  "repository_url": "https://github.com/Dufunare/2026-Devops-A13",
+  "repository_ref": "bc1ed352dc0b8ff9e77a69222a69deb03e49a618",
+  "repository_path": "contracts/artifacts/job-full-a13-001/md-report.json"
+}
+```
+
+## 解析步骤
+
+1. 只接受允许的 Git 仓库 URL，并把可变分支名解析为完整 40 位 commit SHA。
+2. 在隔离目录检出该 commit，不使用发送方本机绝对路径。
+3. `repository_path` 必须是仓库内 POSIX 相对路径；拒绝绝对路径、反斜杠、`..` 和 `./` 前缀。
+4. 检查 Artifact 的 `producer_job_id`、repository commit 与 configuration 是否和任务一致。
+5. 若交付提供 SHA-256，则在解析 JSON 或应用 Patch 前校验原始字节。
+6. Patch 额外绑定 base commit 与 configuration，只在隔离工作区应用。
+
+每条 Artifact 元数据至少包含 `artifact_id`、`type`、`uri`、`media_type`、`producer_job_id`、完整源码 commit SHA 和 `configuration_id`；建议提供 `sha256`。
+
+## 已执行的跨组读取
+
+B13 已读取 A13 `bc1ed352dc0b8ff9e77a69222a69deb03e49a618` 中的 actual graph、declared graph、FULL/INCREMENTAL MD report 与 finding Schema。固定来源、上游 SHA-256 和本地快照见：
+
+- `contracts/paired/a13/manifest.json`
+- `contracts/paired/a13/artifacts/`
+- `evidence/E3/2026-09-29-a13-interop/`
+
+共享对象存储或 HTTP 下载端点可以在后续实现中替换 repository-backed locator，但逻辑 URI、版本绑定和完整性检查保持不变。

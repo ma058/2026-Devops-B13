@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "job_id": "job-repair-invalid-candidate",
+  "trace_id": "trace-invalid-candidate",
+  "job_type": "REPAIR",
+  "status": "SUCCEEDED",
+  "input": {
+    "repository": {"commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+  },
+  "output": {
+    "repair_status": "NO_VALID_CANDIDATE",
+    "patch_uri": "artifact://pair13/job-repair-invalid-candidate/fabricated.patch",
+    "remaining_md_count": 1,
+    "recheck": {
+      "tool": "COURSE_ORACLE",
+      "remaining_md_count": 1,
+      "report_uri": "artifact://pair13/job-repair-invalid-candidate/recheck.json"
+    },
+    "rejected_candidates": [
+      {
+        "candidate_id": "cand-1",
+        "summary": "invalid candidate",
+        "rejection_reason": "增量重建仍失败",
+        "evidence_uri": "artifact://pair13/job-repair-invalid-candidate/cand-1.log"
+      }
+    ]
+  },
+  "error": null
+}

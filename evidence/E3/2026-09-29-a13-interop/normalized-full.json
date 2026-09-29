@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "source": {
+    "repository": "https://github.com/Dufunare/2026-Devops-A13",
+    "commit": "bc1ed352dc0b8ff9e77a69222a69deb03e49a618",
+    "producer_job_id": "job-full-a13-001",
+    "artifact_uri": "artifact://pair13/job-full-a13-001/md-report.json",
+    "synthetic_contract_sample": true
+  },
+  "repository": {
+    "url": "https://github.com/example/tiny-greeting.git",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "configuration_id": "gcc-default",
+  "consumed_findings": [
+    {
+      "finding_id": "md-main-config-h",
+      "type": "MISSING",
+      "target": "main.o",
+      "dependency": "config.h",
+      "makefile_path": "Makefile",
+      "location_status": "RESOLVED",
+      "location_line": 4,
+      "evidence": "[EXECUTION_READ] main.o build reads config.h; [DECLARATION_ABSENCE] config.h absent from declared prerequisites"
+    }
+  ],
+  "skipped_findings": [
+    {
+      "finding_id": "rd-main-unused-h",
+      "type": "REDUNDANT",
+      "target": "main.o",
+      "dependency": "unused.h",
+      "reason": "MDFixer consumes MISSING findings only"
+    }
+  ]
+}

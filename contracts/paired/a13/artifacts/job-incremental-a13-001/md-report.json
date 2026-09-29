@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "repository": {"url": "https://github.com/example/tiny-greeting.git", "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"},
+  "configuration_id": "gcc-default",
+  "producer_job_id": "job-incremental-a13-001",
+  "findings": [
+    {
+      "finding_id": "md-main-feature-h",
+      "type": "MISSING",
+      "target": "main.o",
+      "dependency": "feature.h",
+      "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "configuration_id": "gcc-default",
+      "location": {"status": "UNRESOLVED", "reason": "Detector identifies target/dependency but declaration location is unresolved in this synthetic sample."},
+      "evidence": [
+        {"kind": "INFERRED_ACTUAL_DEPENDENCY", "detail": "feature.h introduced by source/include change"},
+        {"kind": "DECLARATION_ABSENCE", "detail": "feature.h absent from declared prerequisites"}
+      ]
+    }
+  ],
+  "artifact_locator": {
+    "uri": "artifact://pair13/job-incremental-a13-001/md-report.json",
+    "repository_url": "https://github.com/Dufunare/2026-Devops-A13",
+    "repository_ref": "e2/pair13-contract-alignment",
+    "repository_path": "contracts/artifacts/job-incremental-a13-001/md-report.json"
+  },
+  "note": "Synthetic E2 artifact; not a real EChecker execution result."
+}

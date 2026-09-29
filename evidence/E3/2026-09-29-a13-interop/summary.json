@@ -1,0 +1,214 @@
+{
+  "schema_version": "1.0",
+  "suite": "E3",
+  "case": "a13-contract-interop",
+  "result": "PASS",
+  "generated_at": "2026-09-29T01:58:40.901415+00:00",
+  "source": {
+    "repository": "https://github.com/Dufunare/2026-Devops-A13",
+    "commit": "bc1ed352dc0b8ff9e77a69222a69deb03e49a618",
+    "kind": "synthetic E2 contract artifacts"
+  },
+  "checks": [
+    {
+      "id": "source.repository",
+      "status": "PASS",
+      "detail": "https://github.com/Dufunare/2026-Devops-A13"
+    },
+    {
+      "id": "source.commit",
+      "status": "PASS",
+      "detail": "bc1ed352dc0b8ff9e77a69222a69deb03e49a618"
+    },
+    {
+      "id": "snapshot.artifacts/job-full-a13-001/actual.json",
+      "status": "PASS",
+      "detail": {
+        "snapshot_sha256": "e3496ab007554aefc8cd29e1ca90534fce9bc40e79c8f49345e2b4d63d6d5361",
+        "expected_snapshot_sha256": "e3496ab007554aefc8cd29e1ca90534fce9bc40e79c8f49345e2b4d63d6d5361",
+        "upstream_sha256": "e9cb6ef8ceafd197e687b7c72303d4067866e30efa9b8925ad649b18db3e9a34"
+      }
+    },
+    {
+      "id": "snapshot.artifacts/job-full-a13-001/declared.json",
+      "status": "PASS",
+      "detail": {
+        "snapshot_sha256": "4529cf3c1af0a012654ffe49b4a3babeadebe3053962cfffab2f2016edff3bd4",
+        "expected_snapshot_sha256": "4529cf3c1af0a012654ffe49b4a3babeadebe3053962cfffab2f2016edff3bd4",
+        "upstream_sha256": "4380a25c1067964d48361a2164625eb6da64edeeca9d566aa78f014b3e5ec4a8"
+      }
+    },
+    {
+      "id": "snapshot.artifacts/job-full-a13-001/md-report.json",
+      "status": "PASS",
+      "detail": {
+        "snapshot_sha256": "6ff14f4efbc67799c0bd2ac8b8ec18476029b2ae5a86464f40152466e197a527",
+        "expected_snapshot_sha256": "6ff14f4efbc67799c0bd2ac8b8ec18476029b2ae5a86464f40152466e197a527",
+        "upstream_sha256": "5c5e20dc5eed1445cf823a5571340b7b76b6d672da8296ee076dd57ebfe2322b"
+      }
+    },
+    {
+      "id": "snapshot.artifacts/job-incremental-a13-001/actual.json",
+      "status": "PASS",
+      "detail": {
+        "snapshot_sha256": "cd722a5422f27ff3dc6d0494e341ad3c9079814c4cb686a5457360b14ec6a235",
+        "expected_snapshot_sha256": "cd722a5422f27ff3dc6d0494e341ad3c9079814c4cb686a5457360b14ec6a235",
+        "upstream_sha256": "cbea3ae19eed52b05faedd56faac6c6518a96b9d5e330c84267b13bc66297a63"
+      }
+    },
+    {
+      "id": "snapshot.artifacts/job-incremental-a13-001/md-report.json",
+      "status": "PASS",
+      "detail": {
+        "snapshot_sha256": "d645d07eaa6e44f72672ac12e389d24fb2e30df4e1541f972c35d6bf79828cf1",
+        "expected_snapshot_sha256": "d645d07eaa6e44f72672ac12e389d24fb2e30df4e1541f972c35d6bf79828cf1",
+        "upstream_sha256": "a02a4ce6f1bb5c4c522e6d0615ca42306618d05b25276a1f62e582c19c2fcd2c"
+      }
+    },
+    {
+      "id": "snapshot.schemas/a13-finding-report.schema.json",
+      "status": "PASS",
+      "detail": {
+        "snapshot_sha256": "b3bbb47b65bcef0e1da39f771759322a160388054496c0dc535a3314e6e961cb",
+        "expected_snapshot_sha256": "b3bbb47b65bcef0e1da39f771759322a160388054496c0dc535a3314e6e961cb",
+        "upstream_sha256": "e681b3858de9fd3b3c01c5771337b71383664e7269b283d825023d3368958cdb"
+      }
+    },
+    {
+      "id": "full.native-report",
+      "status": "PASS",
+      "detail": "valid"
+    },
+    {
+      "id": "full.synthetic-label",
+      "status": "PASS",
+      "detail": "Synthetic E2 artifact; not a real BuildChecker execution result."
+    },
+    {
+      "id": "incremental.native-report",
+      "status": "PASS",
+      "detail": "valid"
+    },
+    {
+      "id": "incremental.synthetic-label",
+      "status": "PASS",
+      "detail": "Synthetic E2 artifact; not a real EChecker execution result."
+    },
+    {
+      "id": "full.graph-diff",
+      "status": "PASS",
+      "detail": {
+        "expected": [
+          [
+            "MISSING",
+            "main.o",
+            "config.h"
+          ],
+          [
+            "REDUNDANT",
+            "main.o",
+            "unused.h"
+          ]
+        ],
+        "reported": [
+          [
+            "MISSING",
+            "main.o",
+            "config.h"
+          ],
+          [
+            "REDUNDANT",
+            "main.o",
+            "unused.h"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "incremental.actual-graph",
+      "status": "PASS",
+      "detail": [
+        [
+          "main.o",
+          "feature.h"
+        ],
+        [
+          "main.o",
+          "main.c"
+        ]
+      ]
+    },
+    {
+      "id": "full.missing-only",
+      "status": "PASS",
+      "detail": {
+        "schema_version": "1.0",
+        "source": {
+          "repository": "https://github.com/Dufunare/2026-Devops-A13",
+          "commit": "bc1ed352dc0b8ff9e77a69222a69deb03e49a618",
+          "producer_job_id": "job-full-a13-001",
+          "artifact_uri": "artifact://pair13/job-full-a13-001/md-report.json",
+          "synthetic_contract_sample": true
+        },
+        "repository": {
+          "url": "https://github.com/example/tiny-greeting.git",
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "configuration_id": "gcc-default",
+        "consumed_findings": [
+          {
+            "finding_id": "md-main-config-h",
+            "type": "MISSING",
+            "target": "main.o",
+            "dependency": "config.h",
+            "makefile_path": "Makefile",
+            "location_status": "RESOLVED",
+            "location_line": 4,
+            "evidence": "[EXECUTION_READ] main.o build reads config.h; [DECLARATION_ABSENCE] config.h absent from declared prerequisites"
+          }
+        ],
+        "skipped_findings": [
+          {
+            "finding_id": "rd-main-unused-h",
+            "type": "REDUNDANT",
+            "target": "main.o",
+            "dependency": "unused.h",
+            "reason": "MDFixer consumes MISSING findings only"
+          }
+        ]
+      }
+    },
+    {
+      "id": "incremental.unresolved-location",
+      "status": "PASS",
+      "detail": {
+        "schema_version": "1.0",
+        "source": {
+          "repository": "https://github.com/Dufunare/2026-Devops-A13",
+          "commit": "bc1ed352dc0b8ff9e77a69222a69deb03e49a618",
+          "producer_job_id": "job-incremental-a13-001",
+          "artifact_uri": "artifact://pair13/job-incremental-a13-001/md-report.json",
+          "synthetic_contract_sample": true
+        },
+        "repository": {
+          "url": "https://github.com/example/tiny-greeting.git",
+          "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        "configuration_id": "gcc-default",
+        "consumed_findings": [
+          {
+            "finding_id": "md-main-feature-h",
+            "type": "MISSING",
+            "target": "main.o",
+            "dependency": "feature.h",
+            "makefile_path": "Makefile",
+            "location_status": "UNRESOLVED",
+            "location_line": null,
+            "evidence": "[INFERRED_ACTUAL_DEPENDENCY] feature.h introduced by source/include change; [DECLARATION_ABSENCE] feature.h absent from declared prerequisites"
+          }
+        ],
+        "skipped_findings": []
+      }
+    }
+  ]
+}

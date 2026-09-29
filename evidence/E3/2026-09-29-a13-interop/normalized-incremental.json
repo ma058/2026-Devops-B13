@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "source": {
+    "repository": "https://github.com/Dufunare/2026-Devops-A13",
+    "commit": "bc1ed352dc0b8ff9e77a69222a69deb03e49a618",
+    "producer_job_id": "job-incremental-a13-001",
+    "artifact_uri": "artifact://pair13/job-incremental-a13-001/md-report.json",
+    "synthetic_contract_sample": true
+  },
+  "repository": {
+    "url": "https://github.com/example/tiny-greeting.git",
+    "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "configuration_id": "gcc-default",
+  "consumed_findings": [
+    {
+      "finding_id": "md-main-feature-h",
+      "type": "MISSING",
+      "target": "main.o",
+      "dependency": "feature.h",
+      "makefile_path": "Makefile",
+      "location_status": "UNRESOLVED",
+      "location_line": null,
+      "evidence": "[INFERRED_ACTUAL_DEPENDENCY] feature.h introduced by source/include change; [DECLARATION_ABSENCE] feature.h absent from declared prerequisites"
+    }
+  ],
+  "skipped_findings": []
+}

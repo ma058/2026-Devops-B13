@@ -231,6 +231,67 @@ def validate_md_report(data: Any) -> list[str]:
     return errors
 
 
+def validate_repair_output(output: dict[str, Any], errors: list[str]) -> None:
+    """Validate the three successful REPAIR outcomes.
+
+    Candidate rejection is a successful analysis result, not a system failure.
+    A patch URI is therefore required only when a candidate was accepted.
+    """
+
+    repair_status = output.get("repair_status")
+    allowed = {"PATCH_ACCEPTED", "NO_VALID_CANDIDATE", "NOT_APPLICABLE"}
+    if repair_status not in allowed:
+        errors.append(f"output.repair_status: unsupported value {repair_status!r}")
+
+    remaining = output.get("remaining_md_count")
+    if type(remaining) is not int or remaining < 0:
+        errors.append("output.remaining_md_count: expected non-negative integer")
+
+    patch = output.get("patch_uri")
+    if repair_status == "PATCH_ACCEPTED":
+        _uri(output, "patch_uri", "output", errors)
+        if remaining != 0:
+            errors.append("output.remaining_md_count: PATCH_ACCEPTED requires zero")
+    elif repair_status in {"NO_VALID_CANDIDATE", "NOT_APPLICABLE"}:
+        if patch is not None:
+            errors.append(f"output.patch_uri: {repair_status} requires null or omission")
+
+    consumed = output.get("consumed_findings")
+    if consumed is not None and not isinstance(consumed, list):
+        errors.append("output.consumed_findings: expected array")
+    if repair_status == "NOT_APPLICABLE":
+        if remaining != 0:
+            errors.append("output.remaining_md_count: NOT_APPLICABLE requires zero")
+        if isinstance(consumed, list) and consumed:
+            errors.append("output.consumed_findings: NOT_APPLICABLE requires empty array")
+
+    rejected = output.get("rejected_candidates")
+    if repair_status == "NO_VALID_CANDIDATE":
+        if not isinstance(rejected, list) or not rejected:
+            errors.append("output.rejected_candidates: NO_VALID_CANDIDATE requires non-empty array")
+    if isinstance(rejected, list):
+        for index, candidate in enumerate(rejected):
+            path = f"output.rejected_candidates[{index}]"
+            if not isinstance(candidate, dict):
+                errors.append(f"{path}: expected object")
+                continue
+            for key in ("candidate_id", "summary", "rejection_reason"):
+                _string(candidate, key, path, errors)
+            _uri(candidate, "evidence_uri", path, errors)
+
+    recheck = output.get("recheck")
+    if repair_status in {"PATCH_ACCEPTED", "NO_VALID_CANDIDATE"} and not isinstance(recheck, dict):
+        errors.append(f"output.recheck: {repair_status} requires object")
+    if isinstance(recheck, dict):
+        _string(recheck, "tool", "output.recheck", errors)
+        _uri(recheck, "report_uri", "output.recheck", errors)
+        recheck_count = recheck.get("remaining_md_count")
+        if type(recheck_count) is not int or recheck_count < 0:
+            errors.append("output.recheck.remaining_md_count: expected non-negative integer")
+        elif type(remaining) is int and recheck_count != remaining:
+            errors.append("output.recheck.remaining_md_count: does not match output.remaining_md_count")
+
+
 def validate_job(data: Any) -> list[str]:
     errors: list[str] = []
     if not isinstance(data, dict):
@@ -331,9 +392,7 @@ def validate_job(data: Any) -> list[str]:
             graph_key = "actual_graph_uri" if kind == "FULL_CHECK" else "updated_actual_graph_uri"
             _uri(output, graph_key, "output", errors)
         elif kind == "REPAIR":
-            _uri(output, "patch_uri", "output", errors)
-            if output.get("remaining_md_count") != 0:
-                errors.append("output.remaining_md_count: successful repair requires zero")
+            validate_repair_output(output, errors)
     return errors
 
 

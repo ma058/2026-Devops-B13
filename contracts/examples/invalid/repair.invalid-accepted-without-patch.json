@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "job_id": "job-repair-invalid-accepted",
+  "trace_id": "trace-invalid-accepted",
+  "job_type": "REPAIR",
+  "status": "SUCCEEDED",
+  "input": {
+    "repository": {"commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+  },
+  "output": {
+    "repair_status": "PATCH_ACCEPTED",
+    "remaining_md_count": 0,
+    "recheck": {
+      "tool": "COURSE_ORACLE",
+      "remaining_md_count": 0,
+      "report_uri": "artifact://pair13/job-repair-invalid-accepted/recheck.json"
+    }
+  },
+  "error": null
+}

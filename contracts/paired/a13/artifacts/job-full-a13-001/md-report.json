@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "repository": {"url": "https://github.com/example/tiny-greeting.git", "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+  "configuration_id": "gcc-default",
+  "producer_job_id": "job-full-a13-001",
+  "findings": [
+    {
+      "finding_id": "md-main-config-h",
+      "type": "MISSING",
+      "target": "main.o",
+      "dependency": "config.h",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "configuration_id": "gcc-default",
+      "location": {"status": "RESOLVED", "path": "Makefile", "line": 4},
+      "evidence": [
+        {"kind": "EXECUTION_READ", "detail": "main.o build reads config.h"},
+        {"kind": "DECLARATION_ABSENCE", "detail": "config.h absent from declared prerequisites"}
+      ]
+    },
+    {
+      "finding_id": "rd-main-unused-h",
+      "type": "REDUNDANT",
+      "target": "main.o",
+      "dependency": "unused.h",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "configuration_id": "gcc-default",
+      "location": {"status": "RESOLVED", "path": "Makefile", "line": 4},
+      "evidence": [
+        {"kind": "DECLARATION_PRESENT", "detail": "unused.h is declared"},
+        {"kind": "EXECUTION_ABSENCE", "detail": "build execution did not use unused.h"}
+      ]
+    }
+  ],
+  "artifact_locator": {
+    "uri": "artifact://pair13/job-full-a13-001/md-report.json",
+    "repository_url": "https://github.com/Dufunare/2026-Devops-A13",
+    "repository_ref": "e2/pair13-contract-alignment",
+    "repository_path": "contracts/artifacts/job-full-a13-001/md-report.json"
+  },
+  "note": "Synthetic E2 artifact; not a real BuildChecker execution result."
+}

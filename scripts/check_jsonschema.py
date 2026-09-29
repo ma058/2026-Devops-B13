@@ -56,6 +56,20 @@ def main() -> None:
             assert issues[0].validator == "type"
         print(f"EXPECTED REJECTION {path.relative_to(ROOT)}: {issues[0].message}")
 
+    paired_root = ROOT / "contracts" / "paired" / "a13"
+    paired_schema = paired_root / "schemas" / "a13-finding-report.schema.json"
+    Draft202012Validator.check_schema(read(paired_schema))
+    print(f"SCHEMA OK {paired_schema.relative_to(ROOT)}")
+    paired_validator = Draft202012Validator(read(paired_schema))
+    for path in (
+        paired_root / "artifacts" / "job-full-a13-001" / "md-report.json",
+        paired_root / "artifacts" / "job-incremental-a13-001" / "md-report.json",
+    ):
+        issues = list(paired_validator.iter_errors(read(path)))
+        if issues:
+            raise AssertionError(f"{path.name}: {issues[0].message}")
+        print(f"INSTANCE OK {path.relative_to(ROOT)}")
+
     fixture = ROOT / "fixtures" / "mdfixer" / "implicit-style" / "md-report.template.json"
     validator = Draft202012Validator(read(SCHEMAS / "md-report.schema.json"))
     issues = list(validator.iter_errors(read(fixture)))
