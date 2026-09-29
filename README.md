@@ -4,7 +4,7 @@
 
 提交入口见 [提交说明](docs/SUBMISSION.md)，个人 GitHub 活动见 [贡献登记表](CONTRIBUTIONS.md)。E3 跨组收尾固定版本使用 Git 标签 [`e3-complete-2026-09-29`](https://github.com/ma058/2026-Devops-B13/tree/e3-complete-2026-09-29)。
 
-E4 从上述标签开始。B 组官方模板已在 `feature/e4-bootstrap-b13` 分支接入，服务器运行证据仍须由三名成员分别生成。完整执行顺序、三人分工、服务器安全边界与验收清单见 [E4 可重复工程环境计划](docs/E4/README.md)。
+E4 从上述标签开始。B 组官方模板已经接入仓库，服务器运行证据仍须由三名成员分别生成。完整执行顺序、三人分工、服务器安全边界与验收清单见 [E4 可重复工程环境计划](docs/E4/README.md)。
 
 ## E2 交付
 
