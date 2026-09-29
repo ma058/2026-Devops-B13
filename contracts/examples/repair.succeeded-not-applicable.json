@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "job_id": "job-repair-004",
+  "trace_id": "trace-pair13-not-applicable",
+  "job_type": "REPAIR",
+  "status": "SUCCEEDED",
+  "input": {
+    "repository": {
+      "url": "https://github.com/example/tiny-greeting.git",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "md_report_uri": "artifact://pair13/job-full-a13-001/md-report.json",
+    "makefile_path": "Makefile",
+    "environment": {"configuration_id": "gcc-default"},
+    "build_command": "make clean && make",
+    "verify_command": "./app"
+  },
+  "output": {
+    "repair_status": "NOT_APPLICABLE",
+    "patch_uri": null,
+    "build_exit_code": 0,
+    "verify_exit_code": 0,
+    "remaining_md_count": 0,
+    "consumed_findings": [],
+    "skipped_findings": [
+      {
+        "type": "REDUNDANT",
+        "dependency": "unused.h",
+        "reason": "MDFixer 只消费 MISSING"
+      }
+    ],
+    "note": "输入报告不含 MISSING，无可修复项"
+  },
+  "error": null
+}

@@ -26,6 +26,36 @@ class ContractTests(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertEqual([], validate_job(example(f"{name}.succeeded.json")))
 
+    def test_three_successful_repair_outcomes(self):
+        for name in (
+            "repair.succeeded.json",
+            "repair.succeeded-no-valid-candidate.json",
+            "repair.succeeded-not-applicable.json",
+        ):
+            with self.subTest(name=name):
+                self.assertEqual([], validate_job(example(name)))
+
+    def test_patch_accepted_requires_patch(self):
+        data = example("invalid/repair.invalid-accepted-without-patch.json")
+        self.assertTrue(any("patch_uri" in error for error in validate_job(data)))
+
+    def test_no_valid_candidate_forbids_patch(self):
+        data = example("invalid/repair.invalid-no-valid-candidate-with-patch.json")
+        self.assertTrue(any("patch_uri" in error for error in validate_job(data)))
+
+    def test_no_valid_candidate_requires_rejections_and_consistent_recheck(self):
+        data = example("repair.succeeded-no-valid-candidate.json")
+        data["output"]["rejected_candidates"] = []
+        self.assertTrue(any("rejected_candidates" in error for error in validate_job(data)))
+        data = example("repair.succeeded-no-valid-candidate.json")
+        data["output"]["recheck"]["remaining_md_count"] = 0
+        self.assertTrue(any("does not match" in error for error in validate_job(data)))
+
+    def test_not_applicable_forbids_consumed_findings(self):
+        data = example("repair.succeeded-not-applicable.json")
+        data["output"]["consumed_findings"] = [{"type": "MISSING"}]
+        self.assertTrue(any("consumed_findings" in error for error in validate_job(data)))
+
     def test_invalid_job_type(self):
         data = example("draft.request.json")
         data["job_type"] = "ABC"

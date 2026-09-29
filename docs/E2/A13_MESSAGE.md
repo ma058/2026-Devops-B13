@@ -1,5 +1,7 @@
 # 发给 A13 的接口对齐消息
 
+> 归档状态：A13 已在 `Dufunare/2026-Devops-A13@bc1ed352dc0b8ff9e77a69222a69deb03e49a618` 回复并合并 PR #2；B13 的最终决定、固定快照和互读证据见 `docs/E2/pair-review.md`。以下正文保留为首次对齐请求记录。
+
 ## 发送前由 B13 补全
 
 - B13 仓库：<https://github.com/ma058/2026-Devops-B13>

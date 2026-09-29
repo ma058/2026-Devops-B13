@@ -1,0 +1,17 @@
+[PASS] source.repository
+[PASS] source.commit
+[PASS] snapshot.artifacts/job-full-a13-001/actual.json
+[PASS] snapshot.artifacts/job-full-a13-001/declared.json
+[PASS] snapshot.artifacts/job-full-a13-001/md-report.json
+[PASS] snapshot.artifacts/job-incremental-a13-001/actual.json
+[PASS] snapshot.artifacts/job-incremental-a13-001/md-report.json
+[PASS] snapshot.schemas/a13-finding-report.schema.json
+[PASS] full.native-report
+[PASS] full.synthetic-label
+[PASS] incremental.native-report
+[PASS] incremental.synthetic-label
+[PASS] full.graph-diff
+[PASS] incremental.actual-graph
+[PASS] full.missing-only
+[PASS] incremental.unresolved-location
+A13 contract interoperability: PASS

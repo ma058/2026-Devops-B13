@@ -498,6 +498,101 @@
           }
         }
       }
+    },
+    {
+      "if": {
+        "properties": {
+          "job_type": {"const": "REPAIR"},
+          "status": {"const": "SUCCEEDED"}
+        },
+        "required": ["job_type", "status"]
+      },
+      "then": {
+        "properties": {
+          "output": {
+            "type": "object",
+            "required": ["repair_status", "remaining_md_count"],
+            "properties": {
+              "repair_status": {
+                "enum": ["PATCH_ACCEPTED", "NO_VALID_CANDIDATE", "NOT_APPLICABLE"]
+              },
+              "patch_uri": {
+                "type": ["string", "null"],
+                "pattern": "^artifact://pair13/"
+              },
+              "remaining_md_count": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "consumed_findings": {"type": "array"},
+              "skipped_findings": {"type": "array"},
+              "rejected_candidates": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["candidate_id", "summary", "rejection_reason", "evidence_uri"],
+                  "properties": {
+                    "candidate_id": {"type": "string", "minLength": 1},
+                    "summary": {"type": "string", "minLength": 1},
+                    "rejection_reason": {"type": "string", "minLength": 1},
+                    "evidence_uri": {"type": "string", "pattern": "^artifact://pair13/"}
+                  }
+                }
+              },
+              "recheck": {
+                "type": "object",
+                "required": ["tool", "remaining_md_count", "report_uri"],
+                "properties": {
+                  "tool": {"type": "string", "minLength": 1},
+                  "remaining_md_count": {"type": "integer", "minimum": 0},
+                  "report_uri": {"type": "string", "pattern": "^artifact://pair13/"}
+                }
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {"repair_status": {"const": "PATCH_ACCEPTED"}},
+                  "required": ["repair_status"]
+                },
+                "then": {
+                  "required": ["patch_uri", "recheck"],
+                  "properties": {
+                    "patch_uri": {"type": "string", "pattern": "^artifact://pair13/"},
+                    "remaining_md_count": {"const": 0}
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {"repair_status": {"const": "NO_VALID_CANDIDATE"}},
+                  "required": ["repair_status"]
+                },
+                "then": {
+                  "required": ["rejected_candidates", "recheck"],
+                  "properties": {
+                    "patch_uri": {"type": "null"},
+                    "rejected_candidates": {"minItems": 1}
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {"repair_status": {"const": "NOT_APPLICABLE"}},
+                  "required": ["repair_status"]
+                },
+                "then": {
+                  "properties": {
+                    "patch_uri": {"type": "null"},
+                    "remaining_md_count": {"const": 0},
+                    "consumed_findings": {"maxItems": 0}
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
     }
   ],
   "additionalProperties": true

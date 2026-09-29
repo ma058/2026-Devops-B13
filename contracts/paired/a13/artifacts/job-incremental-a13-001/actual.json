@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "artifact": {
+    "artifact_id": "actual-a13-002",
+    "type": "ACTUAL_GRAPH",
+    "uri": "artifact://pair13/job-incremental-a13-001/actual.json",
+    "media_type": "application/json",
+    "producer_job_id": "job-incremental-a13-001",
+    "repository_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "configuration_id": "gcc-default",
+    "repository_url": "https://github.com/Dufunare/2026-Devops-A13",
+    "repository_ref": "e2/pair13-contract-alignment",
+    "repository_path": "contracts/artifacts/job-incremental-a13-001/actual.json"
+  },
+  "edges": [
+    {"target": "main.o", "dependency": "main.c"},
+    {"target": "main.o", "dependency": "feature.h"}
+  ],
+  "note": "Synthetic E2 artifact; not a real EChecker execution result."
+}
