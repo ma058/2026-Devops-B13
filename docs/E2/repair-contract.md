@@ -31,7 +31,7 @@
 | `schema_version` | 是 | 固定 `"1.0"`，与全组公共 Schema 版本风格一致 |
 | `report_id` | 是 | 报告唯一标识 |
 | `repository.url` / `repository.commit` | 是 | 被检测仓库与**完整 40 位 commit SHA**；报告必须绑定确切源码版本 |
-| `configuration_id` | 是 | 构建配置标识；报告只在同一配置下可比 |
+| `configuration_id` | 是 | 构建配置标识；报告、baseline、Patch 与复检只在同一配置下可比 |
 | `environment` | 是 | 至少含 `os`、`arch`；可含 `make_version`、`cc_version`、`image_ref` |
 | `detector` | 是 | 报告**生成者/判断来源**，四值枚举见下 |
 | `provenance` | 是 | **具体来源、版本与证据补充**（与 detector 不同义）：课程样例写明课程手册位置；B13 人工样例写明对应 fixture、commit 和人工判断依据；工具报告写明工具版本 |
@@ -54,8 +54,8 @@
 |---|---|---|
 | `type` | 是 | `MISSING`（实际依赖但未声明）或 `REDUNDANT`（声明了但本配置未使用） |
 | `target` | 是 | 出错构建目标（项目内相对路径或目标名） |
-| `dependency` | 是 | 缺失/冗余的依赖文件（项目内相对路径）；**不应包含 `/usr/include` 等项目外系统依赖**【待 A13 确认 A-15】 |
-| `makefile_path` | 是 | 声明所在 Makefile 路径。**【草案】基准目录（仓库根目录还是 project_root）待 A13 确认后冻结** |
+| `dependency` | 是 | 缺失/冗余的依赖文件；使用相对 `project_root` 的 POSIX 路径，不包含 `/usr/include` 等项目外系统依赖 |
+| `makefile_path` | 是 | 声明所在 Makefile 路径；同样相对 `project_root`。A13 `location.status=UNRESOLVED` 时由调用方显式提供默认路径，不伪造行号 |
 | `location` | 否 | 结构化对象 `{line, declaration}`：声明行号（1 起）与原文；BuildChecker 可从 GNU Make 数据库注释获得 |
 | `evidence` | 是 | 判定依据（构建追踪、预处理器分析或人工分析过程） |
 
@@ -69,7 +69,7 @@
 |---|---|---|
 | `repository.url` / `repository.commit` | 是 | 与 MD 报告同源同版本；不一致时任务失败（见 `repair.failed.json` 示例） |
 | `md_report_uri` | 是 | MD 报告的 `artifact://pair13/...` 地址 |
-| `makefile_path` | 是 | 待修复 Makefile 路径（基准目录同第 2 节草案） |
+| `makefile_path` | 是 | 待修复 Makefile 路径，相对 `project_root` |
 | `environment.configuration_id` | 是 | 构建配置 |
 | `environment.os` / `arch` / `image_ref` | 建议 | 修复验证所用环境 |
 | `build_command` | 是 | 构建命令（含清理，如 `make clean && make`） |
@@ -77,32 +77,31 @@
 | `policy.consume` | 是 | 固定 `MISSING_ONLY`：REPAIR 只消费 MISSING |
 | `policy.if_no_missing` | 是 | 报告中无 MISSING 时的行为，固定 `NOT_APPLICABLE` |
 
-**混合报告处理（重要）：** 报告同时含 MISSING 与 REDUNDANT 时，本组草案为「过滤 REDUNDANT、只修复 MISSING；若无任何 MISSING 则返回明确的不可处理结果」，而不是拒绝整份请求。MDFixer 论文输入本身只含 MD 列表，未定义混合报告筛选，因此该策略属于课程扩展，**待 A13 确认（A-03/A-08）后写入 ADR**。
+**混合报告处理（重要）：** 报告同时含 MISSING 与 REDUNDANT 时，过滤 REDUNDANT、只修复 MISSING；若没有 MISSING，则返回 `NOT_APPLICABLE`，不拒绝整份请求。A13 交付明确接受 MDFixer 只消费 MISSING；`verify_a13_interop.py` 已用 A13 FULL_CHECK 混合报告验证该行为。
 
 ## 4. REPAIR 响应
 
-### 4.1 成功（repair.succeeded.json）
+### 4.1 成功结果
 
-`status = SUCCEEDED` 表示任务正常完成分析（可能修复成功，也可能得出"无可修复项/无有效候选"的结论）。`output` 中校验器硬性约束：`patch_uri` 为 `artifact://pair13/...` 地址且 `remaining_md_count = 0`。其余字段：
+`status = SUCCEEDED` 表示任务正常完成分析，包括接受补丁、没有有效候选和没有可修项三种结果。字段约束由 `repair_status` 决定：
 
-| 字段 | 含义 |
-|---|---|
-| `repair_status` | `PATCH_ACCEPTED` / `NO_VALID_CANDIDATE` / `NOT_APPLICABLE` |
-| `consumed_findings[]` | 实际消费的 MISSING 发现 |
-| `skipped_findings[]` | 被跳过的 REDUNDANT 发现及原因 |
-| `declaration_style` | 修复前后声明风格（`TARGET`/`MACRO`/`HYBRID`/`IMPLICIT`）与一致性；**修复不得改变声明风格**（MDFixer 论文核心约束） |
-| `patch_uri` | Git Patch 产物地址 |
-| `build` / `build_exit_code` | 修复后构建结果（命令、退出码、日志地址） |
-| `test` / `verify_exit_code` | 功能验证结果 |
-| `recheck` | 修复后重检：工具（`ECHECKER` 或课程固定 `COURSE_ORACLE`）、`remaining_md_count`、报告地址 |
-| `artifact_equivalence` | 修复前后 clean build 行为一致性；工具链输出稳定时附产物 sha256 |
-| `rejected_candidates[]` | 无效候选的拒绝理由（候选摘要 + 拒绝原因 + 证据地址），见第 5 节 |
+| 字段 | `PATCH_ACCEPTED` | `NO_VALID_CANDIDATE` | `NOT_APPLICABLE` |
+|---|---|---|---|
+| `repair_status` | 必填 | 必填 | 必填 |
+| `patch_uri` | 必填，真实 `artifact://pair13/...` 地址 | 必须为 `null` 或省略 | 必须为 `null` 或省略 |
+| `remaining_md_count` | 必填且为 0 | 必填，按重检事实记录（≥0） | 必填且为 0 |
+| `consumed_findings[]` | 允许 | 省略或空 | 省略或空 |
+| `skipped_findings[]` | 允许 | 允许 | 允许 |
+| `rejected_candidates[]` | 可选 | 必填非空，每条含候选、原因和证据 URI | 可选 |
+| `recheck` | 必填且 MD=0 | 必填，数量与顶层一致 | 可选；执行时按事实记录 |
+
+`declaration_style` 记录修复前后风格（`TARGET`/`MACRO`/`HYBRID`/`IMPLICIT`）并要求一致；`build`、`test`、`artifact_equivalence` 按实际验证结果记录。对应有效样例为 `repair.succeeded*.json`，两份字段冲突反例位于 `contracts/examples/invalid/repair.invalid-*.json`。
 
 ### 4.2 失败（repair.failed.json）
 
 `status = FAILED` 仅用于**系统执行错误**（对应 `docs/E2/status-and-errors.md`：系统错误写入 `error`，正常分析发现写入 `output`）：
 
-- `INPUT_1002`：MD 报告与请求的 commit 不一致（报告不属于当前源码版本，拒绝修复）。`INPUT_` 前缀为成员3提议的新错误分类（输入/版本校验失败），**待成员1与 A13 确认（A-02）**；现有草案前缀为 `ENV_3xxx`/`EXEC_4xxx`/`ANALYSIS_5xxx`。
+- `INPUT_1002`：MD 报告与请求的 commit 不一致（报告不属于当前源码版本，拒绝修复）。`INPUT_` 表示输入或版本校验失败；`ENV_3xxx`、`EXEC_4xxx`、`ANALYSIS_5xxx` 分别表示环境、执行和分析错误。
 - `ENV_3xxx`：构建环境不可用。`EXEC_4xxx`：执行错误/超时类。
 
 `error` 至少含 `code`、`message`，可含 `log_uri`（`artifact://` 地址）。
@@ -122,7 +121,7 @@
 
 - 报告、修复请求、Makefile、源码必须绑定**同一完整 commit SHA**（Schema 有正则约束）。
 - E3 fixture 报告的真实 SHA 通过两段式提交产生：第一个 commit 提交 fixture 内容，第二个 commit 把该 commit 的 SHA 写入报告。当前 implicit fixture 引用 `c65226b27043e0a688d1a4b41249cd7b0893f164`。
-- `artifact://pair13/<producer_job_id>/<filename>` 的解析与共享方式以 `contracts/artifact-access.md` 为准【待 A13 确认 A-11】。
+- `artifact://pair13/<producer_job_id>/<filename>` 按 `contracts/artifact-access.md` 的 repository-backed locator 解析，并固定完整仓库 commit 与文件 SHA-256。
 
 ## 7. 声明风格分类规则（课程级简化）与版本政策
 
@@ -130,21 +129,19 @@ MDFixer 论文用声明图上的 DIS（Declaration Distance Score）分类：DIS
 
 **Hybrid wildcard 守卫（论文前置条件，强制执行）：** 使用 `$(wildcard *.h)` 等 wildcard 宏前，必须证明 (1) 同目录被匹配的同类型文件全部是有效依赖，(2) 不引入额外无关文件。无法证明时回退为显式列举缺失依赖。守卫证明写入各 fixture 的 `expected.json.hybrid_guard`，并由验证脚本实际检查。
 
-**版本政策：** `schema_version` 当前固定 `"1.0"`。兼容变更（新增可选字段）须同步更新 Schema 与样例；破坏性变更（字段删除/改名/改语义、枚举收缩、`required` 收紧）须先开 Issue、注明受影响的生产者/消费者、两组确认后更新版本号并记录到 ADR【待 A13 确认 A-12】。
+**版本政策：** `schema_version` 当前固定 `"1.0"`。兼容变更（新增可选字段）须同步更新 Schema 与样例；破坏性变更（字段删除/改名/改语义、枚举收缩、`required` 收紧）须先开 Issue、注明受影响的生产者/消费者、两组确认后更新版本号并记录到 ADR。
 
 ## 8. 与 A13 对齐事项映射（成员3牵头）
 
 | 编号 | 事项 | 本契约中的位置 | 状态 |
 |---|---|---|---|
-| A-03 | MD/RD 与系统错误的区别 | 第 4 节（findings vs error） | 草案完成，待 A13 确认 |
-| A-08 | MD 报告格式 | 第 2 节 + md-report.schema.json | 草案完成，待 A13 提供最小/完整报告互验 |
-| A-09 | 报告与 commit/config 绑定 | 第 6 节 | 草案完成，待确认 |
-| A-10 | REPAIR 结果与重检 | 第 4 节 `recheck`/`rejected_candidates` | 草案完成，待 A13 说明如何消费 Patch/触发重检 |
-| A-11 | Artifact URI 读取 | 第 6 节 | 依赖 `contracts/artifact-access.md`，待确认 |
-| A-15 | 项目根目录与系统依赖过滤、makefile_path 基准 | 第 2 节 | 草案完成，待确认后冻结 |
-| A-17 | 修复后重检入口 | 第 4 节 `recheck.tool` | 草案：优先 EChecker 重检，否则课程固定 Oracle；待确认 |
-
-待 A13 确认后须落入 ADR 的条目：混合报告过滤策略（建议 ADR-004）、错误码前缀（含 `INPUT_` 新分类）、fixture 报告与真实 commit 的绑定约定。
+| A-03 | MD/RD 与系统错误的区别 | 第 4 节（findings vs error） | 已接受并写入契约 |
+| A-08 | MD 报告格式 | 第 2 节 + A13 固定快照 | 已完成实际互读与归一化 |
+| A-09 | 报告与 commit/config 绑定 | 第 6 节 | 已接受并由校验器检查 |
+| A-10 | REPAIR 结果与重检 | 第 4 节 `recheck`/`rejected_candidates` | 已接受 base commit + candidate patch 流程 |
+| A-11 | Artifact URI 读取 | 第 6 节 | 已采用 repository-backed locator 并完成读取 |
+| A-15 | 项目根目录、系统依赖过滤、Makefile 路径 | 第 2 节 | 已统一为相对 project_root 的 POSIX 路径 |
+| A-17 | 修复后重检入口 | 第 4 节 `recheck.tool` | 接口已定义；课程 Oracle 已验证，真实 EChecker 接入由其实现提供 |
 
 ## 9. 自检命令
 
