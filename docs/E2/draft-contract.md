@@ -37,8 +37,8 @@ iterations 保存每轮编号、退出码、日志 URI、修改说明；artifact
 
 ## 基线与接口的关系
 
-fixtures/draft 在容器内使用 /workspace/project，make clean && make 完整构建，./hello 输出 hello E3。
-代码来自 fixtures/draft 子目录；真实集成时需在工作区说明中保持这一映射。
+E3 固定标签中的 fixtures/draft 在容器内使用 /workspace/project。E4 官方模板把当前工作目录改为 /work，并继续用 make clean && make 完整构建、./hello 输出 hello E3。
+代码仍来自 fixtures/draft 子目录；E3 的原始实现与证据以 e3-complete-2026-09-29 标签为准，E4 后续提交不改写该标签。
 evidence 下保存的 summary.json 是本地运行证据，不冒充 HTTP Job 成功响应。
 现有 examples 中 URL、SHA、镜像 ID 和 URI 仍是合成数据，不是可下载产物。
 
