@@ -1,8 +1,10 @@
-# 2026 DevOps B13 — E2 / E3
+# 2026 DevOps B13 — E2 / E3 / E4
 
-本仓库是 B13 小组（3 人）的 E2、E3 实验交付。B13 负责 DRAFT 与 MDFixer，并提供公共任务契约、REPAIR/MD 报告契约、可复现测试样本、自动校验脚本和运行证据。
+本仓库是 B13 小组（3 人）的 DevOps 实验仓库。B13 负责 DRAFT 与 MDFixer，并提供公共任务契约、REPAIR/MD 报告契约、可复现测试样本、自动校验脚本和运行证据。
 
 提交入口见 [提交说明](docs/SUBMISSION.md)，个人 GitHub 活动见 [贡献登记表](CONTRIBUTIONS.md)。E3 跨组收尾固定版本使用 Git 标签 [`e3-complete-2026-09-29`](https://github.com/ma058/2026-Devops-B13/tree/e3-complete-2026-09-29)。
+
+E4 从上述标签开始。B 组官方模板已在 `feature/e4-bootstrap-b13` 分支接入，服务器运行证据仍须由三名成员分别生成。完整执行顺序、三人分工、服务器安全边界与验收清单见 [E4 可重复工程环境计划](docs/E4/README.md)。
 
 ## E2 交付
 
@@ -39,6 +41,25 @@
 - Macro：21 / 21 通过
 - Hybrid：22 / 22 通过
 - DRAFT 镜像复验：5 / 5 通过
+
+## E4 工程骨架
+
+- `services/draft/`：DRAFT 的 `version` 与 `smoke` 命令及 4 个单元测试
+- `compose.yaml`：挂载宿主机 docker.sock，并设置 CPU、内存与进程数限制
+- `Makefile`：`doctor → build → test → smoke → scan` 一键流程
+- `requirements-dev.in` 与 `requirements-dev.lock`：带哈希的 Python 依赖锁
+- `scripts/doctor.py`：服务器资源、Docker 工具与仓库级 Git 身份自检
+- `scripts/secret_scan.py`：工作区、Git 历史与镜像密钥扫描
+- `docs/E4/`：三人分工、运行记录模板、A13 互查清单与 AI 使用记录
+
+E4 需要在分配的 Linux 服务器运行：
+
+```sh
+make doctor
+make all
+```
+
+预期结果为 4 个单元测试通过，DRAFT 冒烟测试正确识别 `Dockerfile.broken` 中缺少 `make` 的预期失败，并由 `smoke.json` 记录 `passed: true`。这不表示内层 Dockerfile 构建成功。
 
 ## 复现命令
 
