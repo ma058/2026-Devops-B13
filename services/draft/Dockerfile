@@ -6,10 +6,15 @@
 #   4. 以普通用户 app 运行；访问 docker.sock 所需的用户组在运行时由 group_add 加入
 ARG BASE_IMAGE=m.daocloud.io/docker.io/library/python@sha256:f82c96458eedc847b233e582eb31336f4954b39cae020b6dcf5b3ed0e5cbcd74
 ARG DOCKER_CLI_IMAGE=m.daocloud.io/docker.io/library/docker@sha256:9190b0613792e658a7783cf14b2d5ace5941bb68ede7276922ea36ee457d76ad
+ARG DEBIAN_MIRROR=http://mirrors.aliyun.com/debian
+ARG DEBIAN_SECURITY_MIRROR=http://mirrors.aliyun.com/debian-security
 
 FROM ${DOCKER_CLI_IMAGE} AS docker-cli
 
 FROM ${BASE_IMAGE}
+
+ARG DEBIAN_MIRROR
+ARG DEBIAN_SECURITY_MIRROR
 
 ENV LC_ALL=C.UTF-8 \
     TZ=UTC \
@@ -20,7 +25,13 @@ ENV LC_ALL=C.UTF-8 \
 COPY --from=docker-cli /usr/local/bin/docker /usr/local/bin/docker
 COPY --from=docker-cli /usr/local/libexec/docker/cli-plugins/docker-buildx /usr/local/libexec/docker/cli-plugins/docker-buildx
 
-RUN apt-get update \
+# ECS 到默认 Debian 源的连接不稳定；镜像地址可在构建时通过同名 ARG 覆盖。
+# apt 仍会按 Debian 仓库签名验证索引和软件包。
+RUN sed -i \
+      -e "s#http://deb.debian.org/debian-security#${DEBIAN_SECURITY_MIRROR}#g" \
+      -e "s#http://deb.debian.org/debian#${DEBIAN_MIRROR}#g" \
+      /etc/apt/sources.list.d/debian.sources \
+ && apt-get update \
  && apt-get install -y --no-install-recommends git \
  && rm -rf /var/lib/apt/lists/* \
  && dpkg-query -W -f='${Package}=${Version}\n' git > /opt/toolchain.lock \

@@ -59,6 +59,8 @@ make doctor
 make all
 ```
 
+构建默认使用已在课程 ECS 上验证可达的阿里云 Debian 镜像源；如运行环境需要其他镜像，可通过 Docker 构建参数 `DEBIAN_MIRROR` 与 `DEBIAN_SECURITY_MIRROR` 覆盖。软件索引与软件包仍由 Debian 仓库签名验证。
+
 预期结果为 4 个单元测试通过，DRAFT 冒烟测试正确识别 `Dockerfile.broken` 中缺少 `make` 的预期失败，并由 `smoke.json` 记录 `passed: true`。这不表示内层 Dockerfile 构建成功。
 
 ## 复现命令
