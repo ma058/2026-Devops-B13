@@ -11,7 +11,7 @@
 - 源码完整 SHA：`519ca0fce2a5417e3f855a101bc5c938252a03d5`（与成员1基线一致）
 - 成功证据目录：`work/20261010-140139/`
 - 对应分支：`test/e4-security-member3`
-- 对应 PR：本分支 PR（Review 负责人：成员2，按 TEAM_TASKS 轮转）
+- 对应 PR：[#14](https://github.com/ma058/2026-Devops-B13/pull/14)（Review 负责人：成员2，按 TEAM_TASKS 轮转）
 
 ## 环境自检
 
