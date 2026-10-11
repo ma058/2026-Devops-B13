@@ -84,8 +84,9 @@
 
 - [x] 独立运行、负例、版本对照与脱敏报告完成。
 - [x] 直接互查记录与成员2汇总列已准备提交。
-- [ ] 成员1 Review 本报告 PR。
+- [x] 成员1已完成[初次Review及服务器证据/33项回归核验](https://github.com/ma058/2026-Devops-B13/pull/15#pullrequestreview-5482510465)，提出合并顺序修正；上述核验由成员1执行。
+- [ ] 调整目标分支并确认最终差异后，成员1最终Approve及合并本报告PR。
 - [ ] PR #13、#14 与本报告最终合入 main。
 - [ ] 成员1登记贡献、执行 main 回归并创建 E4 完成标签。
 
-因 #13/#14 尚未合并，本报告分支基于 #14 head，报告 PR 临时以成员3分支为 base，仅展示成员2文档差异。依赖合并后应复核并将 base 调整至 main，不能将报告合入中间分支当作最终 main 交付。
+因 #13/#14 尚未合并，本报告分支基于 #14 head，报告 PR 临时以 `test/e4-security-member3` 为 base，仅展示成员2文档差异。正确顺序为：成员3修正 #14 后，由成员2重新Review并Approve；#14 合入 `feature/e4-bootstrap-b13`；再将 #15 的 base 从 `test/e4-security-member3` 调整至 `feature/e4-bootstrap-b13`；确认最终差异仅包含成员2报告、A13互查记录和三人对照更新；将 #15 转为Ready并通知成员1完成最终Approve与合并。E4汇总进入main、仓库级回归和最终标签仍由成员1收口。
