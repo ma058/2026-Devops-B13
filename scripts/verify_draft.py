@@ -36,16 +36,17 @@ def main():
             cmd, out, _ = record.run(["docker", "image", "inspect", tag])
             metadata = json.loads(out)[0] if cmd["exit_code"] == 0 else {}
             record.data["image"] = {"ref": tag, "id": metadata.get("Id"), "repo_digests": metadata.get("RepoDigests", [])}
-            record.data["environment"]["container"] = {"os": metadata.get("Os"), "arch": metadata.get("Architecture"), "project_root": "/workspace/project"}
+            record.data["environment"]["container"] = {"os": metadata.get("Os"), "arch": metadata.get("Architecture"), "project_root": "/work"}
             record.check("image_identity", "sha256 image ID", metadata.get("Id"), bool(metadata.get("Id")), cmd["id"])
-            cmd, base, _ = record.run(["docker", "image", "inspect", "public.ecr.aws/ubuntu/ubuntu:20.04"])
+            base_ref = "m.daocloud.io/docker.io/library/python@sha256:f82c96458eedc847b233e582eb31336f4954b39cae020b6dcf5b3ed0e5cbcd74"
+            cmd, base, _ = record.run(["docker", "image", "inspect", base_ref])
             record.data["base_image"] = json.loads(base)[0] if cmd["exit_code"] == 0 else None
             for i in range(expected["repeat_count"]):
                 cmd, out, _ = record.run(["docker", "run", "--rm", tag])
                 record.check(f"hello_run_{i + 1}", expected["reference"], {"exit_code": cmd["exit_code"], "stdout": out}, cmd["exit_code"] == 0 and out == expected["reference"]["stdout"], cmd["id"])
             cmd, out, _ = record.run(["docker", "run", "--rm", tag, "sh", "-c", "make clean && make && ./hello"])
             record.check("clean_build", "exit 0; last line hello E3", {"exit_code": cmd["exit_code"], "stdout": out}, cmd["exit_code"] == 0 and out.splitlines()[-1:] == ["hello E3"], cmd["id"])
-            cmd, out, _ = record.run(["docker", "run", "--rm", tag, "sh", "-c", "cat /etc/os-release; uname -m; make --version; gcc --version; git --version; python3 --version; sha256sum hello"])
+            cmd, out, _ = record.run(["docker", "run", "--rm", tag, "sh", "-c", "cat /etc/os-release; uname -m; make --version; gcc --version; python3 --version; sha256sum hello"])
             record.data["environment"]["container"]["tool_versions_and_binary_hash"] = out
             record.check("container_metadata", 0, cmd["exit_code"], cmd["exit_code"] == 0, cmd["id"])
         else:

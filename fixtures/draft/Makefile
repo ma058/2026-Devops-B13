@@ -1,11 +1,8 @@
-CC = gcc
-CFLAGS = -O2 -Wall -Wextra
-
-.PHONY: all clean
+.PHONY: all clean test
 all: hello
-
 hello: main.c
-	$(CC) $(CFLAGS) main.c -o hello
-
+	cc main.c -o hello
+test: hello
+	./hello
 clean:
 	rm -f hello
