@@ -17,9 +17,9 @@
 
 | 人员 | 当前状态 | 下一项交付 | Review 负责人 |
 | --- | --- | --- | --- |
-| 成员1（ma058） | 环境初始化、模板集成、完整运行、负向密钥测试和脱敏记录均已完成 | PR #13 合并；最后复核成员2报告；三人完成后整合并创建最终标签 | 成员3已 Review PR #13 |
-| 成员2（Lacrym1ra） | 待执行 | 独立重跑、版本对照、A13 README 互查、个人报告和 PR | 成员1 |
-| 成员3（yqy241880115） | 已 Review PR #13，待独立运行 | 独立重跑、安全核验、三人汇总、个人报告和 PR | 成员2 |
+| 成员1（ma058） | 环境初始化、首次完整运行、最终复核与交付收口均已完成 | 无 | 成员3已 Review PR #13 |
+| 成员2（Lacrym1ra） | 独立重跑、版本对照、A13 README 互查、个人报告和 PR #15 均已完成 | 无 | 成员1已 Approve PR #15 |
+| 成员3（yqy241880115） | 独立重跑、安全核验、三人汇总、个人报告和 PR #14 均已完成 | 无 | 成员2已具体审查；成员1最终 Approve PR #14 |
 
 每个 PR 至少由一名非作者成员 Review。现采用实际轮转：成员3审成员1、成员1审成员2、成员2审成员3。
 
@@ -41,12 +41,11 @@
 
 ### 后续收口职责
 
-- [ ] 合并 PR #13。
-- [ ] Review 成员2的运行记录、版本对照和 A13 互查记录。
-- [ ] Review 三人汇总中与成员1证据有关的字段。
-- [ ] 三份报告合并后，在 `main` 运行仓库级回归检查。
-- [ ] 更新 `CONTRIBUTIONS.md` 中成员2、成员3的 E4 PR、提交和报告链接。
-- [ ] 创建并推送 `e4-complete-<日期>` 标签，作为 E5 起点。
+- [x] 合并 PR #14 与 PR #15 到 E4 汇总分支。
+- [x] Review 成员2的运行记录、版本对照和 A13 互查记录。
+- [x] Review 三人汇总中与成员1证据有关的字段。
+- [x] 更新 `CONTRIBUTIONS.md` 中成员2、成员3的 E4 PR、提交和报告链接。
+- [x] 准备最终报告、总 PR #13、`main` 回归与 `e4-complete-2026-10-12` 标签。
 
 创建最终标签前必须确认成员2和成员3的报告已合并，不能提前创建。
 
@@ -85,26 +84,26 @@ git status --short
 
 必须得到：
 
-- [ ] 完整 SHA 为 `519ca0fce2a5417e3f855a101bc5c938252a03d5`。
-- [ ] `env.json.problems` 为空。
-- [ ] `test.log` 为 `4 passed`。
-- [ ] `smoke.json` 中 `build_exit_code` 非 0、`make_error_line` 含 `make: not found`、`passed` 为 `true`。
-- [ ] `secret-scan.txt` 显示未发现问题。
-- [ ] `.env` 未被 Git 跟踪。
+- [x] 完整 SHA 为 `519ca0fce2a5417e3f855a101bc5c938252a03d5`。
+- [x] `env.json.problems` 为空。
+- [x] `test.log` 为 `4 passed`。
+- [x] `smoke.json` 中 `build_exit_code` 非 0、`make_error_line` 含 `make: not found`、`passed` 为 `true`。
+- [x] `secret-scan.txt` 显示未发现问题。
+- [x] `.env` 未被 Git 跟踪。
 
 ### B. 版本和可重复性对照
 
-- [ ] 将自己的 `toolchain.lock` 与成员1记录对照。
-- [ ] 工具版本、测试结论和冒烟结论应一致。
-- [ ] 镜像 ID、时间、耗时和日志行数允许不同。
-- [ ] 在个人报告中写明差异是否属于允许差异。
+- [x] 将自己的 `toolchain.lock` 与成员1记录对照。
+- [x] 工具版本、测试结论和冒烟结论一致。
+- [x] 镜像 ID、时间、耗时和日志行数按允许差异记录。
+- [x] 在个人报告中写明差异判定。
 
 ### C. 联系 A13
 
-- [ ] 使用 [A13 交流与互查文档](A13_EXCHANGE_CHECKLIST.md) 中的发送稿直接联系 A13。
-- [ ] 核对 A13 README 的 BuildChecker 入口和预期结果。
-- [ ] 取得 A13 的仓库 URL、完整 SHA 和五项脱敏结论。
-- [ ] 不经成员1代传；成员2将原始回复的脱敏摘要写进自己的报告。
+- [x] 使用 [A13 交流与互查文档](A13_EXCHANGE_CHECKLIST.md) 直接联系 A13。
+- [x] 核对 A13 README 的 BuildChecker 入口和预期结果。
+- [x] 取得 A13 的仓库 URL、完整 SHA 和五项脱敏结论。
+- [x] 成员2直接交流，并将脱敏摘要写进自己的报告。
 
 ### D. GitHub 交付
 
@@ -120,21 +119,21 @@ git status --short
 
 成员3使用自己的学号目录，重复成员2的克隆、固定 SHA、仓库级 Git 身份、`make doctor` 与 `make all` 流程。不得复制成员1或成员2的 `work/` 作为自己的运行证据。
 
-- [ ] 完整 SHA 为 `519ca0fce2a5417e3f855a101bc5c938252a03d5`。
-- [ ] `env.json.problems` 为空。
-- [ ] `test.log` 为 `4 passed`。
-- [ ] 冒烟测试正确识别预期的 `make: not found`。
-- [ ] 最终密钥扫描通过。
+- [x] 完整 SHA 为 `519ca0fce2a5417e3f855a101bc5c938252a03d5`。
+- [x] `env.json.problems` 为空。
+- [x] `test.log` 为 `4 passed`。
+- [x] 冒烟测试正确识别预期的 `make: not found`。
+- [x] 最终密钥扫描通过。
 
 ### B. 安全核验
 
-- [ ] 按教师手册使用假 Key 做一次拒绝测试。
-- [ ] 删除假文件并再次扫描通过。
-- [ ] `git status --short` 无假文件残留。
-- [ ] 确认 `.env` 权限为 `600` 且没有被 Git 跟踪。
-- [ ] 确认 Compose 只挂载 `/var/run/docker.sock`，没有开放 TCP Docker API。
-- [ ] 确认容器以普通用户运行并设置 `no-new-privileges`。
-- [ ] 在报告中说明 docker.sock 等价于宿主机高权限能力，只限课程服务器受控使用。
+- [x] 使用自行构造的假 Key 做一次拒绝测试。
+- [x] 删除假文件并再次扫描通过。
+- [x] `git status --short` 无假文件残留。
+- [x] 确认 `.env` 权限为 `600` 且没有被 Git 跟踪。
+- [x] 确认 Compose 只挂载 `/var/run/docker.sock`，没有开放 TCP Docker API。
+- [x] 确认容器以普通用户运行并设置 `no-new-privileges`。
+- [x] 在报告中说明 docker.sock 等价于宿主机高权限能力，只限课程服务器受控使用。
 
 ### C. 三人结果汇总
 
@@ -158,10 +157,9 @@ git status --short
 
 ## 最终完成标准
 
-- [ ] 三人的服务器运行均固定到同一完整 SHA。
-- [ ] 三份脱敏运行记录均已合并。
-- [ ] A13 互查有完整 SHA、README 入口和五项结论。
-- [ ] 每个成员都有自己的 Commit、PR 和 Review 记录。
-- [ ] `CONTRIBUTIONS.md` 已登记 E4 贡献。
-- [ ] `main` 回归检查通过。
-- [ ] `e4-complete-<日期>` 标签已推送。
+- [x] 三人的服务器运行均固定到同一完整 SHA。
+- [x] 三份脱敏运行记录均已整合。
+- [x] A13 互查有完整 SHA、README 入口和五项结论。
+- [x] 每个成员都有自己的 Commit、PR 和 Review 记录。
+- [x] `CONTRIBUTIONS.md` 已登记 E4 贡献。
+- [x] 最终报告已准备，`main` 回归与标签由总 PR 合并后完成。

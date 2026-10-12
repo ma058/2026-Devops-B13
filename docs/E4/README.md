@@ -33,6 +33,8 @@ E4 手册只要求至少两名成员独立重跑，也不强制个人提交。B1
 
 ## 4. 全部任务流程
 
+本节保留实验开始时使用的逐步复现模板；最终完成状态、实际 SHA 和证据目录以[最终交付报告](FINAL_REPORT.md)为准。
+
 ### 阶段 0：开始前确认
 
 - [ ] 三人确认当前小组成员与各自学号。
@@ -204,37 +206,39 @@ git status --short
 
 ### 阶段 8：GitHub 留痕与最终收口
 
-- [ ] 成员1提交模板与本人的脱敏运行记录，成员3 Review。
-- [ ] 成员2提交独立重跑、依赖对照和 A13 互查记录，成员1 Review。
-- [ ] 成员3提交安全核验和三人对照报告，成员2 Review。
-- [ ] 三个 PR 的作者不同，提交作者与实际执行人一致。
-- [ ] 更新 `CONTRIBUTIONS.md`，登记三个 PR、代表性提交和报告路径。
-- [ ] `main` 上重新检查 README 命令、Schema/旧测试和 E4 文档没有被破坏。
-- [ ] 创建 `e4-complete-<日期>` 标签，作为 E5 起点。
+- [x] 成员1提交模板与本人的脱敏运行记录，成员3 Review。
+- [x] 成员2提交独立重跑、依赖对照和 A13 互查记录，成员1 Review。
+- [x] 成员3提交安全核验和三人对照报告，成员2提出具体审查意见，成员1完成最终复核。
+- [x] 三个 PR 的作者不同，提交作者与实际执行人一致。
+- [x] 更新 `CONTRIBUTIONS.md`，登记三个 PR、代表性提交和报告路径。
+- [x] `main` 上重新检查 README 命令、Schema/旧测试和 E4 文档没有被破坏。
+- [x] 创建 `e4-complete-2026-10-12` 标签，作为 E5 起点。
 
 ## 5. E4 最终交付清单
 
+最终结果与可提交文件说明见 [B13 E4 最终交付报告](FINAL_REPORT.md)。以下仓库内容和运行记录均已完成并纳入总 PR。
+
 仓库内容：
 
-- [ ] `services/draft/` 服务骨架与 Dockerfile
-- [ ] `fixtures/draft/` 冒烟测试样例
-- [ ] `compose.yaml`
-- [ ] `Makefile`
-- [ ] `requirements-dev.in`
-- [ ] `requirements-dev.lock`
-- [ ] `.env.example`
-- [ ] `.gitignore` 与 `.dockerignore`
-- [ ] `scripts/doctor.py`
-- [ ] `scripts/secret_scan.py`
-- [ ] README 中的一键复现说明
+- [x] `services/draft/` 服务骨架与 Dockerfile
+- [x] `fixtures/draft/` 冒烟测试样例
+- [x] `compose.yaml`
+- [x] `Makefile`
+- [x] `requirements-dev.in`
+- [x] `requirements-dev.lock`
+- [x] `.env.example`
+- [x] `.gitignore` 与 `.dockerignore`
+- [x] `scripts/doctor.py`
+- [x] `scripts/secret_scan.py`
+- [x] README 中的一键复现说明
 
 运行记录：
 
-- [ ] 三名成员各自的脱敏运行记录
-- [ ] 三份完整源码 SHA 与成功证据目录名称
-- [ ] 三人版本、测试、冒烟和密钥扫描对照
-- [ ] A13 README 互查记录
-- [ ] GitHub Issue、Commit、PR、Review 与贡献登记
+- [x] 三名成员各自的脱敏运行记录
+- [x] 三份完整源码 SHA 与成功证据目录名称
+- [x] 三人版本、测试、冒烟和密钥扫描对照
+- [x] A13 README 互查记录
+- [x] GitHub Issue、Commit、PR、Review 与贡献登记
 
 提交给课程平台时，以教师最新要求为准。若平台只能上传一个文件，使用 `e4-complete-<日期>` 标签生成仓库 ZIP；若允许填写链接，同时提交 GitHub 仓库 URL、标签或完整提交 SHA。
 

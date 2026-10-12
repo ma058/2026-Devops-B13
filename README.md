@@ -4,7 +4,7 @@
 
 提交入口见 [提交说明](docs/SUBMISSION.md)，个人 GitHub 活动见 [贡献登记表](CONTRIBUTIONS.md)。E3 跨组收尾固定版本使用 Git 标签 [`e3-complete-2026-09-29`](https://github.com/ma058/2026-Devops-B13/tree/e3-complete-2026-09-29)。
 
-E4 从上述标签开始。B 组官方模板已经接入仓库，服务器运行证据仍须由三名成员分别生成。总流程见 [E4 可重复工程环境计划](docs/E4/README.md)，每名成员的具体命令和交付物见 [三人执行与交付清单](docs/E4/TEAM_TASKS.md)，跨组发送稿和回复表见 [A13 交流与互查文档](docs/E4/A13_EXCHANGE_CHECKLIST.md)。
+E4 从上述标签开始。三名成员已在同一运行基线完成独立服务器运行、安全负例和结果对照。最终结论见 [E4 最终交付报告](docs/E4/FINAL_REPORT.md)，过程见 [E4 可重复工程环境计划](docs/E4/README.md)、[三人执行与交付清单](docs/E4/TEAM_TASKS.md) 与 [A13 交流与互查文档](docs/E4/A13_EXCHANGE_CHECKLIST.md)。最终版本由 [`e4-complete-2026-10-12`](https://github.com/ma058/2026-Devops-B13/tree/e4-complete-2026-10-12) 标签固定。
 
 ## E2 交付
 

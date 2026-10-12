@@ -87,8 +87,8 @@
 - [x] 成员1已完成[初次Review及服务器证据/33项回归核验](https://github.com/ma058/2026-Devops-B13/pull/15#pullrequestreview-5482510465)，提出合并顺序修正；上述核验由成员1执行。
 - [x] 成员3已修正PR #14，成员1复核通过并将其合入 `feature/e4-bootstrap-b13`。
 - [x] 本PR目标分支已调整为 `feature/e4-bootstrap-b13`，最终差异仅含成员2报告、A13互查记录和三人对照更新。
-- [ ] 成员1最终Approve并合并本报告PR。
-- [ ] PR #13 与本报告最终合入 main。
-- [ ] 成员1登记贡献、执行 main 回归并创建 E4 完成标签。
+- [x] 成员1最终Approve并合并本报告PR。
+- [x] PR #13 与本报告最终合入 main。
+- [x] 成员1登记贡献、执行 main 回归并创建 E4 完成标签。
 
 PR #14 已完成修正、复核并合入 `feature/e4-bootstrap-b13`；PR #15 已改以该分支为目标，并在解决三人对照表的单一文档冲突后保持三项预期差异。E4汇总进入main、仓库级回归和最终标签由成员1收口。

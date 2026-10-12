@@ -68,7 +68,7 @@
 - 冒烟结论：一致（`docker_server 29.1.3`、`build_exit_code 1`、`make_error_line` 含 `make: not found`、`passed: true`）
 - 密钥扫描结论：一致（正式扫描通过；假 Key 均被拦截且清理后复检通过）
 - 允许差异：镜像 ID（成员1 `96418e1d5ebf` / 成员3 `0d9a9a21023b`）、证据目录时间戳、构建耗时（成员3 复用组内构建缓存，`make all` 约 75 秒）
-- 成员2：截至 2026-10-10 尚未完成独立运行；三人对照详见 [THREE_MEMBER_COMPARISON.md](THREE_MEMBER_COMPARISON.md)，待其完成后补齐
+- 成员2：截至本记录执行日 2026-10-10 尚未完成；此后已于 2026-10-11 完成独立运行并补齐[三人对照](THREE_MEMBER_COMPARISON.md)
 - 非预期差异及处理：无
 
 ## 最终结论
