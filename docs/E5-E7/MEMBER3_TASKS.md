@@ -5,6 +5,7 @@
 ## 1. 基线与工作目录
 
 - 仓库：<https://github.com/ma058/2026-Devops-B13>
+- 公共基线 PR：[#16](https://github.com/ma058/2026-Devops-B13/pull/16)，当前等待成员二 Review。
 - 成员1基线：`member1/e5-e7-bootstrap`，由成员2 Review 后合入 main。
 - 公共已跑通代码：`e54b1adc9fe81e6c2537beb5f480baabd2ed4b0f`。
 - 你的分支：`member3/e7-ci-gate`。

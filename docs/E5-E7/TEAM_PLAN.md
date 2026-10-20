@@ -25,6 +25,7 @@ E7：24 项教学服务测试、五类实际故障场景、自主新增测试、
 - 仓库：<https://github.com/ma058/2026-Devops-B13>
 - 实验工作目录：仓库内 `labs/B-draft`。
 - 成员1基线分支：`member1/e5-e7-bootstrap`，目标 `main`。
+- 成员1实际 PR：[#16](https://github.com/ma058/2026-Devops-B13/pull/16)，等待成员2审核。
 - 成员2：`member2/e6-evidence-validation`。
 - 成员3：`member3/e7-ci-gate`。
 - 故意失败演示：`member3/e7-gate-reject-demo`，必须等正常 CI 和分支保护生效后创建。

@@ -5,6 +5,7 @@
 ## 已经准备好的内容
 
 - 仓库：<https://github.com/ma058/2026-Devops-B13>
+- 第一项操作：Review 成员一 [PR #16](https://github.com/ma058/2026-Devops-B13/pull/16)，核对后 Approve；这是你的同伴审查贡献。
 - 成员1基线分支：`member1/e5-e7-bootstrap`。先 Review 该分支 PR，确认来源、网络适配与 E5 证据后 Approve；由成员1合并。
 - 实验目录：`labs/B-draft`，不要在仓库根目录执行 E4 的旧 Makefile。
 - 教学基线已通过 24 项服务测试；成员1已验证 E5 修复、E6 两轮构建与 E7 全部场景。
