@@ -1,10 +1,12 @@
 {
   "candidate_file": "DeepSeek-E5.Dockerfile",
-  "sha256": "ede21b0fab394071641526e2fccefc41565efb00de6fb54d9d5b906aebeb535d",
+  "sha256": "db8fdf9a1e6377ae916494d5e1608a74d94be8ba1192c27e6db2c1a830d58e4a",
+  "original_sha256": "ede21b0fab394071641526e2fccefc41565efb00de6fb54d9d5b906aebeb535d",
+  "b13_adaptation": "2026-10-20: mirror registry with the same digest; Debian mirror substitution before dependency installation. Original bytes saved in course/e5-e7/originals/DeepSeek-E5.Dockerfile.",
   "provider": "DeepSeek",
   "acquisition": "Manual transfer of E5 error-driven prompt; no API call in CI",
   "model_version": "Not recorded",
   "selection": "E5 candidate 1; teaching selection normalized line continuations",
   "source_evidence": "E5-B/e5-b-XsZXMk/iter-02/Dockerfile",
-  "scope": "Recorded teaching fixture, not a new model generation result"
+  "scope": "Recorded teaching fixture with B13 network adaptation, not a new model generation result"
 }
