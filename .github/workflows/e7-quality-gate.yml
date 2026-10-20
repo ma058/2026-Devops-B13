@@ -1,0 +1,120 @@
+# E7 B 组质量门禁（成员3：从 labs/B-draft/.github/workflows 教学版适配到仓库根，
+# 使 GitHub 真正执行。适配要点：
+#   1) job 名保持 e7-b-quality-gate，与 course/e5-e7/ci/B-main-protection.json 一致
+#   2) 默认工作目录 labs/B-draft（嵌套目录不会被 GitHub 自动执行）
+#   3) upload-artifact 使用仓库根相对路径 labs/B-draft/work/ci/
+#   4) 候选使用 fixtures/b13-candidates/error-driven.Dockerfile：
+#      来源为 DeepSeek E5 原始回复 + B13 网络适配（m.daocloud.io 镜像站、
+#      mirrors.aliyun.com Debian 源），与官方摘要（digest）一致；
+#      详见 fixtures/b13-candidates/provenance.json
+#   5) checkout 保留完整历史且 persist-credentials=false
+#   6) gate 前运行已合入的 tests/member1 与 tests/member3；
+#      tests/member2 尚未合入时按目录存在性如实跳过并在日志中说明
+#   7) 额外保留 E2-E4 回归：根目录 validate.py、单元测试与 verify_a13_interop.py
+#   8) 构建/执行失败也上传 artifact，保留 14 天
+name: E7 B quality gate
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      fail_demo:
+        description: "Intentional failing oracle for the teaching demonstration"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+    working-directory: labs/B-draft
+
+jobs:
+  quality-gate:
+    name: e7-b-quality-gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      IMAGE: b13-draft:ci-e567
+      FAIL_DEMO: ${{ inputs.fail_demo }}
+    steps:
+      - name: Check out the exact triggering revision
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Prepare evidence and check Python syntax
+        run: |
+          set -euo pipefail
+          mkdir -p work/ci
+          git rev-parse HEAD > work/ci/commit.txt
+          docker version > work/ci/docker-version.txt
+          python3 -m compileall -q services/draft/draft scripts
+
+      - name: Scan tracked sources and Git history
+        run: |
+          set -euo pipefail
+          python3 scripts/secret_scan.py . --history 2>&1 | tee work/ci/source-scan.log
+
+      - name: Run E2-E4 root regression
+        working-directory: .
+        run: |
+          set -euo pipefail
+          mkdir -p labs/B-draft/work/ci
+          python3 scripts/validate.py 2>&1 | tee labs/B-draft/work/ci/root-validate.log
+          python3 -m unittest discover -s tests -v 2>&1 | tee labs/B-draft/work/ci/root-tests.log
+          python3 scripts/verify_a13_interop.py 2>&1 | tee labs/B-draft/work/ci/a13-interop.log
+
+      - name: Build the service image
+        run: |
+          set -euo pipefail
+          docker build --progress=plain -f services/draft/Dockerfile -t "$IMAGE" . 2>&1 | tee work/ci/build.log
+          docker image inspect "$IMAGE" > work/ci/service-image-inspect.json
+
+      - name: Scan built image
+        run: |
+          set -euo pipefail
+          python3 scripts/secret_scan.py . --image "$IMAGE" 2>&1 | tee work/ci/image-scan.log
+
+      - name: Run member judgment tests
+        run: |
+          set -euo pipefail
+          {
+            if [ -d tests/member1 ]; then
+              echo "=== tests/member1 ==="
+              python3 -m unittest discover -s tests/member1 -v
+            else
+              echo "tests/member1 not merged yet; skipped"
+            fi
+            if [ -d tests/member2 ]; then
+              echo "=== tests/member2 ==="
+              python3 -m unittest discover -s tests/member2 -v
+            else
+              echo "tests/member2 not merged yet; skipped"
+            fi
+            echo "=== tests/member3 ==="
+            python3 -m unittest discover -s tests/member3 -v
+          } 2>&1 | tee work/ci/member-tests.log
+
+      - name: Run the real component and fault gate
+        run: |
+          set -euo pipefail
+          args=()
+          if [[ "$FAIL_DEMO" == "true" ]]; then
+            args+=(--case success --inject-bad-oracle)
+          fi
+          python3 scripts/run_e7_b_gate.py --image "$IMAGE" --candidate fixtures/b13-candidates/error-driven.Dockerfile --out work/ci/gate "${args[@]}" 2>&1 | tee work/ci/gate-console.log
+
+      - name: Archive evidence even when checks fail
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: e7-b-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: labs/B-draft/work/ci/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
