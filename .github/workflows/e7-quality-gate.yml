@@ -107,7 +107,7 @@ jobs:
           if [[ "$FAIL_DEMO" == "true" ]]; then
             args+=(--case success --inject-bad-oracle)
           fi
-          python3 scripts/run_e7_b_gate.py --image "$IMAGE" --candidate fixtures/b13-candidates/error-driven.Dockerfile --out work/ci/gate "${args[@]}" 2>&1 | tee work/ci/gate-console.log
+          python3 scripts/run_e7_b_gate.py --image "$IMAGE" --candidate fixtures/b13-candidates/error-driven.Dockerfile --out work/ci/gate --build-timeout 600 "${args[@]}" 2>&1 | tee work/ci/gate-console.log
 
       - name: Archive evidence even when checks fail
         if: always()
