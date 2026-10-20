@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "candidate_sha256": "db8fdf9a1e6377ae916494d5e1608a74d94be8ba1192c27e6db2c1a830d58e4a",
+  "input_sha256": {
+    "README.md": "706f5780103451757caa6327b11159989d0bbcd80688405a25e5f15eaa57c011",
+    "Makefile": "7ed3f5b85a10827cf4c177ee9fa9855b1c70166b5339e5da8e81f4decee74cc3",
+    ".dockerignore": "4e2d01841cd05ae77ebcac6d7ed12f277fc7ab86506a5eb0186d2b7600e6487c",
+    "main.c": "05f3bcbf50c51513eb01dd78b3a9a4ae0a01115140fed7d1030cc47451807bc1",
+    "Dockerfile.broken": "c8f44a699752cab0a61c4eefba44ff483f50481bed88293b89ca2ace505b6307"
+  },
+  "scope": "B13 E5 explicit candidate build and image-ID run",
+  "build_exit_code": 0,
+  "image_id": "sha256:0488ca44a0c3f49afb245265b29d9c1fce3fc7ca43d3e3badfa69cfd20a0568a",
+  "run_exit_code": 0,
+  "actual_output": "hello E3\n",
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--network",
+    "none",
+    "--cpus",
+    "1",
+    "--memory",
+    "128m",
+    "--pids-limit",
+    "64",
+    "--cidfile",
+    "/root/241880054/e5-e7-b13/labs/B-draft/work/member1-e5-manual-20261020/container-id.txt",
+    "sha256:0488ca44a0c3f49afb245265b29d9c1fce3fc7ca43d3e3badfa69cfd20a0568a"
+  ]
+}

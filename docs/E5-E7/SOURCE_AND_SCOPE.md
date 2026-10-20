@@ -3,6 +3,7 @@
 - 日期：2026-10-20；小组 B13；仅执行 B 轨道 DRAFT。
 - 起点：E4 标签 `e4-complete-2026-10-12`，提交 `7b231398e34e5e0935c77f7cea8aebefae5039d6`。
 - 教学来源：用户提供的 `E5-7.zip` 中 `02_学生实验/DevOps_1020_Student_Cloud.zip`。
+- 原 E5-7.zip SHA-256：`b61e99c131f5bc893ed94f2be18c964fa0a3559610a582009790fdb8a982177e`。
 - `labs/B-draft/` 基于教学 B 轨道参考实现；其中核心源码、24 项测试与 DeepSeek 候选来自教学包，不计作 B13 从零编写的算法。
 - `course/e5-e7/` 保存教学报告模板与 B 轨道 CI 演示素材。
 - E2–E4 原有根目录入口继续保留。E5–E7 的命令均先进入 `labs/B-draft`；不得在根目录误运行旧 E4 的 `make all`。
