@@ -15,7 +15,8 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
-MIN = {"cpus": 2, "mem_gib": 4, "disk_gib": 40}        # 最低
+# Same course host as E4: small-fixture minimum visible RAM; keep measured warnings.
+MIN = {"cpus": 2, "mem_gib": 3.5, "disk_gib": 40}      # 课程小样例最低可见资源
 REC = {"cpus": 4, "mem_gib": 8, "disk_gib": 100}       # 建议（DRAFT 后续要构建真实项目）
 
 TOOLS = [  # (名称, 版本命令, 是否必需)
