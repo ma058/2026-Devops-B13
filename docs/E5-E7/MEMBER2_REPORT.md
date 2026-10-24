@@ -158,8 +158,8 @@ error-driven候选显式安装build-essential；context-driven候选显式安装
 | runtime-timeout容器清理 | 尚无已核验结果 |
 | 工作区、历史与镜像扫描 | 尚无已核验结果 |
 | PR #16同伴审查 | 已完成本地初审；正式远端Review链接未纳入记录 |
-| 个人PR | Draft交付，依赖公共基线PR #16；创建后登记链接 |
-| 成员3Review与CI交接 | 尚无完成记录 |
+| 个人PR | [PR #18](https://github.com/ma058/2026-Devops-B13/pull/18)，Draft，依赖公共基线PR #16 |
+| 成员3Review与CI交接 | 已请求yqy241880115 Review；实际审查和CI接入尚无完成记录 |
 
 服务pytest与成员2新增证据测试分别统计。
 
@@ -177,6 +177,6 @@ error-driven候选显式安装build-essential；context-driven候选显式安装
 
 本阶段已确认两类保存候选E6执行成功，首轮均复现MISSING_MAKE，第二轮构建成功，程序退出0并输出hello E3。新增测试已在服务器暴露旧校验器缺陷；扩展后，两套真实保存证据仍能通过检查。
 
-当前服务器证据记录位于修改后正式Docker回归前，个人代码已形成提交并准备Draft PR。服务器19项测试最终结尾、正式回归、镜像扫描及Review结果尚未核验，因此本报告不作全阶段完成判定。
+当前服务器证据记录位于修改后正式Docker回归前，个人代码已形成提交并创建Draft PR #18。服务器19项测试最终结尾、正式回归、镜像扫描及Review结果尚未核验，因此本报告不作全阶段完成判定。
 
 本次个人PR暂以 `member1/e5-e7-bootstrap` 为base，仅提交成员2改动；PR #16合并后再核对差异并调整至main。当前不执行合并。
