@@ -1,0 +1,20 @@
+{
+  "group": "B13",
+  "member": "ma058",
+  "date": "2026-10-20",
+  "provider": "OpenAI Codex, current assistant session",
+  "model_version": "Exact API model identifier not independently recorded",
+  "acquisition": "Current assistant read both actual E5 prompt files and wrote the two preserved response artifacts. Not independent fresh-context API trials.",
+  "prompt_evidence": "member1-e5-mirror-20261020/iter-01/",
+  "source_commit": "e54b1ad",
+  "selected_candidate": "error-driven.Dockerfile",
+  "selection_reason": "Conservative build-essential repair supplies GNU Make, C compiler and standard development headers. Context candidate lists gcc libc6-dev make explicitly. Both preserve FROM digest, WORKDIR, COPY, RUN make and CMD. Selection is an explained manual choice, not a claimed three-candidate majority vote.",
+  "contamination_note": "The assistant had already inspected the teaching candidate. Selected error-driven text equals the network-adapted teaching candidate; this is an assisted reconstruction/comparison, not an independent model benchmark.",
+  "modifications_after_response": "Only extraction of fenced Dockerfile body; network adaptation is already present in the saved responses.",
+  "files": {
+    "labs/B-draft/fixtures/b13-candidates/error-driven.Dockerfile": "db8fdf9a1e6377ae916494d5e1608a74d94be8ba1192c27e6db2c1a830d58e4a",
+    "docs/E5-E7/model-responses/context-driven.txt": "de2d7536f6a1766e020fa31d1b8716cde66706bdd5e62de8043f5c5a20261eb8",
+    "docs/E5-E7/model-responses/error-driven.txt": "f86a7d84c7661a39373463d8a79fc0e393f5684598f42e3a9933936472661f1e",
+    "labs/B-draft/fixtures/b13-candidates/context-driven.Dockerfile": "16391e090c39fa363ff0a8c5562a9904ed5716d70e9568ee3c5d96f8b28c611b"
+  }
+}

@@ -1,6 +1,8 @@
-# 2026 DevOps B13 — E2 / E3 / E4
+# 2026 DevOps B13 — E2–E7
 
 本仓库是 B13 小组（3 人）的 DevOps 实验仓库。B13 负责 DRAFT 与 MDFixer，并提供公共任务契约、REPAIR/MD 报告契约、可复现测试样本、自动校验脚本和运行证据。
+
+E5–E7 当前入口：[三人任务总表](docs/E5-E7/TEAM_PLAN.md)、[成员一报告](docs/E5-E7/MEMBER1_REPORT.md)、[成员二任务书](docs/E5-E7/MEMBER2_TASKS.md)、[成员三任务书](docs/E5-E7/MEMBER3_TASKS.md)。本轮在 `labs/B-draft` 执行，公共基线已跑通；队友独立扩展与 CI 闭环仍待完成。教学来源与网络适配见 [来源说明](docs/E5-E7/SOURCE_AND_SCOPE.md)。
 
 提交入口见 [提交说明](docs/SUBMISSION.md)，个人 GitHub 活动见 [贡献登记表](CONTRIBUTIONS.md)。E3 跨组收尾固定版本使用 Git 标签 [`e3-complete-2026-09-29`](https://github.com/ma058/2026-Devops-B13/tree/e3-complete-2026-09-29)。
 
