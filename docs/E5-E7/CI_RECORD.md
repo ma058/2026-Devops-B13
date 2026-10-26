@@ -37,6 +37,8 @@ PR #20 证据轮（938e0b9/7473507）两轮 CI 先后被 workflow 自身 `timeou
 2. 候选：CI 内以 sed 生成官方源变体（去除 `m.daocloud.io/docker.io/library/` 前缀、`mirrors.aliyun.com` 还原为 `deb.debian.org`），gate 使用该变体；变体哈希记录于 `work/ci/candidate-ci.sha256` 并随 artifact 归档。**候选文件本体未改**，服务器口径（daocloud 版候选、candidate_sha256 `7d8d316029…`）保持不变，两者分别记录，不互相冒充。**成对变体**：`prepare_candidate` 要求候选 FROM 与 `fixtures/draft/Dockerfile.broken` 的 FROM 逐字一致，首次修正（8e69940）仅变体候选导致四场景 "Missing trace_id"（cli.py 顶层 except 输出无 trace_id 的错误 JSON，上游错误为 "Candidate changed the original base image tag"，已本地用真实 `prepare_candidate` 复现）；因此 baseline fixture（Dockerfile.broken）在 CI 检出副本中同步去前缀（`work/ci/broken-ci.sha256` 记录），候选与 baseline 成对一致，Git 中文件保持不变
 3. job 超时 40→60 分钟（gate 内部每场景 `--build-timeout 600` 不变）
 
+成对变体修复后，最新提交 `2151766` 双绿：push run [40293323355](https://github.com/ma058/2026-Devops-B13/actions/runs/40293323355) 与 PR run [40293328400](https://github.com/ma058/2026-Devops-B13/actions/runs/40293328400) 均 **success**（官方源下约 7 分钟完成，六项检查全过；变体哈希 candidate-ci.sha256 与 broken-ci.sha256 随该轮 artifact 归档并已下载交付，见第 4 节）。
+
 ## 2. 主分支保护
 
 ### 2.1 应用前现状核验（2026-10-24 实测）
@@ -100,8 +102,9 @@ PR #20 证据轮（938e0b9/7473507）两轮 CI 先后被 workflow 自身 `timeou
 | 合并拒绝 UI 原件 | `pr19-merge-blocked-screenshot-20261026.png` | `d2283f102d67f471ebdf3fc44e2b8ccfbe2ff0ddd7bffcb55420a2199db0ae2d` | PR #19 @ 91e555b：All checks have failed（2 failing checks）、两个 Required 红叉、Merge 按钮灰色不可点 |
 | PR #19 页面状态原件 | `pr19-description-screenshot-20261026.png` | `6fb523bc8ff1156d873aa4e80451a4521b06be2d0f04256e46e4e4caa5003d90` | PR #19 |
 | 服务器原始运行证据（归档） | `m3-server-raw-evidence-20261026.tar.gz` | `bd3957cc4a8adabd3dfe3f37171f79c46eb0253d091b36a0f0c09594431086fe` | 源码 SHA 2228b19；包内 187 个文件：`m3-build-01/`、`m3-gate-01/`（gate/gate-result.json、六场景 evidence/、runtime-timeout cleanup-check/stderr.log、verify-container-id.txt） |
+| 最新双绿 CI artifact（成对变体修复后） | `e7-b-evidence-40293328400-1.zip` | `1439ba6c33588c4714ead1f4eae60203e841ab0d98f1bfc8d162f7c93a087b16` | PR run 40293328400（2151766，success）；包内 `work/ci/` 含 gate 全部产物及变体哈希 `candidate-ci.sha256`、`broken-ci.sha256` |
 
-服务器原始 `work/` 目录本体保留于 `/root/241880115/e5-e7-b13/labs/B-draft/work/`（未提交 Git）；上表 5 个文件均在交付目录内可供复核。
+服务器原始 `work/` 目录本体保留于 `/root/241880115/e5-e7-b13/labs/B-draft/work/`（未提交 Git）；上表 6 个文件均在交付目录内可供复核。
 
 ## 5. E7 完成标准对照
 
