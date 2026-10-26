@@ -36,7 +36,7 @@ jobs:
   quality-gate:
     name: e7-b-quality-gate
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    timeout-minutes: 60
     env:
       IMAGE: b13-draft:ci-e567
       FAIL_DEMO: ${{ inputs.fail_demo }}
