@@ -39,6 +39,8 @@ sha256:fdc86683a77fe1a99d88558c9539ba01ed56567af7d393f2de3a0e1e84482ea8
 | 成员3 判定测试 `tests/member3/test_gate_oracle.py` | 服务器 Linux `Ran 5 tests / OK`（2026-10-26 实时复跑确认）；本地 Windows 同样 5 tests OK；main CI（run 40190185610）`Ran 5 tests / OK` |
 | 根级 E2–E4 回归 | 33 项通过（本地与 CI 均确认） |
 
+注：PR #19（演示修复用例合入 main）之后，main 上的服务测试为 **25 项**（24 项基线服务测试 + 1 项演示修复用例 `test_version_returns_success_exit_code`），见 main run `40280677012`；本人服务器基线运行的 **24 项保持不变**，两者分别统计。
+
 5 项判定测试内容：合法成功报告必须通过；构建/运行镜像 ID 不同拒绝；构建超时伪装运行超时拒绝；第二轮构建失败仍带 verification 拒绝；参考答案（Dockerfile.reference）泄漏拒绝。
 
 ## 5. 六项 gate（work/m3-gate-01，本人服务器）
@@ -62,13 +64,21 @@ runtime-timeout 场景第二轮 `build_exit_code=0`，运行终态 `TIMED_OUT`�
 
 ## 7. CI 修正与全绿（概要，详见 CI_RECORD.md）
 
-首跑 run `39387032423` 因 gate 默认 300 秒构建预算在 GitHub Runner 上不足而失败；修正提交 `248dbb7` 显式 `--build-timeout 600`（与服务器及任务书一致），此后 push run `39392487752`、PR run `39392494681` 均 success；main 合并后 run `40190185610` success（3m13s）。
+首跑 run `39387032423` 因 gate 默认 300 秒构建预算在 GitHub Runner 上不足而失败；修正提交 `248dbb7` 显式 `--build-timeout 600`（与服务器及任务书一致），此后 push run `39392487752`、PR run `39392494681` 均 success；main 合并后 run `40190185610` success（3m13s）；PR #19 合并进 main 后 run `40280677012` 亦 success（服务测试 25 项，见第 4 节注）。
 
-## 8. 原始证据归档
+## 8. 原始证据归档（已实际交付）
 
-- 服务器原始 `work/m3-build-01`、`work/m3-gate-01` 保留在本人服务器目录，未提交 Git。
-- 失败与成功两次 CI 的 artifact 已按 14 天保留要求从 GitHub 下载另存（含 PR #19 失败阶段 artifact），待最终交付时随归档一并提交索引。
-- 本报告与 CI_RECORD.md 提交于 `member3/e7-reports` 分支。
+全部证据包已实际交付至共享服务器目录 **`/root/e5-e7-evidence/member3/`**（成员1 可直接取用）：
+
+| 文件 | SHA-256 | 对应 run / 源码 SHA | 内容与关键路径 |
+| --- | --- | --- | --- |
+| `m3-server-raw-evidence-20261026.tar.gz` | `bd3957cc4a8adabd3dfe3f37171f79c46eb0253d091b36a0f0c09594431086fe` | 源码 SHA `2228b19`（本人服务器独立运行） | 共 187 个文件：`m3-build-01/`（构建与单元测试日志）、`m3-gate-01/`（`gate/gate-result.json`、六场景各自 `evidence/`、运行超时 `cleanup-check/stderr.log`、`verify-container-id.txt`） |
+| `e7-b-evidence-39392494681-1.zip` | `2c6688d5cad553cd72a674debdbc197c072fbd1c0854833e4668193d53326f92` | PR run `39392494681`（PR #17，`248dbb7`，success） | CI artifact：`work/ci/` 下 gate 控制台日志、六场景产物、扫描结果 |
+| `e7-b-evidence-40278042708-1.zip` | `88725a0b8e594aca9ebd8d49c564a417f5364e8d83080ef075eceb260290bf23` | push run `40278042708`（PR #19 失败阶段，`91e555b`，failure） | CI artifact（失败版）：含失败场景日志 |
+| `pr19-merge-blocked-screenshot-20261026.png` | `d2283f102d67f471ebdf3fc44e2b8ccfbe2ff0ddd7bffcb55420a2199db0ae2d` | PR #19 @ `91e555b` | 合并拒绝 UI 原件：All checks have failed（2 failing checks）、两个 Required 红叉、Merge 按钮灰色不可点 |
+| `pr19-description-screenshot-20261026.png` | `6fb523bc8ff1156d873aa4e80451a4521b06be2d0f04256e46e4e4caa5003d90` | PR #19 | PR 页面状态原件 |
+
+服务器原始 `work/` 目录本体保留在 `/root/241880115/e5-e7-b13/labs/B-draft/work/`（未提交 Git）；交付索引见 [CI_RECORD.md](CI_RECORD.md) 第 4 节。
 
 ## 9. 完成状态
 

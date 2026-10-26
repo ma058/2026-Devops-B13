@@ -22,6 +22,11 @@
   - 服务测试（gate unit-tests 场景）：24 passed
   - 三名成员的独立测试及根回归、服务测试分别列出数量，未合并计数。
 
+### 1.3 PR #19 合并后的 main CI
+
+- Run [40280677012](https://github.com/ma058/2026-Devops-B13/actions/runs/40280677012)，merge SHA `d1e7604`，push 事件，**success**（成员1 确认）。
+- 该 run 服务测试为 **25 项**（24 项基线服务测试 + 1 项演示修复用例 `test_version_returns_success_exit_code`），全部通过；本人服务器基线运行的 24 项保持不变，两者分别统计，不以 25 项回写基线记录。
+
 ## 2. 主分支保护
 
 ### 2.1 应用前现状核验（2026-10-24 实测）
@@ -70,17 +75,23 @@
 - Merge commit：`d1e76045d64830f7264ac03505a332af57067f3a`
 - 合并时间：2026-10-26 14:35:01 (+0800)
 
-## 4. 证据索引
+## 4. 证据索引（已实际交付）
 
-| 证据 | 位置 |
-| --- | --- |
-| PR #17 四次 run 与链接 | 第 1 节表 |
-| main 正常 CI 及测试日志核对 | Run 40190185610 |
-| 保护前现状、check-runs、生效信号 | 第 2 节（API 实测输出） |
-| 合并拒绝 UI（红叉×2、Merge 灰色） | PR #19 页面截图（本地另存） |
-| 失败/恢复 run 与 SHA | 第 3 节表 |
-| 失败与成功 CI artifact | 已按 14 天要求下载另存（本地），与 [MEMBER3_REPORT.md](MEMBER3_REPORT.md) 第 8 节归档说明对应 |
-| 服务器原始运行证据 | 本人服务器 `/root/241880115/e5-e7-b13/labs/B-draft/work/m3-build-01`、`m3-gate-01`（未提交 Git） |
+全部证据文件已实际交付至共享服务器目录 **`/root/e5-e7-evidence/member3/`**（成员1 可直接取用，已按文件逐个计算 SHA-256）：
+
+| 证据 | 文件名 | SHA-256 | 对应 run / SHA |
+| --- | --- | --- | --- |
+| PR #17 全部 run 与链接 | （见第 1 节表） | — | 39387032423 / 39387600346 / 39392487752 / 39392494681 |
+| main 正常 CI 及测试日志核对 | （见 1.2 节） | — | Run 40190185610 |
+| PR #19 合并后 main CI | （见 1.3 节） | — | Run 40280677012（服务测试 25 项） |
+| 保护前现状、check-runs、生效信号 | （见第 2 节，API 实测输出） | — | — |
+| 成功 CI artifact（PR #17，PR run） | `e7-b-evidence-39392494681-1.zip` | `2c6688d5cad553cd72a674debdbc197c072fbd1c0854833e4668193d53326f92` | PR run 39392494681（248dbb7，success）；包内 `work/ci/`：gate 控制台日志、六场景产物、扫描结果 |
+| 失败 CI artifact（PR #19 失败阶段，push run） | `e7-b-evidence-40278042708-1.zip` | `88725a0b8e594aca9ebd8d49c564a417f5364e8d83080ef075eceb260290bf23` | push run 40278042708（91e555b，failure）；包内 `work/ci/`：含失败场景日志 |
+| 合并拒绝 UI 原件 | `pr19-merge-blocked-screenshot-20261026.png` | `d2283f102d67f471ebdf3fc44e2b8ccfbe2ff0ddd7bffcb55420a2199db0ae2d` | PR #19 @ 91e555b：All checks have failed（2 failing checks）、两个 Required 红叉、Merge 按钮灰色不可点 |
+| PR #19 页面状态原件 | `pr19-description-screenshot-20261026.png` | `6fb523bc8ff1156d873aa4e80451a4521b06be2d0f04256e46e4e4caa5003d90` | PR #19 |
+| 服务器原始运行证据（归档） | `m3-server-raw-evidence-20261026.tar.gz` | `bd3957cc4a8adabd3dfe3f37171f79c46eb0253d091b36a0f0c09594431086fe` | 源码 SHA 2228b19；包内 187 个文件：`m3-build-01/`、`m3-gate-01/`（gate/gate-result.json、六场景 evidence/、runtime-timeout cleanup-check/stderr.log、verify-container-id.txt） |
+
+服务器原始 `work/` 目录本体保留于 `/root/241880115/e5-e7-b13/labs/B-draft/work/`（未提交 Git）；上表 5 个文件均在交付目录内可供复核。
 
 ## 5. E7 完成标准对照
 
@@ -89,4 +100,5 @@
 - [x] 失败确实阻止合并（Required 检查红、Merge 按钮不可点）
 - [x] 同一 PR 修复后恢复（7a50561 双绿）
 - [x] 正常合并有真实记录（MERGED，merge commit d1e7604，2026-10-26 14:35:01）
+- [x] 合并后 main CI 亦成功（run 40280677012，服务测试 25 项全过）
 - [x] 本记录与个人报告已提交
