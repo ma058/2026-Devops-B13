@@ -7,6 +7,11 @@
 #      来源为 DeepSeek E5 原始回复 + B13 网络适配（m.daocloud.io 镜像站、
 #      mirrors.aliyun.com Debian 源），与官方摘要（digest）一致；
 #      详见 fixtures/b13-candidates/provenance.json
+#      GitHub Runner（海外）访问 daocloud/aliyun 缓慢且不稳定（PR #20 两轮
+#      于 40 分钟墙被掐、success 场景构建超 600s 失败），自本提交起 CI 在
+#      服务镜像构建（--build-arg 覆盖）与候选（sed 去除镜像站前缀、还原
+#      官方 Debian 源）两层恢复官方来源，digest 与锁定值一字不差；
+#      变体哈希记录于 work/ci/candidate-ci.sha256，口径见 docs/E5-E7/CI_RECORD.md
 #   5) checkout 保留完整历史且 persist-credentials=false
 #   6) gate 前运行已合入的 tests/member1 与 tests/member3；
 #      tests/member2 尚未合入时按目录存在性如实跳过并在日志中说明
@@ -36,7 +41,7 @@ jobs:
   quality-gate:
     name: e7-b-quality-gate
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    timeout-minutes: 60
     env:
       IMAGE: b13-draft:ci-e567
       FAIL_DEMO: ${{ inputs.fail_demo }}
@@ -72,7 +77,12 @@ jobs:
       - name: Build the service image
         run: |
           set -euo pipefail
-          docker build --progress=plain -f services/draft/Dockerfile -t "$IMAGE" . 2>&1 | tee work/ci/build.log
+          docker build --progress=plain -f services/draft/Dockerfile -t "$IMAGE" \
+            --build-arg BASE_IMAGE=python@sha256:f82c96458eedc847b233e582eb31336f4954b39cae020b6dcf5b3ed0e5cbcd74 \
+            --build-arg DOCKER_CLI_IMAGE=docker@sha256:9190b0613792e658a7783cf14b2d5ace5941bb68ede7276922ea36ee457d76ad \
+            --build-arg DEBIAN_MIRROR=http://deb.debian.org/debian \
+            --build-arg DEBIAN_SECURITY_MIRROR=http://deb.debian.org/debian-security \
+            . 2>&1 | tee work/ci/build.log
           docker image inspect "$IMAGE" > work/ci/service-image-inspect.json
 
       - name: Scan built image
@@ -107,7 +117,16 @@ jobs:
           if [[ "$FAIL_DEMO" == "true" ]]; then
             args+=(--case success --inject-bad-oracle)
           fi
-          python3 scripts/run_e7_b_gate.py --image "$IMAGE" --candidate fixtures/b13-candidates/error-driven.Dockerfile --out work/ci/gate --build-timeout 600 "${args[@]}" 2>&1 | tee work/ci/gate-console.log
+          set -euo pipefail
+          # prepare_candidate 要求候选 FROM 与 Dockerfile.broken 的 FROM 逐字一致，
+          # 故官方源变体必须成对生成：候选与 baseline fixture 同步去镜像站前缀。
+          # 以下改动仅作用于本次 CI 检出副本，Git 中的文件保持不变。
+          sed -i 's|m.daocloud.io/docker.io/library/||g' fixtures/draft/Dockerfile.broken
+          sha256sum fixtures/draft/Dockerfile.broken | tee work/ci/broken-ci.sha256
+          sed -e 's|m.daocloud.io/docker.io/library/||g' -e 's|mirrors.aliyun.com|deb.debian.org|g' \
+            fixtures/b13-candidates/error-driven.Dockerfile > work/ci/candidate-ci.Dockerfile
+          sha256sum work/ci/candidate-ci.Dockerfile | tee work/ci/candidate-ci.sha256
+          python3 scripts/run_e7_b_gate.py --image "$IMAGE" --candidate work/ci/candidate-ci.Dockerfile --out work/ci/gate --build-timeout 600 "${args[@]}" 2>&1 | tee work/ci/gate-console.log
 
       - name: Archive evidence even when checks fail
         if: always()
