@@ -34,7 +34,7 @@ PR #20 证据轮（938e0b9/7473507）两轮 CI 先后被 workflow 自身 `timeou
 按 E7 任务书预案（"Runner 网络镜像不可达时调整镜像来源，仍保持摘要和候选约束一致"）自提交 2e420d4 起做两层恢复，**digest 与锁定值一字不差，仅来源地址还原官方**：
 
 1. 服务镜像构建：`--build-arg` 覆盖 `BASE_IMAGE=python@sha256:f82c9645…`、`DOCKER_CLI_IMAGE=docker@sha256:9190b061…`、`DEBIAN_MIRROR=http://deb.debian.org/debian`、`DEBIAN_SECURITY_MIRROR=http://deb.debian.org/debian-security`
-2. 候选：CI 内以 sed 生成官方源变体（去除 `m.daocloud.io/docker.io/library/` 前缀、`mirrors.aliyun.com` 还原为 `deb.debian.org`），gate 使用该变体；变体哈希记录于 `work/ci/candidate-ci.sha256` 并随 artifact 归档。**候选文件本体未改**，服务器口径（daocloud 版候选、candidate_sha256 `7d8d316029…`）保持不变，两者分别记录，不互相冒充
+2. 候选：CI 内以 sed 生成官方源变体（去除 `m.daocloud.io/docker.io/library/` 前缀、`mirrors.aliyun.com` 还原为 `deb.debian.org`），gate 使用该变体；变体哈希记录于 `work/ci/candidate-ci.sha256` 并随 artifact 归档。**候选文件本体未改**，服务器口径（daocloud 版候选、candidate_sha256 `7d8d316029…`）保持不变，两者分别记录，不互相冒充。**成对变体**：`prepare_candidate` 要求候选 FROM 与 `fixtures/draft/Dockerfile.broken` 的 FROM 逐字一致，首次修正（8e69940）仅变体候选导致四场景 "Missing trace_id"（cli.py 顶层 except 输出无 trace_id 的错误 JSON，上游错误为 "Candidate changed the original base image tag"，已本地用真实 `prepare_candidate` 复现）；因此 baseline fixture（Dockerfile.broken）在 CI 检出副本中同步去前缀（`work/ci/broken-ci.sha256` 记录），候选与 baseline 成对一致，Git 中文件保持不变
 3. job 超时 40→60 分钟（gate 内部每场景 `--build-timeout 600` 不变）
 
 ## 2. 主分支保护

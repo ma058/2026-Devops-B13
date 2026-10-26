@@ -118,6 +118,11 @@ jobs:
             args+=(--case success --inject-bad-oracle)
           fi
           set -euo pipefail
+          # prepare_candidate 要求候选 FROM 与 Dockerfile.broken 的 FROM 逐字一致，
+          # 故官方源变体必须成对生成：候选与 baseline fixture 同步去镜像站前缀。
+          # 以下改动仅作用于本次 CI 检出副本，Git 中的文件保持不变。
+          sed -i 's|m.daocloud.io/docker.io/library/||g' fixtures/draft/Dockerfile.broken
+          sha256sum fixtures/draft/Dockerfile.broken | tee work/ci/broken-ci.sha256
           sed -e 's|m.daocloud.io/docker.io/library/||g' -e 's|mirrors.aliyun.com|deb.debian.org|g' \
             fixtures/b13-candidates/error-driven.Dockerfile > work/ci/candidate-ci.Dockerfile
           sha256sum work/ci/candidate-ci.Dockerfile | tee work/ci/candidate-ci.sha256
