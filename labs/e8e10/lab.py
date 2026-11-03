@@ -73,23 +73,113 @@ def scan(p, old=None):
             'resolved':[list(x) for x in sorted(previous-current)],'refreshed':refreshed,'reused':reused,
             'elapsed_s':time.perf_counter()-start}
 
+def _repair_make_model(text):
+    """Single-line explicit rules, unique '=' assignments and $(NAME) references.
+
+    Keep insertion offsets before comments. Reject constructs whose effective
+    definitions/consumers this teaching profile cannot prove; never evaluate Make.
+    """
+    variables, rules, recipes = {}, [], []
+    owners, offset = (), 0
+    for line in text.splitlines(True):
+        if line.startswith('\t'):
+            if not owners:
+                raise ValueError('UNSUPPORTED_MAKEFILE')
+            recipes.append((owners, line[1:].rstrip('\r\n')))
+        else:
+            code = line.rstrip('\r\n').split('#', 1)[0].rstrip(' \t')
+            if code.strip():
+                if '\\' in code:
+                    raise ValueError('UNSUPPORTED_MAKEFILE')
+                assignment = re.fullmatch(r'[ \t]*([A-Za-z_]\w*)[ \t]*=[ \t]*(.*)', code)
+                if assignment:
+                    name, value = assignment.groups()
+                    if name in variables:
+                        raise ValueError('UNSUPPORTED_MACRO')
+                    variables[name] = (value, offset + len(code))
+                    owners = ()
+                elif ':' in code:
+                    left, right = code.split(':', 1)
+                    owners = tuple(left.split())
+                    if (not owners or any(not re.fullmatch(r'[\w./-]+', t) for t in owners)
+                            or any(c in right for c in ':;=|%')):
+                        raise ValueError('UNSUPPORTED_RULE')
+                    rules.append((owners, right.strip(), offset + len(code)))
+                else:
+                    raise ValueError('UNSUPPORTED_MAKEFILE')
+        offset += len(line)
+    return variables, rules, recipes
+
+
+def _expand_repair_variables(value, variables, stack=()):
+    """Expand only the bounded classroom variable syntax; return transitive uses."""
+    used = set()
+
+    def expand(match):
+        name = match[1]
+        if name not in variables or name in stack or len(stack) >= 8:
+            raise ValueError('UNSUPPORTED_DECLARATION')
+        expanded, nested = _expand_repair_variables(
+            variables[name][0], variables, stack + (name,))
+        used.add(name)
+        used.update(nested)
+        return expanded
+
+    expanded = re.sub(r'\$\(([A-Za-z_]\w*)\)', expand, value)
+    if '$' in expanded:
+        raise ValueError('UNSUPPORTED_DECLARATION')
+    return expanded, used
+
+
+def _require_private_repair_macro(name, target, variables, rules, recipes):
+    for targets, raw, _ in rules:
+        if any(other != target for other in targets):
+            _, used = _expand_repair_variables(raw, variables)
+            if name in used:
+                raise ValueError('UNSUPPORTED_SHARED_MACRO')
+    for targets, recipe in recipes:
+        # This limited repair profile cannot infer dynamic Make/shell variables.
+        # A direct use in a recipe also changes its meaning when the macro grows.
+        _, used = _expand_repair_variables(recipe, variables)
+        if name in used:
+            if any(other != target for other in targets):
+                raise ValueError('UNSUPPORTED_SHARED_MACRO')
+            raise ValueError('UNSUPPORTED_MACRO_USAGE')
+
+
 def patch(p,report):
     if report['commit']!=run(['git','rev-parse','HEAD'],p).strip(): raise ValueError('STALE_REPORT')
-    original=(p/'Makefile').read_text(); changed=original; edits=[]
+    original=(p/'Makefile').read_text(); changed=original; edits=[]; seen=set()
     for f in report['findings']:
         if f['type']!='MISSING': continue
         t,d=f['target'],f['dependency']
-        if not re.fullmatch(r'[\w./-]+',d) or '..' in Path(d).parts or Path(d).is_absolute(): raise ValueError('UNSAFE_PATH')
+        if not isinstance(t,str): raise ValueError('UNSUPPORTED_TARGET')
+        if (not isinstance(d,str) or not re.fullmatch(r'[\w./-]+',d)
+                or '..' in Path(d).parts or Path(d).is_absolute()):
+            raise ValueError('UNSAFE_PATH')
+        if (t,d) in seen: continue
+        seen.add((t,d))
         if not (p/d).is_file(): raise ValueError('MISSING_INPUT')
-        m=re.search(r'^'+re.escape(t)+r': (.*)$',changed,re.M)
-        if not m: raise ValueError('UNSUPPORTED_TARGET')
-        raw=m[1]; macros=re.findall(r'\$\((\w+)\)',raw)
-        if raw.strip()==('$(%s)'%macros[0] if macros else ''):
-            name=macros[0]; vm=re.search(r'^'+name+r' = (.*)$',changed,re.M)
-            if not vm: raise ValueError('UNSUPPORTED_MACRO')
-            changed=changed[:vm.end()]+ ' '+d+changed[vm.end():]; style='macro'
+        variables, rules, recipes = _repair_make_model(changed)
+        matches = [rule for rule in rules if t in rule[0]]
+        if not matches: raise ValueError('UNSUPPORTED_TARGET')
+        if len(matches) != 1 or len(matches[0][0]) != 1:
+            raise ValueError('UNSUPPORTED_RULE')
+        _, raw, insert_at = matches[0]
+        expanded, _ = _expand_repair_variables(raw, variables)
+        declared = expanded.split()
+        if any(not re.fullmatch(r'[\w./-]+', item) for item in declared):
+            raise ValueError('UNSUPPORTED_DECLARATION')
+        if d in declared: continue
+        macro = re.fullmatch(r'\$\(([A-Za-z_]\w*)\)', raw)
+        if macro:
+            name = macro[1]
+            _require_private_repair_macro(name, t, variables, rules, recipes)
+            insert_at = variables[name][1]
+            style = 'macro'
         else:
-            changed=changed[:m.end()]+' '+d+changed[m.end():]; style='mixed' if macros else 'direct'
+            style = 'mixed' if '$(' in raw else 'direct'
+        changed = changed[:insert_at] + ' ' + d + changed[insert_at:]
         edits.append({'target':t,'dependency':d,'style':style})
     diff=''.join(difflib.unified_diff(original.splitlines(True),changed.splitlines(True),fromfile='a/Makefile',tofile='b/Makefile'))
     return diff,edits
