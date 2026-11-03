@@ -28,6 +28,10 @@ jobs:
               docker run --rm --network none --cap-add SYS_PTRACE --user "$(id -u):$(id -g)" -e HOME=/tmp -v "$PWD:/course" -w /course course-e8e10:ci python3 labs/e8e10/lab.py "$stage" --track "$track" --out "/course/work/$track-$stage"
             done
           done
+      - name: Validate member 1 complete evidence route
+        if: ${{ hashFiles('labs/e8e10/member1_run.py') != '' }}
+        run: |
+          docker run --rm --network none --cap-add SYS_PTRACE --user "$(id -u):$(id -g)" -e HOME=/tmp -v "$PWD:/course" -w /course course-e8e10:ci python3 labs/e8e10/member1_run.py --out /course/work/member1-complete
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
