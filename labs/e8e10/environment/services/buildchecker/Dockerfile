@@ -36,6 +36,8 @@ RUN useradd --create-home --uid 10001 app \
 WORKDIR /app
 COPY --chown=app:app services/buildchecker/ /app/
 COPY --chown=app:app fixtures/ /app/fixtures/
+# Allow experiment containers using the host UID to read teaching code.
+RUN chmod -R a+rX /app
 USER app
 
 CMD ["python3", "-m", "buildchecker", "--help"]
