@@ -14,7 +14,7 @@ free -m > "$OUT/host-memory.txt"
 df -h . > "$OUT/host-disk.txt"
 docker version > "$OUT/docker-version.txt"
 docker run --rm --network none "$IMAGE" cat /opt/toolchain.lock > "$OUT/toolchain.lock"
-# Container is non-root and can write only this run's directory in the mount.
+# Source is mounted read-only; only this run's OUT is mounted writable.
 # The helper uses the already authorized host account for Docker administration.
 if [ "$(id -u)" = 0 ]; then
   chown 10001:10001 "$OUT"
@@ -35,10 +35,10 @@ execute() {
   return "$result"
 }
 execute tests docker run --rm --network none --cap-add SYS_PTRACE \
-  --user "$RUN_USER" -e HOME=/tmp -v "$PWD:/course" -w /course "$IMAGE" \
+  --user "$RUN_USER" -e HOME=/tmp -v "$PWD:/course:ro" -v "$PWD/$OUT:/course/$OUT:rw" -w /course "$IMAGE" \
   python3 -m unittest discover -s labs/e8e10 -p 'test_*.py' -v
 execute experiments docker run --rm --network none --cap-add SYS_PTRACE \
-  --user "$RUN_USER" -e HOME=/tmp -v "$PWD:/course" -w /course "$IMAGE" \
+  --user "$RUN_USER" -e HOME=/tmp -v "$PWD:/course:ro" -v "$PWD/$OUT:/course/$OUT:rw" -w /course "$IMAGE" \
   python3 labs/e8e10/member1_run.py --out "/course/$OUT/experiments"
 printf '%s\n' "$OUT" > work/member1-latest.path
 printf 'EVIDENCE=%s\n' "$OUT"

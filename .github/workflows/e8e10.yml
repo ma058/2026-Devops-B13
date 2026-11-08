@@ -36,5 +36,13 @@ jobs:
         if: always()
         with:
           name: e8e10-evidence-${{ github.run_id }}
-          path: work/
+          # Snapshots include tracked .gitignore files; keep them with their hashes.
+          include-hidden-files: true
+          path: |
+            work/
+            !work/**/.git/**
+            !work/**/.env
+            !work/**/.env.*
+            !work/**/*.pem
+            !work/**/*.key
           retention-days: 14
