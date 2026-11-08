@@ -1,7 +1,8 @@
 """成员3 自主测试（E8-E10，B 轨道）。
 
-等待期设计草案；公共导入 PR #21 合并后部署至 student/241880115/e8-e10 分支
-labs/e8e10/test_member3.py。与 test_profile.py 既有用例的差异：
+公共导入 PR #21 合并后提交至 student/241880115/e8-e10 分支。
+2026-11-08 成员1仅修订本文件的证据范围说明，未修改测试执行逻辑。
+与 test_profile.py 既有用例的差异：
 - 既有 UNSAFE_PATH 用例只测 `../outside.h` 目录穿越；本文件另测绝对路径与非法字符。
 - MISSING_INPUT 无既有用例，本文件独立设计。
 - UNSUPPORTED_DECLARATION / UNSUPPORTED_MACRO 无既有用例，本文件区分声明解析
@@ -58,7 +59,7 @@ class StudentMember3E8(unittest.TestCase):
             fixture(p)
             report = scan(p)
             before = _makefile_bytes(p)
-            # 变体：绝对路径命中 is_absolute()，先于任何文件访问
+            # 变体：绝对路径命中 is_absolute()，先于该依赖的 is_file() 检查
             report['findings'] = [{'type': 'MISSING', 'target': 'main.o',
                                    'dependency': '/etc/passwd'}]
             with self.assertRaisesRegex(ValueError, 'UNSAFE_PATH'):
@@ -87,7 +88,7 @@ class StudentMember3E8(unittest.TestCase):
             fixture(p)
             report = scan(p)
             before = _makefile_bytes(p)
-            # 目录穿越被拒绝时不应访问范围外哨兵文件（内容保持即未读取或未改动）
+            # 目录穿越被拒绝且哨兵内容不变；内容比较不能证明未读取或未访问。
             report['findings'] = [{'type': 'MISSING', 'target': 'main.o',
                                    'dependency': '../sentinel.h'}]
             with self.assertRaisesRegex(ValueError, 'UNSAFE_PATH'):
@@ -152,7 +153,7 @@ class StudentMember3E10(unittest.TestCase):
                 original.splitlines(True), cosmetic.splitlines(True),
                 fromfile='a/Makefile', tofile='b/Makefile')))
             result = validate(p, candidate, root / 'validation')
-            # 逐项记录实际值：可应用、可构建、初始功能正确
+            # 逐项断言实际值；TemporaryDirectory 退出后不会保留这些原始产物。
             self.assertTrue(result['checks']['patch_applies'])
             self.assertTrue(result['checks']['build'])
             self.assertTrue(result['checks']['test'])
