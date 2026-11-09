@@ -166,12 +166,15 @@ def patch(p,report):
         if len(matches) != 1 or len(matches[0][0]) != 1:
             raise ValueError('UNSUPPORTED_RULE')
         _, raw, insert_at = matches[0]
+        macro = re.fullmatch(r'\$\(([A-Za-z_]\w*)\)', raw)
+        # Preserve the candidate-entry error; undefined nested aliases differ.
+        if macro and macro[1] not in variables:
+            raise ValueError('UNSUPPORTED_MACRO')
         expanded, _ = _expand_repair_variables(raw, variables)
         declared = expanded.split()
         if any(not re.fullmatch(r'[\w./-]+', item) for item in declared):
             raise ValueError('UNSUPPORTED_DECLARATION')
         if d in declared: continue
-        macro = re.fullmatch(r'\$\(([A-Za-z_]\w*)\)', raw)
         if macro:
             name = macro[1]
             _require_private_repair_macro(name, t, variables, rules, recipes)
