@@ -1,7 +1,7 @@
 实验,数据来源,仓库,base_commit,target_commit,job_id,trace_id,报告路径,补丁路径,结果
-E11-A,（A 轨道，非本人实验，略）,,,,,,,,,
+E11-A,（A 轨道，非本人实验，略）,,,,,,,,
 E11-B,course-generated（云变体 integration-sample-cloud）,data/integration-sample-cloud/repo,f68bde6bd373f4b5eedb64c3be0a86853a68d11c,83bb35e18fda87bd632047325deef05142e566ce,job-053af79dace443e4bbd2cb286f6b7f56,trace-873e4bea920641479fb6fd94c743c787,work/member3-e11-b-01/result.json,work/member3-e11-b-01/candidate.patch,SUCCEEDED（四阶段；validation 五项 true）
-E11-B STALE 负例,人工构造旧 commit（40 个 0）报告,data/integration-sample-cloud/repo,f68bde6bd373f4b5eedb64c3be0a86853a68d11c,83bb35e18fda87bd632047325deef05142e566ce,,,,work/member3-e11-b-stale-01/result.json,,FAILED/STALE_REPORT；源 Makefile 字节保持
+E11-B STALE 负例,人工构造旧 commit（40 个 0）报告,data/integration-sample-cloud/repo,f68bde6bd373f4b5eedb64c3be0a86853a68d11c,83bb35e18fda87bd632047325deef05142e566ce,,,work/member3-e11-b-stale-01/result.json,,FAILED/STALE_REPORT；源 Makefile 字节保持
 E12固定样例,course-generated（云变体）,data/integration-sample-cloud/repo,f68bde6bd373f4b5eedb64c3be0a86853a68d11c,83bb35e18fda87bd632047325deef05142e566ce,job-af5b3369f8384a0aa7e873c879e4e234,trace-2e0e7aa7172048659302d4192183797c,work/member3-e12-01/result.json,work/member3-e12-01/candidate.patch,SUCCEEDED（五阶段；MD 消除 RD 保留）
 E12 API 自测,course-generated（同上，经真实 HTTP）,data/integration-sample-cloud/repo,f68bde6bd373f4b5eedb64c3be0a86853a68d11c,83bb35e18fda87bd632047325deef05142e566ce,job-f87f06a840e04a28b8a2bdc51f1a310e,trace-750ff05df7524073aa72cf5ac7b9b6f6,work/member3-api-01/summary.json,work/member3-api-01/downloads/candidate.patch,passed=true；156 文件核验；幂等同 job；409 冲突
-E12真实项目,待来源冻结（成员3主责对接 A13/教师确认中；不生成教学提交冒充）,,,,,,,,,
+E12真实项目,待来源冻结（成员3主责对接 A13/教师确认中；不生成教学提交冒充）,,,,,,,,

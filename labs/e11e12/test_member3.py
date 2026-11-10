@@ -1,21 +1,33 @@
 """Member 3: async-API idempotency under real concurrency, restart recovery,
 and server-side HTTP artifact-path boundaries.
 
-Differentiation from existing suites (38 tests):
-- test_contract.test_same_key_same_request_same_job submits the same key twice
-  sequentially; here N threads hit submit() simultaneously behind a barrier.
-- test_member1_api_client.py exercises the *client* download-path guard in
-  course/e11-e12/api_probe.py; here the *server* HTTP layer is tested over a
-  real socket: encoded traversal, .git access, unknown jobs, RESULT_NOT_READY,
-  and byte/header/manifest three-way SHA agreement.
-- Restart recovery: Store.__init__ semantics for interrupted vs completed jobs
-  plus idempotency-key mapping restoration and evidence preservation.
+Review-fix version (2026-11-10, after member1's Request Changes):
 
-No pipeline execution is triggered: the thread pool is replaced by a recorder,
-so these tests stay fast and never touch Docker.
+P1 - Isolation: the HTTP tests no longer touch the real ``work/api-jobs``.
+``server.ROOT`` is patched to a temporary directory and the ThreadingHTTPServer
+instance is captured so it can be shut down cleanly (shutdown + server_close +
+thread join). A bystander SUCCEEDED task is byte-asserted unchanged across the
+whole suite, proving the server instance cannot rewrite unrelated state.
+
+P2 - Real sentinels: the traversal and ``.git`` rejection cases now target
+files that REALLY EXIST (``evidence/.git/config`` and a secret file outside
+the evidence root). If someone removes the path guards from server.py, these
+requests would return 200 with real content, so the tests must fail. A
+mutation verification script recorded in the personal report exercises this
+discriminating power against a guard-stripped copy of server.py.
+
+P2 - Real RUNNING: a controlled RUNNING job is injected into the live store
+AFTER startup (so the restart-recovery rule in Store.__init__ is not relaxed
+and not triggered); the suite first asserts GET returns RUNNING, then that
+artifacts answers 409 RESULT_NOT_READY.
+
+The two earlier test groups (concurrent idempotency, restart recovery) already
+run against temporary directories and are kept unchanged. The recording pool
+prevents any pipeline/Docker execution.
 """
 import hashlib
 import json
+import shutil
 import socket
 import tempfile
 import threading
@@ -191,65 +203,137 @@ def free_port():
 
 
 class Member3HttpBoundaryTests(unittest.TestCase):
-    """Server-side HTTP layer on a real socket; evidence staged on disk."""
+    """Server-side HTTP boundary checks against the REAL server.py handler.
 
-    JOB_DONE = 'job-member3http-done-0001'
-    JOB_RUNNING = 'job-member3http-running-0001'
+    ``server.ROOT`` is redirected to a temporary directory and both the Store
+    and the ThreadingHTTPServer instances are captured via subclassing, so the
+    production handler code runs unmodified while the suite controls its
+    lifecycle (shutdown/server_close/join) and its isolation.
+
+    Discriminating power: sentinels below REALLY exist. Removing the
+    ``is_relative_to`` guard would let traversal requests return 200 with the
+    outside secret; removing the ``'.git' in path.parts`` guard would let
+    ``files/.git/config`` return 200. Either mutation must fail this suite
+    (verified against a guard-stripped server copy; see personal report).
+    """
+
+    SENTINEL_JOB = 'job-member3http-done-0001'
+    RUNNING_JOB = 'job-member3http-running-0001'
+    BYSTANDER_JOB = 'job-member3http-bystander-0001'
 
     @classmethod
     def setUpClass(cls):
-        cls.jobs_root = pipeline.ROOT / 'work' / 'api-jobs'
-        cls.jobs_root.mkdir(parents=True, exist_ok=True)
+        cls._tmp = Path(tempfile.mkdtemp(prefix='member3-http-'))
+        cls.root = cls._tmp / 'work' / 'api-jobs'
         digest = hashlib.sha256(json.dumps(make_request(), sort_keys=True).encode()).hexdigest()
 
-        # Completed job with a manifest and a nested artifact.
-        done = cls.jobs_root / cls.JOB_DONE
-        evidence = done / 'evidence' / 'nested'
-        evidence.mkdir(parents=True, exist_ok=True)
+        # Completed sentinel job: nested artifact + a REAL .git/config sentinel
+        # inside the evidence root (its existence is what makes the .git guard
+        # observable rather than trivially true).
+        evidence = cls.root / cls.SENTINEL_JOB / 'evidence'
+        nested = evidence / 'nested'
+        nested.mkdir(parents=True)
+        (evidence / '.git').mkdir()
+        (evidence / '.git' / 'config').write_text('[core] member3 git sentinel\n', encoding='utf-8')
         payload = b'member3 http boundary payload \xe4\xbf\xae\xe5\xa4\x8d\n'
-        (evidence / 'report.bin').write_bytes(payload)
+        (nested / 'report.bin').write_bytes(payload)
         manifest = {
             'schema_version': 'e11e12-1',
-            'job_id': cls.JOB_DONE,
+            'job_id': cls.SENTINEL_JOB,
             'status': 'SUCCEEDED',
             'artifacts': [{
-                'uri': f'artifact://{cls.JOB_DONE}/nested/report.bin',
+                'uri': f'artifact://{cls.SENTINEL_JOB}/nested/report.bin',
                 'sha256': hashlib.sha256(payload).hexdigest(),
                 'bytes': len(payload),
             }],
         }
-        (done / 'evidence' / 'result.json').write_text(
+        (evidence / 'result.json').write_text(
             json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-        write_state(cls.jobs_root, cls.JOB_DONE, 'SUCCEEDED', 'member3-http-key', digest)
+        write_state(cls.root, cls.SENTINEL_JOB, 'SUCCEEDED', 'member3-http-key', digest)
 
-        # Running job: state only, no result.json yet -> artifacts must 409.
-        write_state(cls.jobs_root, cls.JOB_RUNNING, 'RUNNING', 'member3-http-running', digest)
+        # Bystander SUCCEEDED task: byte-identity asserted at teardown.
+        write_state(cls.root, cls.BYSTANDER_JOB, 'SUCCEEDED', 'member3-http-bystander', digest)
+        cls._bystander_state = (cls.root / cls.BYSTANDER_JOB / 'state.json').read_bytes()
+
+        # Outside sentinel: a REAL file beyond the evidence root. Traversal
+        # requests that escape the guard would serve exactly these bytes.
+        cls._outside = cls._tmp / 'outside-secret.txt'
+        cls._outside.write_text('server filesystem secret\n', encoding='utf-8')
+
+        # Capture the production instances; handler code itself is untouched.
+        real_httpd = server.ThreadingHTTPServer
+        real_store = server.Store
+        cls._captured = {}
+
+        class CapturingHTTPServer(real_httpd):
+            def __init__(self, address, handler):
+                cls._captured['httpd'] = self
+                super().__init__(address, handler)
+
+        class CapturingStore(real_store):
+            def __init__(self, store_root):
+                cls._captured['store'] = self
+                super().__init__(store_root)
+
+        cls._patchers = [
+            patch.object(server, 'ROOT', cls._tmp),
+            patch.object(server, 'ThreadingHTTPServer', CapturingHTTPServer),
+            patch.object(server, 'Store', CapturingStore),
+        ]
+        for patcher in cls._patchers:
+            patcher.start()
 
         cls.port = free_port()
-        cls.thread = threading.Thread(
+        cls._thread = threading.Thread(
             target=server.serve, kwargs={'host': '127.0.0.1', 'port': cls.port}, daemon=True)
-        cls.thread.start()
+        cls._thread.start()
         cls.base = f'http://127.0.0.1:{cls.port}'
-        deadline = time.time() + 10
+        deadline = time.time() + 15
         while time.time() < deadline:
             try:
                 urlopen(cls.base + '/health', timeout=1)
-                return
+                break
             except OSError:
-                time.sleep(0.1)
-        raise AssertionError('API test instance did not come up')
+                time.sleep(0.05)
+        else:
+            raise AssertionError('API test instance did not come up')
+
+        # AFTER startup (Store.__init__ restart recovery has already run on the
+        # pre-seeded SUCCEEDED jobs only), inject a controlled RUNNING job into
+        # the live store. This is a job the server itself did not load, so the
+        # recovery rule is neither triggered nor relaxed.
+        store = cls._captured['store']
+        running = {
+            'schema_version': 'e11e12-1',
+            'job_id': cls.RUNNING_JOB,
+            'status': 'RUNNING',
+            'idempotency_key': 'member3-http-running',
+            'request_hash': digest,
+        }
+        store.jobs[cls.RUNNING_JOB] = running
+        store.keys['member3-http-running'] = (digest, cls.RUNNING_JOB)
+        server.save(cls.root / cls.RUNNING_JOB / 'state.json', running)
+        (cls.root / cls.RUNNING_JOB / 'evidence').mkdir(parents=True, exist_ok=True)
 
     @classmethod
     def tearDownClass(cls):
-        for job_id in (cls.JOB_DONE, cls.JOB_RUNNING):
-            folder = cls.jobs_root / job_id
-            if folder.is_dir():
-                for path in sorted(folder.rglob('*'), reverse=True):
-                    if path.is_file() or path.is_symlink():
-                        path.unlink()
-                    elif path.is_dir():
-                        path.rmdir()
-                folder.rmdir()
+        try:
+            httpd = cls._captured.get('httpd')
+            if httpd is not None:
+                httpd.shutdown()
+                httpd.server_close()
+            cls._thread.join(timeout=10)
+        finally:
+            for patcher in cls._patchers:
+                patcher.stop()
+            try:
+                after = (cls.root / cls.BYSTANDER_JOB / 'state.json').read_bytes()
+                if after != cls._bystander_state:
+                    raise AssertionError(
+                        'Bystander task state.json changed during the suite; '
+                        'the HTTP tests must not rewrite unrelated tasks')
+            finally:
+                shutil.rmtree(cls._tmp, ignore_errors=True)
 
     def get(self, path):
         return urlopen(Request(self.base + path), timeout=5)
@@ -268,12 +352,12 @@ class Member3HttpBoundaryTests(unittest.TestCase):
         self.assertEqual('e11e12-1', body['schema_version'])
 
     def test_download_bytes_header_and_manifest_agree(self):
-        with self.get(f'/v1/jobs/{self.JOB_DONE}/files/nested/report.bin') as response:
+        with self.get(f'/v1/jobs/{self.SENTINEL_JOB}/files/nested/report.bin') as response:
             self.assertEqual(200, response.status)
             header = response.headers['X-Content-SHA256']
             data = response.read()
         manifest = json.loads(
-            (self.jobs_root / self.JOB_DONE / 'evidence' / 'result.json').read_text())
+            (self.root / self.SENTINEL_JOB / 'evidence' / 'result.json').read_text())
         entry = next(a for a in manifest['artifacts']
                      if a['uri'].endswith('nested/report.bin'))
         digest = hashlib.sha256(data).hexdigest()
@@ -281,29 +365,43 @@ class Member3HttpBoundaryTests(unittest.TestCase):
         self.assertEqual(digest, entry['sha256'], 'Body digest must equal the manifest entry')
         self.assertEqual(len(data), entry['bytes'])
 
-    def test_encoded_traversal_is_rejected(self):
-        # The %-encoded forms reach the server's own path check unchanged;
-        # the plain '../..' form is normalised by urllib before it is sent,
-        # so that request must also be refused, whatever it resolves to.
+    def test_traversal_to_existing_outside_file_is_rejected(self):
+        # evidence = ROOT/work/api-jobs/SENTINEL/evidence -> four levels up is
+        # ROOT, where outside-secret.txt REALLY exists. All forms must be 404;
+        # a removed is_relative_to guard would serve the secret bytes.
+        secret = self._outside.read_bytes()
         for path in (
-            f'/v1/jobs/{self.JOB_DONE}/files/%2e%2e/%2e%2e/etc/passwd',
-            f'/v1/jobs/{self.JOB_DONE}/files/nested/../../etc/hostname',
-            f'/v1/jobs/{self.JOB_DONE}/files/%2e%2e%2f%2e%2e%2fsecret',
+            f'/v1/jobs/{self.SENTINEL_JOB}/files/../../../../outside-secret.txt',
+            f'/v1/jobs/{self.SENTINEL_JOB}/files/%2e%2e/%2e%2e/%2e%2e/%2e%2e/outside-secret.txt',
+            f'/v1/jobs/{self.SENTINEL_JOB}/files/..%2f..%2f..%2f..%2foutside-secret.txt',
+            f'/v1/jobs/{self.SENTINEL_JOB}/files/nested/../../../../outside-secret.txt',
         ):
             with self.subTest(path=path):
                 error = self.get_error(path)
                 self.assertEqual(404, error.code)
                 body = json.loads(error.read())
                 self.assertEqual('NOT_FOUND', body['error'])
-                leaked = error.headers.get('X-Content-SHA256')
-                self.assertIsNone(leaked, 'Rejected paths must not expose content hashes')
+                self.assertIsNone(error.headers.get('X-Content-SHA256'),
+                                  'Rejected paths must not expose content hashes')
 
-    def test_git_and_missing_paths_are_rejected(self):
+    def test_git_path_with_real_file_is_rejected(self):
+        # .git/config REALLY exists under the evidence root; only the guard
+        # can produce this 404.
         for path in (
-            f'/v1/jobs/{self.JOB_DONE}/files/.git/config',
-            f'/v1/jobs/{self.JOB_DONE}/files/nested/.git/HEAD',
-            f'/v1/jobs/{self.JOB_DONE}/files/no-such-file.json',
-            f'/v1/jobs/{self.JOB_DONE}/files/',
+            f'/v1/jobs/{self.SENTINEL_JOB}/files/.git/config',
+            f'/v1/jobs/{self.SENTINEL_JOB}/files/%2egit/config',
+        ):
+            with self.subTest(path=path):
+                error = self.get_error(path)
+                self.assertEqual(404, error.code)
+                body = json.loads(error.read())
+                self.assertEqual('NOT_FOUND', body['error'])
+                self.assertIsNone(error.headers.get('X-Content-SHA256'))
+
+    def test_missing_paths_are_rejected(self):
+        for path in (
+            f'/v1/jobs/{self.SENTINEL_JOB}/files/no-such-file.json',
+            f'/v1/jobs/{self.SENTINEL_JOB}/files/',
         ):
             with self.subTest(path=path):
                 self.assertEqual(404, self.get_error(path).code)
@@ -312,8 +410,17 @@ class Member3HttpBoundaryTests(unittest.TestCase):
         self.assertEqual(404, self.get_error('/v1/jobs/job-member3-does-not-exist').code)
         self.assertEqual(404, self.get_error('/v1/jobs/').code)
 
-    def test_running_job_artifacts_are_result_not_ready(self):
-        error = self.get_error(f'/v1/jobs/{self.JOB_RUNNING}/artifacts')
+    def test_running_job_reports_running_then_result_not_ready(self):
+        # The controlled RUNNING job was injected after startup: GET must show
+        # the real RUNNING status first...
+        with self.get(f'/v1/jobs/{self.RUNNING_JOB}') as response:
+            self.assertEqual(200, response.status)
+            state = json.loads(response.read())
+        self.assertEqual('RUNNING', state['status'])
+        self.assertEqual(self.RUNNING_JOB, state['job_id'])
+        # ...and its artifacts must answer 409 RESULT_NOT_READY, distinct from
+        # both 404 and any terminal-failure semantics.
+        error = self.get_error(f'/v1/jobs/{self.RUNNING_JOB}/artifacts')
         self.assertEqual(409, error.code)
         body = json.loads(error.read())
         self.assertEqual('RESULT_NOT_READY', body['error'])
