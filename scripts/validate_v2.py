@@ -22,7 +22,7 @@ findings may be an empty array (a post-repair report with zero MD is valid).
 from __future__ import annotations
 
 import re
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Any
 
 SHA40 = re.compile(r"^[0-9a-fA-F]{40}$")
@@ -57,17 +57,23 @@ def _nonempty(value: Any) -> bool:
 
 def is_safe_path(value: Any) -> bool:
     """Safe project-relative POSIX path: no absolute, no drive, no backslash,
-    no ./ prefix, no empty/./.. segments."""
+    no ./ prefix, and NO empty/./.. segments anywhere.
+
+    The raw string is checked segment by segment BEFORE any normalisation:
+    PurePosixPath would silently collapse 'a//b', 'a/./b' and 'a/' to 'a/b'
+    and 'a', which the written v2 rules (and A13's validator) reject.
+    """
     if (
-        not _nonempty(value)
+        not isinstance(value, str)
+        or not value
         or "\\" in value
         or value.startswith("/")
         or value.startswith("./")
         or re.match(r"^[A-Za-z]:", value)
     ):
         return False
-    parts = PurePosixPath(value).parts
-    return all(part not in {"", ".", ".."} for part in parts) and bool(parts)
+    segments = value.split("/")
+    return all(segment not in {"", ".", ".."} for segment in segments)
 
 
 def _unknown_fields(obj: dict[str, Any], allowed: set[str], where: str, errors: list[str]) -> None:
@@ -76,8 +82,17 @@ def _unknown_fields(obj: dict[str, Any], allowed: set[str], where: str, errors: 
         errors.append(f"{where}: unknown core fields {extra}")
 
 
-def _validate_extensions(value: Any, where: str, errors: list[str]) -> None:
+def _validate_extensions(container: dict[str, Any], where: str, errors: list[str]) -> None:
+    """Validate an extensions object when the field is PRESENT.
+
+    An explicitly null extensions is rejected (the JSON Schema types it as an
+    object); only omitting the field entirely is allowed.
+    """
+    if "extensions" not in container:
+        return
+    value = container["extensions"]
     if value is None:
+        errors.append(f"{where}: object required when present (explicit null rejected)")
         return
     if not isinstance(value, dict):
         errors.append(f"{where}: object required")
@@ -98,8 +113,8 @@ def _validate_locator(value: Any, errors: list[str]) -> None:
         if key not in value:
             errors.append(f"artifact_locator.{key}: missing required field")
     uri = value.get("uri")
-    if _nonempty(uri) and not ARTIFACT_URI.search(uri):
-        errors.append("artifact_locator.uri: must start with artifact://pair13/")
+    if not isinstance(uri, str) or not ARTIFACT_URI.search(uri):
+        errors.append("artifact_locator.uri: non-empty string starting with artifact://pair13/ required")
     if not _nonempty(value.get("repository_url")):
         errors.append("artifact_locator.repository_url: non-empty string required")
     commit = value.get("repository_commit")
@@ -159,11 +174,13 @@ def validate_report_v2(data: Any) -> list[str]:
                 errors.append(f"environment.{key}: non-empty string required when present")
 
     detector = data.get("detector")
-    if detector not in DETECTORS:
+    # Type check first: unhashable values (list/dict) must produce an error,
+    # not a TypeError from the set membership test.
+    if not isinstance(detector, str) or detector not in DETECTORS:
         errors.append("detector: must be one of " + "/".join(sorted(DETECTORS)))
 
     job_id = data.get("producer_job_id")
-    if detector in REAL_DETECTORS:
+    if isinstance(detector, str) and detector in REAL_DETECTORS:
         if not isinstance(job_id, str) or not JOB_ID.fullmatch(job_id):
             errors.append("producer_job_id: real detector output requires a job-* id")
     elif job_id is not None:
@@ -184,7 +201,9 @@ def validate_report_v2(data: Any) -> list[str]:
         _unknown_fields(finding, FINDING_FIELDS, where, errors)
         if not _nonempty(finding.get("finding_id")):
             errors.append(f"{where}.finding_id: non-empty string required")
-        if finding.get("type") not in {"MISSING", "REDUNDANT"}:
+        ftype = finding.get("type")
+        # Type check first: unhashable values must produce an error, not crash.
+        if not isinstance(ftype, str) or ftype not in {"MISSING", "REDUNDANT"}:
             errors.append(f"{where}.type: must be MISSING or REDUNDANT")
         if not _nonempty(finding.get("target")):
             errors.append(f"{where}.target: non-empty string required")
@@ -232,7 +251,7 @@ def validate_report_v2(data: Any) -> list[str]:
                     if not isinstance(uri, str) or not ARTIFACT_URI.search(uri):
                         errors.append(f"{where}.evidence[{j}].uri: must start with artifact://pair13/")
 
-        _validate_extensions(finding.get("extensions"), f"{where}.extensions", errors)
+        _validate_extensions(finding, f"{where}.extensions", errors)
 
     return errors + _close_top(data)
 
@@ -240,7 +259,7 @@ def validate_report_v2(data: Any) -> list[str]:
 def _close_top(data: dict[str, Any]) -> list[str]:
     """Validate the remaining top-level optional containers; returns fresh errors."""
     extra: list[str] = []
-    _validate_extensions(data.get("extensions"), "extensions", extra)
+    _validate_extensions(data, "extensions", extra)
     if "artifact_locator" in data:
         _validate_locator(data.get("artifact_locator"), extra)
     return extra

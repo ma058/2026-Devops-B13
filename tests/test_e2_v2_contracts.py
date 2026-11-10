@@ -151,6 +151,68 @@ class ValidatorRuleTests(unittest.TestCase):
         report["extensions"] = {"b13.note": "anything", "a13.note": 1, "pair13.note": None}
         self.assertEqual([], validate_report_v2(report))
 
+    def test_explicit_null_extensions_rejected_top_level_and_finding(self):
+        report = self.base_report()
+        report["extensions"] = None
+        errors = validate_report_v2(report)
+        self.assertTrue(any("explicit null rejected" in message for message in errors))
+        report = self.base_report()
+        report["findings"][0]["extensions"] = None
+        errors = validate_report_v2(report)
+        self.assertTrue(any("explicit null rejected" in message for message in errors))
+
+    def test_artifact_locator_uri_type_discipline(self):
+        locator = {
+            "uri": "artifact://pair13/job-1/report.json",
+            "repository_url": "https://github.com/example/x.git",
+            "repository_commit": "a" * 40,
+            "repository_path": "contracts/examples",
+            "sha256": "a" * 64,
+        }
+        report = self.base_report()
+        report["artifact_locator"] = dict(locator)
+        self.assertEqual([], validate_report_v2(report))
+        for bad in (None, [], 123, "", "pair13://x"):
+            with self.subTest(uri=bad):
+                report = self.base_report()
+                report["artifact_locator"] = {**locator, "uri": bad}
+                errors = validate_report_v2(report)
+                self.assertTrue(any("artifact_locator.uri" in message for message in errors))
+
+    def test_path_normalisation_variants_rejected(self):
+        # These collapse to valid paths under PurePosixPath; the raw segments
+        # must be checked before any normalisation.
+        report = self.base_report()
+        report["findings"][0]["dependency"] = "a//config.h"
+        self.assertTrue(validate_report_v2(report))
+        for bad in ("a//config.h", "a/./config.h", "config.h/", "./config.h", "a/../config.h"):
+            with self.subTest(dependency=bad):
+                report = self.base_report()
+                report["findings"][0]["dependency"] = bad
+                errors = validate_report_v2(report)
+                self.assertTrue(any("dependency" in message for message in errors))
+        for bad in ("a//Makefile", "Makefile/", "./Makefile"):
+            with self.subTest(path=bad):
+                report = self.base_report()
+                report["findings"][0]["location"] = {
+                    "status": "RESOLVED", "path": bad, "line": 1}
+                errors = validate_report_v2(report)
+                self.assertTrue(any("location.path" in message for message in errors))
+
+    def test_unhashable_detector_and_type_error_not_crash(self):
+        report = self.base_report()
+        report["detector"] = []
+        errors = validate_report_v2(report)  # must return errors, not TypeError
+        self.assertTrue(any("detector" in message for message in errors))
+        report = self.base_report()
+        report["findings"][0]["type"] = {}
+        errors = validate_report_v2(report)
+        self.assertTrue(any("type" in message for message in errors))
+        report = self.base_report()
+        report["findings"] = [["not", "a", "dict"]]
+        errors = validate_report_v2(report)
+        self.assertTrue(any("object required" in message for message in errors))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,6 +1,6 @@
 # E2 Pair13 finding-report 2.0 候选互读验证（B13 侧）
 
-- 运行时间（UTC）：2026-11-10T06:38:41.316198+00:00
+- 运行时间（UTC）：2026-11-10T09:01:58.012127+00:00
 - A13 固定提交：`c4364e96521a8729fe11695c030916e1746eca1b`（v2 候选引入提交，2026-10-10）
 - B13 立场：接受该 2.0 候选；冻结待 A13 读取 B13 v2 样例并回写固定提交后完成
 
@@ -24,8 +24,19 @@
 | a13.consumption.missing_only | PASS | consumed=['config.h'], skipped=['unused.h'] |
 | b13.valid.md-report.valid.json | PASS | valid |
 | b13.valid.md-report.e3-target.valid.json | PASS | valid |
+| b13.invalid.artifact-locator-uri-array.json | PASS | artifact_locator.uri: non-empty string starting with artifact://pair13/ required |
+| b13.invalid.artifact-locator-uri-null.json | PASS | artifact_locator.uri: non-empty string starting with artifact://pair13/ required |
+| b13.invalid.dependency-dot-segment.json | PASS | findings[0].dependency: expected safe project-relative POSIX path |
+| b13.invalid.dependency-double-slash.json | PASS | findings[0].dependency: expected safe project-relative POSIX path |
+| b13.invalid.dependency-trailing-slash.json | PASS | findings[0].dependency: expected safe project-relative POSIX path |
+| b13.invalid.detector-array.json | PASS | detector: must be one of A13_MANUAL_ORACLE/B13_MANUAL_ORACLE/BUILDCHECKER/ECHECKER/INSTRUCTOR_ORACLE |
 | b13.invalid.evidence-item-missing-detail.json | PASS | findings[0].evidence[0].detail: non-empty string required |
+| b13.invalid.extensions-explicit-null.json | PASS | extensions: object required when present (explicit null rejected) |
 | b13.invalid.finding-commit-mismatch.json | PASS | findings[0].commit: must equal repository.commit when present |
+| b13.invalid.finding-extensions-null.json | PASS | findings[0].extensions: object required when present (explicit null rejected) |
+| b13.invalid.finding-type-object.json | PASS | findings[0].type: must be MISSING or REDUNDANT |
+| b13.invalid.location-path-double-slash.json | PASS | findings[0].location.path: expected safe project-relative POSIX path |
+| b13.invalid.locator-repository-path-dot.json | PASS | artifact_locator.repository_path: expected safe project-relative POSIX path |
 | b13.invalid.oracle-with-producer-job.json | PASS | producer_job_id: oracle/manual reports must not carry producer_job_id |
 | b13.invalid.unknown-finding-field.json | PASS | findings[0]: unknown core fields ['severity'] |
 | b13.invalid.unresolved-with-line.json | PASS | findings[0].location: unknown core fields ['line'] |

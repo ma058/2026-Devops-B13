@@ -35,7 +35,7 @@ B13 侧 v2 正反样例、B13 独立语义校验器 `scripts/validate_v2.py`、
 - `invalid/unknown-finding-field.json`——finding 内未知核心字段 `severity`（拒绝；A13 负例在顶层）
 - `invalid/finding-commit-mismatch.json`——finding 级 commit 与顶层不一致（拒绝；v2 新增语义规则）
 
-B13 六个负例与 A13 五个负例覆盖不同规则面，共同确认双方对 v2 边界的理解一致。
+B13 十七个负例与 A13 五个负例覆盖不同规则面（含 2026-11-10 复审修复批次：locator uri 类型、显式 null extensions、路径归一化变体、不可哈希类型），共同确认双方对 v2 边界的理解一致。
 
 ## 冻结状态
 

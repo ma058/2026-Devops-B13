@@ -48,9 +48,9 @@ A13_INVALID_EXPECTATIONS = {
 }
 
 # B13-authored negative fixtures; each covers a rule surface distinct from the
-# A13 set (oracle WITH a job id, UNRESOLVED with a line number, evidence item
-# missing detail, absolute dependency path, unknown finding field, finding
-# commit mismatch).
+# A13 set. The 2026-11-10 review-fix batch (locator uri types, explicit null
+# extensions, path normalisation variants, unhashable detector/type) closes
+# the gaps found in B13's first validator implementation.
 B13_INVALID_EXPECTATIONS = {
     "oracle-with-producer-job.json": "producer_job_id",
     "unresolved-with-line.json": "location",
@@ -58,6 +58,21 @@ B13_INVALID_EXPECTATIONS = {
     "unsafe-dependency-absolute.json": "dependency",
     "unknown-finding-field.json": "unknown core fields",
     "finding-commit-mismatch.json": "must equal repository.commit",
+    # review-fix batch: locator.uri type discipline
+    "artifact-locator-uri-null.json": "artifact_locator.uri",
+    "artifact-locator-uri-array.json": "artifact_locator.uri",
+    # review-fix batch: explicit null extensions is not an omitted field
+    "extensions-explicit-null.json": "explicit null rejected",
+    "finding-extensions-null.json": "explicit null rejected",
+    # review-fix batch: raw-segment path checks (no normalisation collapse)
+    "dependency-double-slash.json": "dependency",
+    "dependency-dot-segment.json": "dependency",
+    "dependency-trailing-slash.json": "dependency",
+    "location-path-double-slash.json": "location.path",
+    "locator-repository-path-dot.json": "repository_path",
+    # review-fix batch: unhashable JSON types must error, not crash
+    "detector-array.json": "detector",
+    "finding-type-object.json": "type",
 }
 
 B13_VALID_SAMPLES = ("md-report.valid.json", "md-report.e3-target.valid.json")
