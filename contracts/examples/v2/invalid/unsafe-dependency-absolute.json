@@ -1,0 +1,35 @@
+{
+  "schema_version": "2.0",
+  "report_id": "b13-bad-absolute-dependency",
+  "repository": {
+    "url": "https://github.com/example/b13-demo.git",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "configuration_id": "gcc-default",
+  "environment": {
+    "os": "linux",
+    "arch": "x86_64"
+  },
+  "detector": "B13_MANUAL_ORACLE",
+  "provenance": "B13 negative fixture: dependencies must be project-relative POSIX paths; absolute paths are rejected",
+  "producer_job_id": null,
+  "findings": [
+    {
+      "finding_id": "f1",
+      "type": "MISSING",
+      "target": "main.o",
+      "dependency": "/etc/passwd",
+      "location": {
+        "status": "RESOLVED",
+        "path": "Makefile",
+        "line": 1
+      },
+      "evidence": [
+        {
+          "kind": "MANUAL_ANALYSIS",
+          "detail": "fixture"
+        }
+      ]
+    }
+  ]
+}

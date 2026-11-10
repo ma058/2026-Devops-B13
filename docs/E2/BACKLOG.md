@@ -12,3 +12,12 @@
 | B13-E3-02 | A13 报告消费链路 | 成员1 | `verify_a13_interop.py`、归一化输出与证据 | 图差分一致；只消费 MISSING；路径和 UNRESOLVED 规则通过 | 完成 |
 
 E2/E3 的实现、契约、测试和证据已形成可复现基线。E4 从标签 `e3-complete-2026-09-29` 开始，不改写 E3 固定证据。
+
+
+## E2 v2 契约（finding-report 2.0）收尾登记（2026-11-10）<!-- V2_MARKER_20261110 -->
+
+| 编号 | 事项 | 负责人 | 产物 | 验收结果 | 状态 |
+|---|---|---|---|---|---|
+| B13-E2-10 | 复核并接受 A13 finding-report 2.0 候选 | 成员3 | `contracts/paired/a13-v2/`、`scripts/validate_v2.py`、`scripts/verify_a13_v2_interop.py` | 25 项互读检查全过；8 文件 SHA-256 与 manifest 一致 | 完成 |
+| B13-E2-11 | B13 样例迁移到 v2 | 成员3 | `contracts/examples/v2/`（2 有效 + 6 负例）、`tests/test_e2_v2_contracts.py` | 17 项新测试与 50 项全量回归通过；v1→v2 迁移等价检查通过 | 完成 |
+| B13-E2-12 | v2 契约冻结 | 成员1组织、A13/B13 | 双方文档写入同一组固定 commit | 待 A13 读取 B13 v2 样例并回写固定 commit 后共同标记 frozen | 待 A13 |
