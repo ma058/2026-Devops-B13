@@ -1,0 +1,81 @@
+"""Real HTTP E12 client; archive responses and verify downloaded bytes."""
+import argparse
+import hashlib
+import json
+from pathlib import Path, PurePosixPath
+import time
+from urllib.error import HTTPError
+from urllib.parse import quote
+from urllib.request import Request, urlopen
+
+
+def main():
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--base-url',required=True)
+    p.add_argument('--request',type=Path,required=True)
+    p.add_argument('--out',type=Path,required=True)
+    p.add_argument('--key',required=True)
+    p.add_argument('--timeout',type=int,default=1500)
+    a=p.parse_args()
+    if a.out.exists():p.error('Use a new evidence directory')
+    a.out.mkdir(parents=True)
+    def save(name,value):
+        (a.out/name).write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    def request(path,body=None):
+        raw=None if body is None else json.dumps(body).encode()
+        req=Request(a.base_url.rstrip('/')+path,data=raw,headers={'Content-Type':'application/json'})
+        try:
+            with urlopen(req,timeout=30) as response:return response.status,dict(response.headers),response.read()
+        except HTTPError as response:return response.code,dict(response.headers),response.read()
+    source=json.loads(a.request.read_text())
+    body={'idempotency_key':a.key,'input':source}
+    save('request.json',body)
+    status,_,raw=request('/health');assert status==200
+    save('health.json',json.loads(raw))
+    status,_,raw=request('/v1/jobs',body);assert status==202,(status,raw)
+    submitted=json.loads(raw);save('submit.json',submitted)
+    jid=submitted['job_id']
+    status,_,raw=request('/v1/jobs',body);assert status==202
+    repeated=json.loads(raw);save('duplicate.json',repeated)
+    assert repeated['job_id']==jid
+    conflict={'idempotency_key':a.key,'input':dict(source,expected_output='not-the-same-input')}
+    status,_,raw=request('/v1/jobs',conflict)
+    assert status==409 and json.loads(raw)['error']=='IDEMPOTENCY_CONFLICT'
+    save('conflict.json',{'http_status':status,'response':json.loads(raw)})
+    deadline=time.monotonic()+a.timeout
+    with (a.out/'polls.jsonl').open('w',encoding='utf-8') as log:
+        while True:
+            status,_,raw=request('/v1/jobs/'+jid);assert status==200
+            state=json.loads(raw);log.write(json.dumps(state)+'\n');log.flush()
+            if state['status'] in ('SUCCEEDED','FAILED','TIMED_OUT'):break
+            if time.monotonic()>deadline:raise TimeoutError('API task did not complete within client budget')
+            time.sleep(2)
+    save('state.json',state)
+    status,_,raw=request('/v1/jobs/'+jid+'/artifacts');assert status==200
+    result=json.loads(raw);save('result.json',result)
+    assert state['status']=='SUCCEEDED',result.get('error')
+    assert result['status']=='SUCCEEDED' and result['job_id']==jid and result['trace_id']==state['trace_id']
+    assert [s['name'] for s in result['stages']]==['draft','full-check','incremental-check','repair','recheck']
+    checks=[]
+    for ref in result['artifacts']:
+        prefix='artifact://'+jid+'/'
+        assert ref['uri'].startswith(prefix)
+        relative=ref['uri'][len(prefix):]
+        path=PurePosixPath(relative)
+        assert not path.is_absolute() and '..' not in path.parts and '.git' not in path.parts
+        status,headers,content=request('/v1/jobs/'+jid+'/files/'+quote(relative,safe='/'))
+        digest=hashlib.sha256(content).hexdigest()
+        header={k.lower():v for k,v in headers.items()}.get('x-content-sha256')
+        assert status==200 and digest==ref['sha256']==header and len(content)==ref['bytes'],relative
+        target=a.out/'downloads'/relative;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+        checks.append({'path':relative,'sha256':digest,'header_sha256':header,'bytes':len(content)})
+    save('download-checks.json',checks)
+    save('summary.json',{'passed':True,'job_id':jid,'trace_id':result['trace_id'],
+         'files_verified':len(checks),'same_key_same_job':True,'conflict_status':409,
+         'request_sha256':hashlib.sha256(a.request.read_bytes()).hexdigest(),
+         'base_commit':result['base_commit'],'target_commit':result['target_commit'],
+         'scope':'Actual HTTP API client; this run alone is not proof of an A13 client session'})
+    print(json.dumps({'passed':True,'job_id':jid,'files_verified':len(checks)}))
+
+
+if __name__=='__main__':main()

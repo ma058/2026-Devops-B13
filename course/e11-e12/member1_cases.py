@@ -40,13 +40,14 @@ def snapshot(project, destination):
     return files
 
 
-def prepare(destination):
+def prepare(destination, registry_prefix=''):
     require(not destination.exists(), 'Preserve existing data; choose a new --data path')
     project = destination / 'repo'
     fixture(project, 'macro')
     broken = ('FROM python:3.13-slim\nWORKDIR /work\n'
               'COPY main.c helper.c config.h extra.h unused.h Makefile ./\n'
               'RUN make app\nCMD ["./app"]\n')
+    broken = broken.replace('FROM python:', 'FROM '+registry_prefix+'python:')
     (project / 'Dockerfile.broken').write_text(broken, encoding='utf-8')
     base = commit(project, 'member1 macro C0 with build environment fault')
     old = scan(project)
@@ -65,7 +66,8 @@ def prepare(destination):
         'commit': target, 'data': current})
     pinned = ('FROM python:3.13-slim@sha256:'
               '70729b46c69b4f1e97c4822c1af3df53a1476cf5ddc6c087c0c10bc3a5678c2f')
-    candidate = broken.replace('FROM python:3.13-slim', pinned).replace(
+    pinned = pinned.replace('FROM python:', 'FROM '+registry_prefix+'python:')
+    candidate = broken.replace('FROM '+registry_prefix+'python:3.13-slim', pinned).replace(
         'RUN make app', 'RUN apt-get update && apt-get install -y --no-install-recommends '
         'build-essential && rm -rf /var/lib/apt/lists/*\nRUN make app')
     (destination / 'candidate.Dockerfile').write_text(candidate, encoding='utf-8')
@@ -177,12 +179,13 @@ def main():
     parser.add_argument('stage', choices=['prepare', 'run'])
     parser.add_argument('--data', type=Path, default=ROOT / 'data/member1-macro')
     parser.add_argument('--out', type=Path)
+    parser.add_argument('--registry-prefix', choices=['', 'm.daocloud.io/docker.io/library/'], default='')
     args = parser.parse_args()
     data = args.data.resolve()
     require(data.is_relative_to((ROOT / 'data').resolve()) and data != ROOT / 'data',
             'Data must be a fresh child of repository data/')
     if args.stage == 'prepare':
-        prepare(data)
+        prepare(data, args.registry_prefix)
     else:
         parser.error('--out is required for run') if args.out is None else None
         out = args.out.resolve()
