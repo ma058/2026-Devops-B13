@@ -71,6 +71,9 @@ def prepare(destination, registry_prefix=''):
         'RUN make app', 'RUN apt-get update && apt-get install -y --no-install-recommends '
         'build-essential && rm -rf /var/lib/apt/lists/*\nRUN make app')
     (destination / 'candidate.Dockerfile').write_text(candidate, encoding='utf-8')
+    if registry_prefix:
+        candidate = candidate.replace('RUN apt-get update', "RUN sed -i 's|http://deb.debian.org/|https://mirrors.tuna.tsinghua.edu.cn/|g; s|https://deb.debian.org/|https://mirrors.tuna.tsinghua.edu.cn/|g' /etc/apt/sources.list.d/debian.sources && apt-get update")
+        (destination / 'candidate.Dockerfile').write_text(candidate, encoding='utf-8')
     request = {'mode': 'e11-b', 'repo': str(project), 'base': base, 'target': target,
                'candidate': str(destination / 'candidate.Dockerfile'),
                'fixed_report': str(destination / 'fixed-md.json'),
