@@ -36,3 +36,28 @@ python3 run_e11e12.py run --request data/integration-sample/e12.json --out work/
 ## 尚需协作的验收
 
 教学编排器当前在自身工具链中进行检测与修复验证；成员二负责将它们真正放入 DRAFT 生成的镜像执行并补充配置。消费入口用 `execution_environment=orchestrator`、`draft_image_reused=false` 如实标记现状。成员三负责实际维护项目来源、完整 C0/C1 与 A13 分机联调。成员一本地回放收到报告的路径及自测 HTTP 成功均不能替代 A13 实际交付与参与。
+
+## 国内服务器的已验证镜像源变体
+
+成员一在该服务器上遇到官方源访问失败及 apt 下载超时，成功路线是同摘要镜像前缀配合 TUNA 软件源。成员二/三使用本人已有普通 Linux 账号时，可直接采用以下等价的显式来源配置，保留自己的构建日志和版本，不必重复成员一已经定位的网络失败：
+
+```bash
+sid=$(git config --local user.name)
+image="course-e11e12:$sid"
+docker build \
+  --build-arg DOCKER_CLI_IMAGE=m.daocloud.io/docker.io/library/docker:28.5.1-cli@sha256:9190b0613792e658a7783cf14b2d5ace5941bb68ede7276922ea36ee457d76ad \
+  -f labs/e11e12/environment/services/buildchecker/Dockerfile \
+  -t "$image" labs/e11e12/environment
+python3 run_e11e12.py test
+mkdir -p data work
+docker run --rm --network none --cap-add SYS_PTRACE \
+  --user "$(id -u):$(id -g)" -e HOME=/tmp \
+  -e PYTHONPATH=/course/labs/e11e12:/course/labs/e8e10:/course/labs/e11e12/vendor:/app \
+  -v "$PWD:/course:ro" -v "$PWD/data:/course/data:rw" -v "$PWD/work:/course/work:rw" \
+  -w /course "$image" python3 labs/e11e12/prepare.py \
+  --name integration-sample-cloud --registry-prefix m.daocloud.io/docker.io/library/
+python3 run_e11e12.py run --request data/integration-sample-cloud/e11-b.json --out work/my-e11-b-cloud
+python3 run_e11e12.py run --request data/integration-sample-cloud/e12.json --out work/my-e12-cloud
+```
+
+先确认本人 `user.name` 是数字学号、目录和 Docker 权限可用；此段普通账号命令不适用于把 root 直接当作实验用户。生成目录已存在时选择新 `--name`，后续请求路径同步修改。不要修改他人的目录权限，不运行全局 Docker prune。该路线保持课程生成数据标签，未解决另行要求的实际维护项目来源。
