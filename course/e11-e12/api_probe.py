@@ -9,6 +9,38 @@ from urllib.parse import quote
 from urllib.request import Request, urlopen
 
 
+def safe_download_target(downloads, relative):
+    """Validate an artifact's POSIX path before any local directory/file write.
+
+    Reject Windows separators/drives even when this client runs on Linux, so
+    the same server response cannot escape a Windows client's evidence root.
+    """
+    if not isinstance(relative, str) or not relative or '\\' in relative or ':' in relative or '\x00' in relative:
+        raise ValueError('Unsafe artifact path')
+    path = PurePosixPath(relative)
+    if path.is_absolute() or any(part in ('', '.', '..', '.git') for part in relative.split('/')):
+        raise ValueError('Unsafe artifact path')
+    downloads = Path(downloads)
+    target = downloads.joinpath(*path.parts)
+    current = downloads
+    for part in (None, *path.parts):
+        if part is not None:
+            current = current / part
+        if current.is_symlink() or (hasattr(current, 'is_junction') and current.is_junction()):
+            raise ValueError('Artifact path contains a symbolic link or junction')
+    try:
+        target.resolve().relative_to(downloads.resolve())
+    except ValueError as error:
+        raise ValueError('Artifact path escapes the download directory') from error
+    return target
+
+
+def read_request(path):
+    # Windows editors may save UTF-8 JSON with a BOM; preserve its original
+    # bytes separately for the request SHA while decoding its content here.
+    return json.loads(Path(path).read_text(encoding='utf-8-sig'))
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--base-url',required=True)
@@ -27,7 +59,7 @@ def main():
         try:
             with urlopen(req,timeout=30) as response:return response.status,dict(response.headers),response.read()
         except HTTPError as response:return response.code,dict(response.headers),response.read()
-    source=json.loads(a.request.read_text())
+    source=read_request(a.request)
     body={'idempotency_key':a.key,'input':source}
     save('request.json',body)
     status,_,raw=request('/health');assert status==200
@@ -61,13 +93,12 @@ def main():
         prefix='artifact://'+jid+'/'
         assert ref['uri'].startswith(prefix)
         relative=ref['uri'][len(prefix):]
-        path=PurePosixPath(relative)
-        assert not path.is_absolute() and '..' not in path.parts and '.git' not in path.parts
+        target=safe_download_target(a.out/'downloads',relative)
         status,headers,content=request('/v1/jobs/'+jid+'/files/'+quote(relative,safe='/'))
         digest=hashlib.sha256(content).hexdigest()
         header={k.lower():v for k,v in headers.items()}.get('x-content-sha256')
         assert status==200 and digest==ref['sha256']==header and len(content)==ref['bytes'],relative
-        target=a.out/'downloads'/relative;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
+        target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(content)
         checks.append({'path':relative,'sha256':digest,'header_sha256':header,'bytes':len(content)})
     save('download-checks.json',checks)
     save('summary.json',{'passed':True,'job_id':jid,'trace_id':result['trace_id'],
