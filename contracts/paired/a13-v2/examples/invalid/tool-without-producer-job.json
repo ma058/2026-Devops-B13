@@ -1,0 +1,1 @@
+{"schema_version":"2.0","report_id":"bad-tool-job","repository":{"url":"https://github.com/example/x.git","commit":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},"configuration_id":"gcc-default","environment":{"os":"linux","arch":"x86_64"},"detector":"BUILDCHECKER","provenance":"buildchecker 0.0-demo","findings":[]}
