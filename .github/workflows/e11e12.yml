@@ -1,0 +1,53 @@
+name: E11-E12 integration
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  integration:
+    name: e11e12-integration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Configure CI identity and environment
+        run: |
+          git config --local user.name 999999999
+          git config --local user.email ci@example.invalid
+          docker build --build-arg BASE_IMAGE=python:3.13-slim@sha256:f82c96458eedc847b233e582eb31336f4954b39cae020b6dcf5b3ed0e5cbcd74 \
+            --build-arg DEBIAN_MIRROR=https://deb.debian.org/debian \
+            --build-arg DEBIAN_SECURITY_MIRROR=https://deb.debian.org/debian-security \
+            --build-arg PIP_INDEX_URL=https://pypi.org/simple \
+            -f labs/e11e12/environment/services/buildchecker/Dockerfile -t course-e11e12:999999999 labs/e11e12/environment
+      - name: Contracts and integration
+        run: |
+          python3 run_e11e12.py test
+          python3 run_e11e12.py prepare
+          for mode in e11-a e11-b e12; do
+            python3 run_e11e12.py run --request "data/integration-sample/$mode.json" --out "work/ci-$mode"
+          done
+      - name: Member1 macro and independent report consumer
+        run: |
+          run_lab() {
+            docker run --rm --network bridge --group-add "$(stat -c %g /var/run/docker.sock)" \
+              -v /var/run/docker.sock:/var/run/docker.sock --cap-add SYS_PTRACE \
+              --user "$(id -u):$(id -g)" -e HOME=/tmp \
+              -e PYTHONPATH=/course/labs/e11e12:/course/labs/e8e10:/course/labs/e11e12/vendor:/app \
+              -v "$PWD:/course:ro" -v "$PWD/data:/course/data:rw" -v "$PWD/work:/course/work:rw" \
+              -w /course course-e11e12:999999999 python3 "$@"
+          }
+          run_lab course/e11-e12/member1_cases.py prepare
+          run_lab course/e11-e12/member1_cases.py run --out work/ci-member1-macro
+          run_lab course/e11-e12/verify_handoff.py work/ci-e12 work/ci-member1-handoff
+      - uses: actions/upload-artifact@v7.0.2
+        if: always()
+        with:
+          name: e11e12-evidence-${{ github.run_id }}
+          include-hidden-files: true
+          path: |
+            work/
+            !work/**/.git/**
+            !work/**/.env
+            !work/**/.env.*
+            !work/**/*.pem
+            !work/**/*.key
+          retention-days: 14
