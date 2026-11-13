@@ -85,3 +85,15 @@ python3 scripts/verify_mdfixer_explicit.py
 ```
 
 上述脚本在隔离副本或临时目录中测试修复，不会用破坏性命令覆盖真实工作区。
+
+## E11–E12 集成实验
+
+本轮三人分工、个人任务和跨组交接入口：
+
+- [三人分工与验收顺序](docs/E11-E12/TEAM_PLAN.md)
+- [成员二后续任务](docs/E11-E12/成员2_后续任务清单.md)
+- [成员三后续任务](docs/E11-E12/成员3_后续任务清单.md)
+- [A13 接口交接草案](docs/E11-E12/A13_接口交接草案.md)
+- [来源、增量改动与复现说明](docs/E11-E12/IMPORT_NOTES.md)
+
+E11-B 集成 DRAFT 与固定 MD 修复；E12 集成构建、全量/增量检测、修复和复验。独立外部报告消费入口为 `labs/e11e12/consume_report.py`，真实 HTTP 核验入口为 `course/e11-e12/api_probe.py`。固定课程样例、本机接口自测、A13 实际交接与真实项目接入分别登记，以实际证据验收。
