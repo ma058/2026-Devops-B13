@@ -78,7 +78,7 @@ B13 独立校验器 `scripts/validate_v2.py` 的四处缺陷已修复（8 份 A1
 | `PurePosixPath` 归一化 `a//b`、`a/./b`、`a/` 后被接受（A13 语义校验器拒绝） | `is_safe_path` 改为对原始字符串逐段检查，空段/`.`/`..` 一律拒绝；覆盖 dependency、location.path、artifact_locator.repository_path |
 | `detector=[]`、`finding.type={}` 触发 TypeError 崩溃 | 所有 set 成员测试前先验类型，校验器只返回错误列表 |
 
-新增 11 个差异化负例（invalid 目录增至 17 个）与 4 项规则测试；互读验证 36/36、契约测试 21/21、全量回归 54/54 通过；`evidence/E2/2026-11-10-a13-v2-interop/` 已重新生成。与 Draft 2020-12 正式校验器对上述输入的拒绝行为一致。
+新增 11 个差异化负例（invalid 目录增至 17 个）与 4 项规则测试；互读验证 36/36、契约测试 21/21、全量回归 54/54 通过；`evidence/E2/2026-11-10-a13-v2-interop/` 已重新生成。结构类型拒绝与 Draft 2020-12 正式校验器一致；原始路径的空段、`.` 和末尾斜线由 A13/B13 语义规则拒绝，不能声称固定 Schema 本身拒绝了全部此类路径。
 
 ### 冻结进度（对照 A13 PAIR_REVIEW 冻结条件）
 
