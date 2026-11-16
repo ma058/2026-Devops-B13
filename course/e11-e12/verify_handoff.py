@@ -15,7 +15,8 @@ metadata=json.loads(envelope.read_text())
 result=consume(envelope,hashlib.sha256(envelope.read_bytes()).hexdigest(),
     payload,hashlib.sha256(payload.read_bytes()).hexdigest(),request['repo'],
     request['target'],metadata['job_id'],metadata['trace_id'],root/sys.argv[2],
-    source_label='local-e12-rehearsal-not-A13-delivery')
+    source_label='local-e12-rehearsal-not-A13-delivery',
+    image_id=json.loads((out/'result.json').read_text())['draft_image_id'])
 assert result['status']=='SUCCEEDED',result
 print(json.dumps({'status':result['status'],'job_id':result['job_id'],
     'trace_id':result['trace_id'],'draft_image_reused':result['draft_image_reused']}))
