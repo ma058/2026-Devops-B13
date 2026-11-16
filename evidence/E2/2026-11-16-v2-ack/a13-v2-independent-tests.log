@@ -1,0 +1,21 @@
+test_bool_line_and_empty_core_strings_are_rejected (test_e2_v2_b13_interop.B13V2InteropTests.test_bool_line_and_empty_core_strings_are_rejected) ... ok
+test_evidence_uri_type_and_unknown_keys_are_rejected (test_e2_v2_b13_interop.B13V2InteropTests.test_evidence_uri_type_and_unknown_keys_are_rejected) ... ok
+test_explicit_null_extensions_are_rejected (test_e2_v2_b13_interop.B13V2InteropTests.test_explicit_null_extensions_are_rejected) ... ok
+test_extensions_absent_and_namespaced_object_remain_valid (test_e2_v2_b13_interop.B13V2InteropTests.test_extensions_absent_and_namespaced_object_remain_valid) ... ok
+test_fixed_B13_files_match_hashes_and_expected_results (test_e2_v2_b13_interop.B13V2InteropTests.test_fixed_B13_files_match_hashes_and_expected_results) ... ok
+test_locator_uri_and_path_types_are_rejected (test_e2_v2_b13_interop.B13V2InteropTests.test_locator_uri_and_path_types_are_rejected) ... ok
+test_nested_required_fields_and_unknown_fields_are_rejected (test_e2_v2_b13_interop.B13V2InteropTests.test_nested_required_fields_and_unknown_fields_are_rejected) ... ok
+test_producer_job_id_semantics_still_hold (test_e2_v2_b13_interop.B13V2InteropTests.test_producer_job_id_semantics_still_hold) ... ok
+test_unhashable_detector_and_finding_type_are_rejections (test_e2_v2_b13_interop.B13V2InteropTests.test_unhashable_detector_and_finding_type_are_rejections) ... ok
+test_empty_evidence (test_e2_v2_contracts.Pair13V2Tests.test_empty_evidence) ... ok
+test_optional_commit_matches (test_e2_v2_contracts.Pair13V2Tests.test_optional_commit_matches) ... ok
+test_tool_job (test_e2_v2_contracts.Pair13V2Tests.test_tool_job) ... ok
+test_unknown_core (test_e2_v2_contracts.Pair13V2Tests.test_unknown_core) ... ok
+test_unresolved_path (test_e2_v2_contracts.Pair13V2Tests.test_unresolved_path) ... ok
+test_unsafe_path (test_e2_v2_contracts.Pair13V2Tests.test_unsafe_path) ... ok
+test_valid (test_e2_v2_contracts.Pair13V2Tests.test_valid) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.028s
+
+OK

@@ -1,6 +1,8 @@
 # E11–E12 增量导入与复现说明
 
-日期：2026-11-10。负责人：马宇航（241880054，B13）。公共 PR：[#26](https://github.com/ma058/2026-Devops-B13/pull/26)。
+2026-11-16 最新进展见 [当前交接状态](CURRENT_STATUS_20261116.md)：新增实际DRAFT镜像消费及受限账号核验；历史实验版本不回写。
+
+导入日期：2026-11-10；进展更新：2026-11-16。负责人：马宇航（241880054，B13）。公共 PR：[#26](https://github.com/ma058/2026-Devops-B13/pull/26)，已合并。本次状态基线为 main `1d7f4839eff567aa7037d431df86952f24076c4d`；下述导入与历史运行记录保留原版本，不将待审 #32 代码视作已部署。
 
 ## 来源与边界
 
@@ -14,7 +16,7 @@
 
 1. 环境镜像来源可配置并保留摘要；CI 使用官方源。国内服务器使用显式镜像变体，基线与候选的 FROM 来源配对，候选仍固定同一基础镜像摘要。该变体仅为构建源适配，不修改预期构建失败或补丁判定。
 2. 宿主 root 调度时实验容器使用 UID/GID 10001；源码挂载只读，`data/`、`work/` 独立可写。Docker socket 仍授予容器调用宿主 Docker 的能力，不将这些设置描述为完整宿主隔离。
-3. 成员一新增 28 项测试：`test_member1_e11e12.py` 5 项，`test_member1_handoff.py` 14 项。另有 `test_member1_api_client.py` 9 项客户端边界测试；与教师契约 10 项合计 38 项。
+3. #26 导入时成员一新增 28 项测试：`test_member1_e11e12.py` 5 项，`test_member1_handoff.py` 14 项。另有 `test_member1_api_client.py` 9 项客户端边界测试；当时与教师契约 10 项合计 38 项。这是导入批次计数，后续成员增量以对应源码的实际测试日志为准。
 4. `course/e11-e12/member1_cases.py` 生成 macro 历史样例，执行 E11-B、真实旧 C0 报告拒绝、E12，验证宏定义修复位置、RD 保留、原始源码/报告不变及所有产物哈希。
 5. `labs/e11e12/consume_report.py` 独立消费收到的增量报告原始字节，在生成补丁之前核对版本、类型、job/trace、两个文件的 SHA-256 和清单。不通过重新检测偷偷替换外部输入。
 6. `course/e11-e12/api_probe.py` 走真实 HTTP 提交/轮询/下载，验证幂等、409 冲突及下载正文、清单与 `X-Content-SHA256` 三方一致。
@@ -22,7 +24,7 @@
 
 ## Linux 复现入口
 
-在本人仓库配置本人数字学号 Git 身份，按材料构建个人环境镜像后执行：
+以下为上述 main 的课程样例入口。在本人仓库配置本人数字学号 Git 身份，按材料构建个人环境镜像后执行：
 
 ```sh
 python3 run_e11e12.py test
@@ -35,7 +37,13 @@ python3 run_e11e12.py run --request data/integration-sample/e12.json --out work/
 
 ## 尚需协作的验收
 
-教学编排器当前在自身工具链中进行检测与修复验证；成员二负责将它们真正放入 DRAFT 生成的镜像执行并补充配置。消费入口用 `execution_environment=orchestrator`、`draft_image_reused=false` 如实标记现状。成员三负责实际维护项目来源、完整 C0/C1 与 A13 分机联调。成员一本地回放收到报告的路径及自测 HTTP 成功均不能替代 A13 实际交付与参与。
+main `1d7f4839` 及成员一 2026-11-13 离线消费仍使用编排器工具链，记录 `execution_environment=orchestrator`、`draft_image_reused=false`。A13 已签收并复核该批 B13 结果，include/body/declaration 三包的离线生产、独立消费、结果回传、对方复核工作线已闭合；这不改变该批实际执行环境。
+
+成员二 [PR #32](https://github.com/ma058/2026-Devops-B13/pull/32)（本次审查 head `64ee6c948693f8f35a30b53b31d0d69508cb7336`）新增实际镜像执行器，将 pipeline 检测/validate/重检和独立消费者放入成功 DRAFT 的不可变 image ID 容器；该 PR 尚待最终审查与合并。新独立消费 CLI 必须提供 `--image-id`，并由具备 Docker CLI/daemon 访问的非 root Linux 调用者执行。容器化调用时编排器需要 docker.sock；下游检查容器使用显式复制和独立约束，不能把“非 root”写成没有宿主 Docker 权限。历史 main 命令与 #32 新命令分别见 [接口交接草案](A13_接口交接草案.md)，选定版本后再复现。
+
+A13 新提议的真实项目为 `cktan/tomlc99`，C0 `592fc6f3d2463a58fe7f60b8d255ed242740bec0`、C1 `b2dda5513fe4a7d250493528800fe425cae459a5` 据对方说明仅在其服务器。B13 尚需取得 bundle/公开 fork 和原始运行资料，不能把上游 URL 当作已可获取这两个提交。当前代码（含 #32）仍固定 main.c/helper.c/config.h、make app 和 VALUE 变更验证，尚不支持 toml.c/toml_json.c 布局；成员二负责配置与适配，成员三负责来源、C0/C1、修复范围及与 A13 的联调。A13 提议的镜像还须接收、校验、实际加载，并与 DRAFT 原始成功轮次绑定。
+
+共享 HTTP 跨机调用仍需 A13 从自己的客户端实际参与，成员一的历史自测不能替代。A13 本次提供的 finding-report v2 互读是独立的 E2 契约冻结流程，不作为 E11–E12 HTTP 或真实项目完成证据。
 
 ## 国内服务器的已验证镜像源变体
 
