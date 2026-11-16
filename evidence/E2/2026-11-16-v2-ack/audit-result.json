@@ -1,0 +1,307 @@
+{
+  "checked_on": "2026-11-16",
+  "reviewer": "B13 member1 assisted local audit",
+  "A13_code_commit": "931563895a40df91a326cac5791e089d767e49a7",
+  "B13_fixed_commit": "1d7f4839eff567aa7037d431df86952f24076c4d",
+  "A13_validator_sha256": "20ae9007cd184404ceb07080222d5af91dbb49d35805019e07d91e2ea56a4023",
+  "B13_samples_byte_verified": 19,
+  "A13_replay_valid_accepted": 2,
+  "A13_replay_invalid_rejected": 17,
+  "A13_independent_test_count": 16,
+  "A13_schema_unchanged_from_previously_accepted_candidate": true,
+  "B13_validator_sha256": "5b9801ed30c92ba6afb2c588313dfabc911847923c390ac7bcc9cc6d65249b42",
+  "B13_read_A13_current_fixed_samples": [
+    {
+      "path": "contracts/examples/v2/invalid/empty-evidence.json",
+      "sha256": "b60dd63eb4872a9728cda7a7ea64070f68b9b42ab1ab697dda647ca1f75e1a2a",
+      "expected": "REJECT",
+      "actual": "REJECT",
+      "errors": [
+        "findings[0].evidence: non-empty array required"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/tool-without-producer-job.json",
+      "sha256": "20acea313d0a0d682e4f0296791334963b2f8068a8ae57f96835bbcf24eec82c",
+      "expected": "REJECT",
+      "actual": "REJECT",
+      "errors": [
+        "producer_job_id: real detector output requires a job-* id"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/unknown-core-field.json",
+      "sha256": "59361215180a89e6be001d56e468549c7a1145f514883059fed8d4de95c0972c",
+      "expected": "REJECT",
+      "actual": "REJECT",
+      "errors": [
+        "root: unknown core fields ['note']"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/unresolved-with-path.json",
+      "sha256": "6abe55dc6a94ca006c3cab27e8fbf84d6291f80395cda94a37152dc61903fe9f",
+      "expected": "REJECT",
+      "actual": "REJECT",
+      "errors": [
+        "findings[0].location: unknown core fields ['path']"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/unsafe-dependency.json",
+      "sha256": "0d4e8235ed06f82c71c6731c9e4e1e0fc551f9ab8d5e31eeb3d3a22d576903ab",
+      "expected": "REJECT",
+      "actual": "REJECT",
+      "errors": [
+        "findings[0].dependency: expected safe project-relative POSIX path"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/md-report.valid.json",
+      "sha256": "5d4682258615043bc1211ef60a8979daf9f38ebcfca0468728ace279138a83e9",
+      "expected": "ACCEPT",
+      "actual": "ACCEPT",
+      "errors": []
+    }
+  ],
+  "A13_PR16_state": "open",
+  "A13_PR16_head": "ba6ae1e01721697f8223eb17f11dafea68cadfc4",
+  "receipt_archive_sha256_recomputed": "bcaa95e5fbef608cd7377b99018cc8b73f81ba9c85655795fb8d6759473ede6a",
+  "receipt_output_refs_independently_reverified": 183,
+  "A13_receipt_acknowledges_B13_consumption": true,
+  "B13_can_confirm_fixed_candidate": true,
+  "joint_document_freeze_not_yet_recorded": true,
+  "pending": "B13 ACK to A13 and both repositories record same pair as frozen; no automatic third-party communications performed",
+  "not_closed": [
+    "shared cross-machine HTTP",
+    "real-project integration",
+    "DRAFT image cross-host handoff"
+  ],
+  "cases": [
+    {
+      "path": "contracts/examples/v2/invalid/artifact-locator-uri-array.json",
+      "sha256": "e4a6a2a8c7161c05fcbf56c19f917f5229e6b05d8b5e767ccb3b7e6bf4dd01b9",
+      "git_blob_sha": "011d35187809c2f6dcfbb5001a6db76fa3816a17",
+      "actual": "REJECT",
+      "errors": [
+        "artifact_locator.uri: artifact://pair13/ URI string required"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/artifact-locator-uri-null.json",
+      "sha256": "3e8571125cd1c4da29e9f624e0f1dbdbd4a2b9ca4016f01bb744d1ef325c4aff",
+      "git_blob_sha": "b7374fb8996a735ca5b32c180fa4843d9bf6b07e",
+      "actual": "REJECT",
+      "errors": [
+        "artifact_locator.uri: artifact://pair13/ URI string required"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/dependency-dot-segment.json",
+      "sha256": "fbfe195aa8a9178c890456b85edaf962ed8864fd79d1621b0e10e4bc5d595062",
+      "git_blob_sha": "dea040f5e308e1c917262366e0f0c6b064979c78",
+      "actual": "REJECT",
+      "errors": [
+        "findings[0].dependency: expected safe project-relative POSIX path"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/dependency-double-slash.json",
+      "sha256": "2b134d1f523aff96a773402d4fb78ff6792ce89f8c74139a24e7e98da98e58d3",
+      "git_blob_sha": "2e044e93d03b7123c0c857cf79f076761a602695",
+      "actual": "REJECT",
+      "errors": [
+        "findings[0].dependency: expected safe project-relative POSIX path"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/dependency-trailing-slash.json",
+      "sha256": "e0a58edb920baa6f31d87d10c59bf2aa6a1047f935f4cebaeac1a7bf50bd8c12",
+      "git_blob_sha": "17181108ad861c66b3e8dbcfc7d9ab6a88e1a4b3",
+      "actual": "REJECT",
+      "errors": [
+        "findings[0].dependency: expected safe project-relative POSIX path"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/detector-array.json",
+      "sha256": "bd5380307a30076ee116700352b7b7f4e8cac4b3bbc71d9b961c4f88016d3f28",
+      "git_blob_sha": "743cb76f91df4650671250716e60f0b5620d6be2",
+      "actual": "REJECT",
+      "errors": [
+        "detector: invalid enum"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/evidence-item-missing-detail.json",
+      "sha256": "075fe69d7c0fedf2b674bd3f7ebce75456a52512ffcae6fded05dd062ca4d814",
+      "git_blob_sha": "f42a2e3a0caba0b00650a3fd5d1f70964c4bbb3e",
+      "actual": "REJECT",
+      "errors": [
+        "findings[0].evidence[0].detail: missing",
+        "findings[0].evidence[0].detail: non-empty string required"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/extensions-explicit-null.json",
+      "sha256": "663e61510713c9f447bc7527dee5ab99fd87b7a965aa9a973e82a83090c810ab",
+      "git_blob_sha": "9f2c2cdc3781f68b049512c0422f25945858514c",
+      "actual": "REJECT",
+      "errors": [
+        "extensions: object required"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/finding-commit-mismatch.json",
+      "sha256": "c515816a9d127145bc6eed2ef58b5f7bf67872f64fb5f894ffafc014143340de",
+      "git_blob_sha": "29ac512a7aa01184d7bc2759d2b551901943bd06",
+      "actual": "REJECT",
+      "errors": [
+        "findings[0].commit: must equal repository.commit"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/finding-extensions-null.json",
+      "sha256": "f515779375f421f6dd54d87b51b131d258ede81acafa280ff8aaa153fd969a17",
+      "git_blob_sha": "f46ce50427c1362d25f2152e67e6d187156642c7",
+      "actual": "REJECT",
+      "errors": [
+        "findings[0].extensions: object required"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/finding-type-object.json",
+      "sha256": "19c4d179b5a82219d2766f599ee5fb28ec2eb9e85548967ec3f7f5e7be37d339",
+      "git_blob_sha": "1109864ff8f4b240af80c685f8e11a91c20a7a2e",
+      "actual": "REJECT",
+      "errors": [
+        "findings[0].type: invalid enum"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/location-path-double-slash.json",
+      "sha256": "9108d1ac2f058530f28b35480113e3c5f8e11a27aa665859e9f720beb5b9d68c",
+      "git_blob_sha": "f11443611ebd9b862eee365a4d6687da7366051c",
+      "actual": "REJECT",
+      "errors": [
+        "findings[0].location.path invalid"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/locator-repository-path-dot.json",
+      "sha256": "180604c294044e6805a8465d30fd8be2fad55e66b10bf7f31c651ff2413156e7",
+      "git_blob_sha": "1d93225b726b9edc0afe6bccbc668172df506b71",
+      "actual": "REJECT",
+      "errors": [
+        "artifact_locator.repository_path: expected safe project-relative POSIX path"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/oracle-with-producer-job.json",
+      "sha256": "973f7eeac60339ff7d815cda33a9bb73d7e443362ef49c16274a10114680d9a0",
+      "git_blob_sha": "e4ef3cc26f39b62c6dc9d31c802d724aad699f17",
+      "actual": "REJECT",
+      "errors": [
+        "producer_job_id: oracle reports must be null/absent"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/unknown-finding-field.json",
+      "sha256": "3e8a8c5a7c08ce8eeac3606a1500526060eb30d597a7ae7afe82f213587fcf54",
+      "git_blob_sha": "a579614f3e32fa24343fec172df12eeec48f06b4",
+      "actual": "REJECT",
+      "errors": [
+        "findings[0]: unknown core fields ['severity']"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/unresolved-with-line.json",
+      "sha256": "d1e2fb5d1759fe5df60acc86309732d293f5a9574a167305958cf4307ab2999f",
+      "git_blob_sha": "eed7dd6c28a9858727b6db4701c9766b6436fcfc",
+      "actual": "REJECT",
+      "errors": [
+        "findings[0].location: unknown core fields ['line']"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/invalid/unsafe-dependency-absolute.json",
+      "sha256": "68f88ed44faba6922cf3cc677bc0913b8b9a5de14546118a8692af17027416a4",
+      "git_blob_sha": "7f693dffd72c0482b84c4da6fcfab80dbb4185b5",
+      "actual": "REJECT",
+      "errors": [
+        "findings[0].dependency: expected safe project-relative POSIX path"
+      ]
+    },
+    {
+      "path": "contracts/examples/v2/md-report.e3-target.valid.json",
+      "sha256": "bab145cc0eaea409f0c3e2d827fbadf60f9ab361098a8c0d1018a139898ef340",
+      "git_blob_sha": "a089c1b7c7a2c76a7e9e58c499f26b353563eb3a",
+      "actual": "ACCEPT",
+      "errors": []
+    },
+    {
+      "path": "contracts/examples/v2/md-report.valid.json",
+      "sha256": "eb8a68e14e2b536ae15c016d5e089a58b296e249b6f702e1350a50412f758476",
+      "git_blob_sha": "b099d1be2a454e7ac203ff4381347c53f3d74ec8",
+      "actual": "ACCEPT",
+      "errors": []
+    }
+  ],
+  "a13_fixed_source_subset": [
+    {
+      "path": "scripts/validate_e2_v2.py",
+      "sha256": "20ae9007cd184404ceb07080222d5af91dbb49d35805019e07d91e2ea56a4023",
+      "git_blob_sha": "86b41a9081af7b361efdb199102ad7ca44bd49c0"
+    },
+    {
+      "path": "tests/test_e2_v2_contracts.py",
+      "sha256": "34c3a033bbd382264a30555700cd8cef56a57fc0ced6033706fa5e3558d3efa5",
+      "git_blob_sha": "2f0ee0d55a30d84b25d3156d87a8c138e6f1886a"
+    },
+    {
+      "path": "tests/test_e2_v2_b13_interop.py",
+      "sha256": "060c075c4bb045e1ead60fa6e6a726b0ed855b13f96a4e4ec67253fb93953f4d",
+      "git_blob_sha": "498243cd2ba8e943180aa90b78ba458036251a9b"
+    },
+    {
+      "path": "contracts/schemas/pair13-finding-report-v2.schema.json",
+      "sha256": "96f7374f484ad55ddab56989eaf9fbffb8d5d2636df7520be648ba9af2303f3e",
+      "git_blob_sha": "57a3e2892b6165a2c3981c60ed7f93afa88af61a"
+    },
+    {
+      "path": "evidence/coordination/20261113/v2-interop.json",
+      "sha256": "1cde79a53323fe9b4668e308562f2ecfcf1eb58c164e0a30f433a47cff5e7935",
+      "git_blob_sha": "721e2d5dd3025b9fa6a1372cfe1205568f67c3b1"
+    },
+    {
+      "path": "contracts/examples/v2/invalid/empty-evidence.json",
+      "sha256": "b60dd63eb4872a9728cda7a7ea64070f68b9b42ab1ab697dda647ca1f75e1a2a",
+      "git_blob_sha": "25e7c88205fb1840a91c94dfe7d72111b3622f9a"
+    },
+    {
+      "path": "contracts/examples/v2/invalid/tool-without-producer-job.json",
+      "sha256": "20acea313d0a0d682e4f0296791334963b2f8068a8ae57f96835bbcf24eec82c",
+      "git_blob_sha": "40d623ebe30c30980efcf81f7ae9dbe0d23d6739"
+    },
+    {
+      "path": "contracts/examples/v2/invalid/unknown-core-field.json",
+      "sha256": "59361215180a89e6be001d56e468549c7a1145f514883059fed8d4de95c0972c",
+      "git_blob_sha": "1613da76f5f506b18e6773e7ca656779d86f8202"
+    },
+    {
+      "path": "contracts/examples/v2/invalid/unresolved-with-path.json",
+      "sha256": "6abe55dc6a94ca006c3cab27e8fbf84d6291f80395cda94a37152dc61903fe9f",
+      "git_blob_sha": "9942c062dd7e68464e53967bb86f7d57d235dc7f"
+    },
+    {
+      "path": "contracts/examples/v2/invalid/unsafe-dependency.json",
+      "sha256": "0d4e8235ed06f82c71c6731c9e4e1e0fc551f9ab8d5e31eeb3d3a22d576903ab",
+      "git_blob_sha": "5c4d8c01201013592a23f58259a2bb8d9e522ba7"
+    },
+    {
+      "path": "contracts/examples/v2/md-report.valid.json",
+      "sha256": "5d4682258615043bc1211ef60a8979daf9f38ebcfca0468728ace279138a83e9",
+      "git_blob_sha": "63f29838cd7da83b841a71d2b40e6b4d7c98493b"
+    }
+  ]
+}

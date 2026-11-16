@@ -1,0 +1,164 @@
+{
+  "checked_on": "2026-11-16",
+  "source": "Authenticated live GitHub REST plus fixed raw.githubusercontent.com bytes",
+  "branches_count": 19,
+  "all_prs_count": 15,
+  "releases_count": 0,
+  "main_sha": "9bc1d18fab823373dbc64d8a70df1c8b4cc163c9",
+  "coordination_sha": "0bcfad1896cfa706f7275400e9cb54c7b76ae089",
+  "relevant_prs": [
+    {
+      "number": 15,
+      "state": "open",
+      "draft": false,
+      "head": "9d840c349b5ce4cf352858f22c99366ef70b4588",
+      "base": "e11-e12-integration"
+    },
+    {
+      "number": 17,
+      "state": "open",
+      "draft": false,
+      "head": "13f61cdec4ed0496d58ddfcdff9a39b9e656f99c",
+      "base": "e11-e12-integration"
+    },
+    {
+      "number": 16,
+      "state": "open",
+      "draft": false,
+      "head": "ba6ae1e01721697f8223eb17f11dafea68cadfc4",
+      "base": "main"
+    },
+    {
+      "number": 14,
+      "state": "open",
+      "draft": true,
+      "head": "9681702414428e7b9a7d0da5d9baa04443bee613",
+      "base": "main"
+    }
+  ],
+  "source_files_checked": [
+    {
+      "path": "docs/coordination/20261116/B13_E12_输入模板.json",
+      "git_blob_sha": "b263d2e07001a23ff2f7850d82af732d9670144f",
+      "sha256": "dabacd0f16bfd35e73bbd0650bfe83851558ee9800bd073a03e4997dc96b53a4"
+    },
+    {
+      "path": "docs/coordination/20261116/HTTP联调执行说明.md",
+      "git_blob_sha": "543551f679e82c92c7467e4bcc3999d5825ba096",
+      "sha256": "1db2f526a3c712ac11fd57cc84baeb120ca9a3e7c2838e92aa323ef1fc664604"
+    },
+    {
+      "path": "docs/coordination/20261116/本人交付与等待项.md",
+      "git_blob_sha": "58af077cca69b0508174d272e082539ea5a61752",
+      "sha256": "7a6fe5c2c8d8c73bb5ae3d1c75b0ae3536997139d13206b1e3f6705b3d7fcf21"
+    },
+    {
+      "path": "docs/coordination/20261116/给241830217_待发送.md",
+      "git_blob_sha": "3873719a2744e643dd114215a50f4a56d7e058a4",
+      "sha256": "2640480337352b19aaa0ed14211d2718d70291c04e0cc192238447533248329f"
+    },
+    {
+      "path": "docs/coordination/20261116/给241870063_待发送.md",
+      "git_blob_sha": "e7d83c9eb16afc4c7e3ee4f65370fa0c5db8ecce",
+      "sha256": "4d0d68ae73395fea0cdaae8957c42ca96e3fe4dee9f1dd7d5550f041b90d188b"
+    },
+    {
+      "path": "docs/coordination/20261116/给B13_对齐回复_待发送.md",
+      "git_blob_sha": "4a744812746dd2e0232cb97c4cc88a9d63861f24",
+      "sha256": "d620135bc49daa0ea3d559912049bf3a8b0c0b8f420db26db6e368405307ca96"
+    },
+    {
+      "path": "docs/students/241870063/e11-e12/ADR.md",
+      "git_blob_sha": "1c932f074aed939d3b64378bbc838507b8897174",
+      "sha256": "56c07dcd2d1e84a91da915d109233b338f38f2193ce78e5686a68f6cee4d9082"
+    },
+    {
+      "path": "docs/students/241870063/e11-e12/个人报告.md",
+      "git_blob_sha": "430f1d480be3617a1e4c813082d50bad0e0b903f",
+      "sha256": "53d1badcdea2fa41fa2e889ecbff36d5def5802aa8ebcf08a4526d9bfa61ca98"
+    },
+    {
+      "path": "evidence/E11-E12/241830088/closeout-20261116.json",
+      "git_blob_sha": "30390c06cbf3fe17d160575e493b628a59b15208",
+      "sha256": "b8f3580b4bc6c3be1d4cb916fe11c2b79d669d2427b5407f82b4226a93a486e7"
+    },
+    {
+      "path": "evidence/E11-E12/241830088/compatibility-summary.json",
+      "git_blob_sha": "586c5158473583af4c7a7d5098f4d5134ffdd070",
+      "sha256": "9af16887c9f4de5cf9f64fcdcdbd088a23ba3448fda54155d1a59daaafc6d0f5"
+    },
+    {
+      "path": "labs/e11e12/pipeline.py",
+      "git_blob_sha": "91135f82388b82d6e0cfa61ed57363c0320da5fb",
+      "sha256": "a942e7b72dd76bee638651699db3e7931ad9050d974e4e172fe2215168de61e1"
+    },
+    {
+      "path": "labs/e11e12/prepare.py",
+      "git_blob_sha": "13c30ac086b24a1131830d83e6b510ee6818d973",
+      "sha256": "867d6616cc8792e2c7f309634d2e63a210c68759fb329881d0dfccb131c3a8c4"
+    },
+    {
+      "path": "labs/e11e12/test_real_profile.py",
+      "git_blob_sha": "382bc3e1fdf8a0c2131443bf83da69d54e4c8e99",
+      "sha256": "eaf6b59f45b71e6b3ac58e4e5f5f330a15cb0bf2e7d01dfe7f3e31d0ceea35de"
+    },
+    {
+      "path": "labs/e8e10/lab.py",
+      "git_blob_sha": "886eebc5ffb154d26d4f285637eef19b0037e4a5",
+      "sha256": "b20f2b414a2c6e6f8aa9d5b85e7f8bc8903e42763832ee606be46ae1de3cc943"
+    }
+  ],
+  "upstream_and_fork_probes": [
+    {
+      "url": "https://api.github.com/repos/cktan/tomlc99",
+      "checked_utc": "2026-11-16T04:36:10.2104154Z",
+      "status": 200,
+      "message": null,
+      "sha": null
+    },
+    {
+      "url": "https://api.github.com/repos/cktan/tomlc99/commits/592fc6f3d2463a58fe7f60b8d255ed242740bec0",
+      "checked_utc": "2026-11-16T04:36:11.6753693Z",
+      "status": 422,
+      "message": "No commit found for SHA: 592fc6f3d2463a58fe7f60b8d255ed242740bec0",
+      "sha": null
+    },
+    {
+      "url": "https://api.github.com/repos/cktan/tomlc99/commits/b2dda5513fe4a7d250493528800fe425cae459a5",
+      "checked_utc": "2026-11-16T04:36:12.3938701Z",
+      "status": 422,
+      "message": "No commit found for SHA: b2dda5513fe4a7d250493528800fe425cae459a5",
+      "sha": null
+    },
+    {
+      "url": "https://api.github.com/repos/cktan/tomlc99/commits/62ce93c",
+      "checked_utc": "2026-11-16T04:36:13.6125781Z",
+      "status": 200,
+      "message": null,
+      "sha": "62ce93ceb713dc49909d0fef1411f9d37bef83f2"
+    },
+    {
+      "url": "https://api.github.com/repos/Mikasa-79/tomlc99",
+      "checked_utc": "2026-11-16T04:36:14.2732060Z",
+      "status": 404,
+      "message": "Not Found",
+      "sha": null
+    },
+    {
+      "url": "https://api.github.com/repos/Mikasa-79/tomlc99/branches?per_page=100",
+      "checked_utc": "2026-11-16T04:36:14.9563856Z",
+      "status": 404,
+      "message": "Not Found",
+      "sha": null
+    }
+  ],
+  "real_project_bundle_or_download_url_found": false,
+  "draft_image_full_ids_found": false,
+  "only_candidate_prefixes_publicly_reported": [
+    "de2ea79",
+    "dbec518"
+  ],
+  "course_orchestrator_image_reported": "sha256:a84a0df22c68496beb8c926e8b43ae31a375c919acdae07aa52e4bee617a7e9d",
+  "a13_internal_real_project_evidence_archive_reported_sha256": "076db4e996fa568a14c3f259b964331250116c9ae253d2a98570daf89a473b5f",
+  "limitations": "No claim that private fork is nonexistent; 404 means unreadable with current access. No A13 server access attempted. Real-project archive hash is A13 statement, original archive not downloaded."
+}

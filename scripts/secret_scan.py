@@ -36,6 +36,13 @@ def scan_text(text, where):
                 value = m.group(m.lastindex or 0)
                 if name == "密钥赋值" and PLACEHOLDER.search(value):
                     continue
+                # A bare UUID-generating expression is code, not a stored key.
+                # Keep quoted strings, longer expressions and other matches on
+                # this line subject to the normal checks (including Git diffs).
+                if (name == "密钥赋值" and value == "uuid.uuid4().hex"
+                        and not line[m.start(1)-1:m.start(1)] in ("'", '"')
+                        and re.fullmatch(r"\s*(?:#.*)?", line[m.end():])):
+                    continue
                 hits.append(f"{where}:{n}  {name}  {mask(value)}")
     return hits
 

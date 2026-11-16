@@ -21,3 +21,5 @@ E2/E3 的实现、契约、测试和证据已形成可复现基线。E4 从标�
 | B13-E2-10 | 复核并接受 A13 finding-report 2.0 候选 | 成员3 | `contracts/paired/a13-v2/`、`scripts/validate_v2.py`、`scripts/verify_a13_v2_interop.py` | 25 项互读检查全过；8 文件 SHA-256 与 manifest 一致 | 完成 |
 | B13-E2-11 | B13 样例迁移到 v2 | 成员3 | `contracts/examples/v2/`（2 有效 + 6 负例）、`tests/test_e2_v2_contracts.py` | 17 项新测试与 50 项全量回归通过；v1→v2 迁移等价检查通过 | 完成 |
 | B13-E2-12 | v2 契约冻结 | 成员1组织、A13/B13 | 双方文档写入同一组固定 commit | 待 A13 读取 B13 v2 样例并回写固定 commit 后共同标记 frozen | 待 A13 |
+
+2026-11-16 更新：B13-E2-12 的双向互读、完整SHA与双方样例哈希已核验；B13确认固定版本对，见 [V2_B13_ACK_20261116.md](V2_B13_ACK_20261116.md)。只剩 A13 同步同一固定版本的冻结文档，不能再列为未做互读。上表旧测试数量保留为当时记录，当前复核结果以新证据索引为准。
