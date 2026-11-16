@@ -1,8 +1,8 @@
 """Consume a separately delivered A report without rerunning A detection.
 
 The caller must exchange both SHA-256 values and task identifiers before use.
-Only an isolated clone is patched. Execution currently uses the orchestrator
-environment, not DRAFT's image; that environment handoff remains separate work.
+Only an isolated clone is patched. An exchanged immutable DRAFT image ID is
+required for real validation/recheck; there is no orchestrator fallback.
 """
 import argparse
 from dataclasses import dataclass
@@ -15,6 +15,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from pipeline import Failure, artifact, check_envelope, full, patch, save, snapshot, validate
+from image_runtime import ImageRuntime, validate_image_id, validate_probe
 
 
 @dataclass(frozen=True)
@@ -108,10 +109,13 @@ def verify_received(envelope_path, envelope_sha256, payload_path, payload_sha256
 
 
 def consume(envelope_path, envelope_sha256, payload_path, payload_sha256, repo,
-            target, job_id, trace_id, out, source_label='unconfirmed-external-report'):
+            target, job_id, trace_id, out, source_label='unconfirmed-external-report',
+            image_id=None, image_probe=None):
     # All report checks precede creating an output or cloning a repair target.
     received = verify_received(envelope_path, envelope_sha256, payload_path,
                                payload_sha256, target, job_id, trace_id)
+    validate_image_id(image_id)
+    validate_probe(image_probe)
     repo = Path(repo).resolve()
     out = Path(out).resolve()
     if not repo.is_dir():
@@ -125,9 +129,10 @@ def consume(envelope_path, envelope_sha256, payload_path, payload_sha256, repo,
     if resolved.returncode or resolved.stdout.strip() != target:
         raise Failure('STALE_REPORT', 'Target commit is not available in the supplied repository')
     out.mkdir(parents=True, exist_ok=False)
+    runtime = ImageRuntime(image_id, out / 'image-execution', image_probe)
     result = {'schema_version': 'e11e12-1', 'kind': 'b-report-consumption',
               'job_id': job_id, 'trace_id': trace_id, 'commit': target,
-              'status': 'RUNNING', 'execution_environment': 'orchestrator',
+              'status': 'RUNNING', 'execution_environment': 'draft-image', 'draft_image_id': image_id,
               'draft_image_reused': False, 'source_label': source_label,
               'stages': [], 'upstream': {'kind': 'incremental-check',
                   'envelope_sha256': envelope_sha256, 'payload_sha256': payload_sha256,
@@ -138,12 +143,14 @@ def consume(envelope_path, envelope_sha256, payload_path, payload_sha256, repo,
     save(out / 'request.json', {'repo': str(repo), 'target': target,
         'expected_job_id': job_id, 'expected_trace_id': trace_id,
         'expected_envelope_sha256': envelope_sha256,
-        'expected_payload_sha256': payload_sha256, 'source_label': source_label})
+        'expected_payload_sha256': payload_sha256, 'source_label': source_label,
+        'image_id': image_id, 'image_probe': image_probe})
 
     def stage(name, data, files):
         envelope = {'schema_version': 'e11e12-1', 'kind': name, 'status': 'SUCCEEDED',
                     'commit': target, 'job_id': job_id, 'trace_id': trace_id,
-                    'execution_environment': 'orchestrator', 'draft_image_reused': False,
+                    'execution_environment': 'draft-image', 'image_id': image_id,
+                    'draft_image_reused': bool(runtime.operations), 'image_operations': list(runtime.operations),
                     'data': data, 'artifacts': [artifact(file, out, job_id) for file in files]}
         save(out / (name + '.json'), envelope)
         result['stages'].append({'name': name, 'artifact': artifact(out / (name + '.json'), out, job_id)})
@@ -164,10 +171,10 @@ def consume(envelope_path, envelope_sha256, payload_path, payload_sha256, repo,
         save(out / 'repair-plan.json', edits)
         stage('repair', {'edits': edits, 'input_report': result['upstream']},
               [patchfile, out / 'repair-plan.json'])
-        verdict = validate(working_copy, patchfile, out / 'validation')
+        verdict = runtime.validate(working_copy, patchfile, out / 'validation')
         if not verdict['accepted']:
             raise Failure('REPAIR_REJECTED', 'Candidate did not pass sandbox validation')
-        final = full(working_copy, out / 'final-full')
+        final = runtime.full(working_copy, out / 'final-full')
         if any(item['type'] == 'MISSING' for item in final['findings']):
             raise Failure('RECHECK_FAILED', 'Dynamic recheck still reports missing dependencies')
         (out / 'source-after.Makefile').write_bytes((working_copy / 'Makefile').read_bytes())
@@ -175,12 +182,14 @@ def consume(envelope_path, envelope_sha256, payload_path, payload_sha256, repo,
                          'patched_makefile_sha256': hashlib.sha256((working_copy / 'Makefile').read_bytes()).hexdigest()},
               [out / 'validation' / 'validation.json', out / 'final-full' / 'findings.json'])
         result['status'] = 'SUCCEEDED'
+        result['draft_image_reused'] = bool(runtime.operations)
     except (Failure, ValueError, OSError, KeyError, subprocess.TimeoutExpired) as exc:
         if before is not None:
             (working_copy / 'Makefile').write_bytes(before)
             result['working_copy_makefile_restored'] = True
         result.update(status='TIMED_OUT' if isinstance(exc, subprocess.TimeoutExpired) else 'FAILED',
                       error={'code': getattr(exc, 'code', 'EXECUTION_FAILED'), 'message': str(exc)})
+    result['image_operations'] = runtime.operations
     result['artifacts'] = [artifact(file, out, job_id) for file in sorted(out.rglob('*'))
                            if file.is_file() and '.git' not in file.parts and not file.is_symlink()]
     save(out / 'result.json', result)
@@ -194,12 +203,13 @@ def main():
     for name in ('envelope-sha256', 'payload-sha256', 'target', 'job-id', 'trace-id'):
         parser.add_argument('--' + name, required=True)
     parser.add_argument('--source-label', default='unconfirmed-external-report')
+    parser.add_argument('--image-id', required=True, help='Exchanged immutable DRAFT sha256 image ID')
     args = parser.parse_args()
     try:
         result = consume(args.envelope, args.envelope_sha256, args.payload, args.payload_sha256,
-                         args.repo, args.target, args.job_id, args.trace_id, args.out, args.source_label)
+                         args.repo, args.target, args.job_id, args.trace_id, args.out, args.source_label, image_id=args.image_id)
     except (Failure, OSError, ValueError, subprocess.TimeoutExpired) as exc:
-        result = {'status': 'FAILED', 'execution_environment': 'orchestrator',
+        result = {'status': 'FAILED', 'execution_environment': 'not-started',
                   'draft_image_reused': False,
                   'error': {'code': getattr(exc, 'code', 'INVALID_REQUEST'), 'message': str(exc)}}
     print(json.dumps(result, ensure_ascii=False, indent=2))

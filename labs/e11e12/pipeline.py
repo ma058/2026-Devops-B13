@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT / 'labs/e8e10'), str(ROOT / 'labs/e11e12/vendor'), '/app']
 from lab import scan, patch, validate
+from image_runtime import ImageRuntime
 
 class Failure(ValueError):
     def __init__(self, code, message):
@@ -77,10 +78,16 @@ def execute(request, out, job_id=None):
     out.mkdir(parents=True, exist_ok=True)
     result = {'schema_version':'e11e12-1','job_id':job_id,'trace_id':trace_id,'status':'RUNNING','stages':[]}
     save(out/'request.json',request)
+    runtime = None
+    before = None
+    do_full, do_scan, do_validate = full, scan, validate
     def stage(name, commit, payload, files=()):
         envelope = {'schema_version':'e11e12-1','job_id':job_id,'trace_id':trace_id,'kind':name,
                     'commit':commit,'status':'SUCCEEDED','data':payload,
                     'artifacts':[artifact(p,out,job_id) for p in files]}
+        if runtime is not None:
+            envelope.update(execution_environment='draft-image', image_id=runtime.image_id,
+                            image_operations=list(runtime.operations))
         save(out/(name+'.json'),envelope)
         result['stages'].append({'name':name,'artifact':artifact(out/(name+'.json'),out,job_id)})
         return envelope
@@ -101,10 +108,14 @@ def execute(request, out, job_id=None):
             draft=auto_build(target,candidate,out/'draft-build',request.get('expected_output','1'),timeout=request.get('build_timeout',600))
             if draft['status']!='SUCCEEDED':
                 raise Failure('DRAFT_FAILED',draft.get('error','Inspect draft-build logs'))
+            image_id = draft['attempts'][-1]['image_id']
+            runtime = ImageRuntime(image_id, out/'image-execution', request.get('image_probe'))
+            do_full, do_scan, do_validate = runtime.full, runtime.scan, runtime.validate
+            result.update(execution_environment='draft-image', draft_image_id=image_id, draft_image_reused=False)
             stage('draft',target_sha,draft,[out/'draft-build/result.json'])
         if mode in ('e11-a','e12'):
-            base_full=full(base,out/'baseline-full')
-            old=scan(base)
+            base_full=do_full(base,out/'baseline-full')
+            old=do_scan(base)
             edges=json.loads((out/'baseline-full/actual-graph.json').read_text())
             projected={t:sorted({e['dependency'] for e in edges if e['target']==t}) for t in ('main.o','helper.o')}
             if projected != old['actual']:
@@ -113,9 +124,9 @@ def execute(request, out, job_id=None):
             save(out/'baseline-cache.json',old)
             baseline=stage('full-check',base_sha,base_full,[out/'baseline-full/actual-graph.json',out/'baseline-full/findings.json',out/'baseline-cache.json'])
             check_envelope(baseline,base_sha,'full-check')
-            current=scan(target,old)
+            current=do_scan(target,old)
             save(out/'incremental-report.json',current)
-            reference=full(target,out/'target-full')
+            reference=do_full(target,out/'target-full')
             if normalized(reference['findings']) != normalized(current['findings']):
                 raise Failure('FINDINGS_MISMATCH','Incremental/full object-target findings differ')
             md_envelope=stage('incremental-check',target_sha,current,[out/'incremental-report.json',out/'target-full/findings.json'])
@@ -141,17 +152,24 @@ def execute(request, out, job_id=None):
             patchfile=out/'candidate.patch';patchfile.write_text(diff,encoding='utf-8')
             save(out/'repair-plan.json',edits)
             stage('repair',target_sha,{'edits':edits,'input_report':artifact(out/(md_envelope['kind']+'.json'),out,job_id)},[patchfile,out/'repair-plan.json'])
-            verdict=validate(target,patchfile,out/'validation')
+            verdict=do_validate(target,patchfile,out/'validation')
             if not verdict['accepted']:
                 raise Failure('REPAIR_REJECTED',str(verdict))
-            final=full(target,out/'final-full')
+            final=do_full(target,out/'final-full')
             if any(f['type']=='MISSING' for f in final['findings']):
                 (target/'Makefile').write_bytes(before)
                 raise Failure('RECHECK_FAILED','MD remains; working-copy declaration restored')
             stage('recheck',target_sha,{'validation':verdict,'findings':final['findings'],'patched_makefile_sha256':hashlib.sha256((target/'Makefile').read_bytes()).hexdigest()},[out/'validation/validation.json',out/'final-full/findings.json'])
         result['status']='SUCCEEDED'
+        if runtime is not None:
+            result['draft_image_reused'] = bool(runtime.operations)
     except (Failure,ValueError,OSError,KeyError,subprocess.TimeoutExpired) as exc:
         result.update(status='TIMED_OUT' if isinstance(exc,subprocess.TimeoutExpired) else 'FAILED',error={'code':getattr(exc,'code','EXECUTION_FAILED'),'message':str(exc)})
+    if result['status'] != 'SUCCEEDED' and before is not None:
+        (target/'Makefile').write_bytes(before)
+        result['working_copy_makefile_restored'] = True
+    if runtime is not None:
+        result['image_operations'] = runtime.operations
     result['artifacts']=[artifact(p,out,job_id) for p in sorted(out.rglob('*')) if p.is_file() and '.git' not in p.parts and not p.is_symlink()]
     save(out/'result.json',result)
     return result
