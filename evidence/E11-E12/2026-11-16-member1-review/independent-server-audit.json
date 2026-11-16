@@ -1,0 +1,299 @@
+{
+  "reviewed_source": "64ee6c948693f8f35a30b53b31d0d69508cb7336",
+  "independent_e11e12_tests": 63,
+  "independent_e8e10_tests": 46,
+  "regression_archives": {
+    "first": "5519aed2e290b77a404324dedcd92e59e72dfd98c32582231585a0c61fa7a62e",
+    "e8_retry": "8a28dcdb2f63b6589eff5a4d4fe38d7506739d510c15df50b51c26a0a54087e7"
+  },
+  "manifest_files_verified": 1040,
+  "first_e8_failure": "3 PermissionError ./app due to reviewer tmpfs noexec; retained",
+  "mount_evidence": {
+    "first-settings-mounts.txt": "tmpfs /tmp tmpfs rw,nosuid,nodev,noexec,relatime,inode64 0 0",
+    "retry-settings-mounts.txt": "tmpfs /tmp tmpfs rw,nosuid,nodev,relatime,inode64 0 0"
+  },
+  "receipt_archive_sha256": "aaf5dab5f2bcff149cb529e65dd41f01f1a9f5b4f07cacd61cf43ebac286d8f9",
+  "receipt_cases": [
+    {
+      "case": "handoff-include",
+      "base_commit": "8071bc7e67889229e0c33b5ca104ffee00f02ffe",
+      "target_commit": "09986a8e53145e1df4c09500fafa1aeadd387dc2",
+      "job_id": "job-67e2921a96224cd584072da0cc534cde",
+      "trace_id": "trace-03ae673165fb48c69ed31a82b51e375d",
+      "status": "SUCCEEDED",
+      "accepted": true,
+      "missing_count": 0,
+      "redundant": [
+        {
+          "type": "REDUNDANT",
+          "target": "main.o",
+          "dependency": "unused.h",
+          "evidence": [
+            {
+              "source": "make_database",
+              "artifact": "make-db.txt",
+              "line": 1046,
+              "declaration": "main.o: main.c unused.h config.h extra.h"
+            }
+          ],
+          "scope": "Not observed in this recipe job under this build configuration"
+        }
+      ],
+      "envelope_sha256": "e5d798e4c35b4ecc03c8c5c31c3baa5c0ca64aa853dcf01e7d67ab6c4bdef801",
+      "payload_sha256": "e447675b734adfc10bac24bb6faa9f123b0398b06bfbed497465dfeee6f62744",
+      "patch_sha256": "88074f66c291dcad1344c48f6a2b9ddd42d235d9d0415c85fb33310c5b7cb2af",
+      "artifacts_verified": 189,
+      "execution_environment": "draft-image",
+      "draft_image_reused": true,
+      "draft_image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+      "image_operations": [
+        {
+          "operation": "validate",
+          "project_commit": "09986a8e53145e1df4c09500fafa1aeadd387dc2",
+          "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+          "actual_container_image": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+          "container_id": "c058f04b2cedfb8c65165625b1997d1c31b976d03dfc6deed20fe615dcfee32d",
+          "container_exit_code": 0,
+          "tools": {
+            "python3": "Python 3.13.16",
+            "git": "git version 2.47.3",
+            "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+            "make": "GNU Make 4.4.1",
+            "strace": "strace -- version 6.13"
+          },
+          "marker": null,
+          "code_sha256": {
+            "image_worker.py": "df64ec4d129030c548cdf8f1b64f34afc378953937357801333c2d3ee52320b6",
+            "lab.py": "726bc551f59d9caecc74ae754c79459725a10cadffd81d7995648f2f58bf5e18",
+            "fullcheck.py": "21a66422856be2d46a28db3569a9645864a83622d552841873e3c6a82fdea0e9"
+          },
+          "transport": "docker cp -a; no host bind mounts"
+        },
+        {
+          "operation": "full",
+          "project_commit": "09986a8e53145e1df4c09500fafa1aeadd387dc2",
+          "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+          "actual_container_image": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+          "container_id": "22fe73ef3c21ddd42d36cf56783aa864b0d320761846fbd9006dccd0c84c47cf",
+          "container_exit_code": 0,
+          "tools": {
+            "python3": "Python 3.13.16",
+            "git": "git version 2.47.3",
+            "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+            "make": "GNU Make 4.4.1",
+            "strace": "strace -- version 6.13"
+          },
+          "marker": null,
+          "code_sha256": {
+            "image_worker.py": "df64ec4d129030c548cdf8f1b64f34afc378953937357801333c2d3ee52320b6",
+            "lab.py": "726bc551f59d9caecc74ae754c79459725a10cadffd81d7995648f2f58bf5e18",
+            "fullcheck.py": "21a66422856be2d46a28db3569a9645864a83622d552841873e3c6a82fdea0e9"
+          },
+          "transport": "docker cp -a; no host bind mounts"
+        }
+      ]
+    },
+    {
+      "case": "handoff-body",
+      "base_commit": "09986a8e53145e1df4c09500fafa1aeadd387dc2",
+      "target_commit": "68140c398d540ffc65769ec15dcfb5f75a990e9b",
+      "job_id": "job-5abc620605d841869d649ecec85a5e65",
+      "trace_id": "trace-baa39d4b350d4db399c1f5a54dd55a3d",
+      "status": "SUCCEEDED",
+      "accepted": true,
+      "missing_count": 0,
+      "redundant": [
+        {
+          "type": "REDUNDANT",
+          "target": "main.o",
+          "dependency": "unused.h",
+          "evidence": [
+            {
+              "source": "make_database",
+              "artifact": "make-db.txt",
+              "line": 1046,
+              "declaration": "main.o: main.c unused.h config.h extra.h"
+            }
+          ],
+          "scope": "Not observed in this recipe job under this build configuration"
+        }
+      ],
+      "envelope_sha256": "e86ca36e2694cb4d8469301ddeeb84222d1b7a3e384b7b7ec300ad4d8204e012",
+      "payload_sha256": "12a8f2b2ebba3b1306ca7bb7044e63405305687a5379b80cb16303e920883524",
+      "patch_sha256": "88074f66c291dcad1344c48f6a2b9ddd42d235d9d0415c85fb33310c5b7cb2af",
+      "artifacts_verified": 189,
+      "execution_environment": "draft-image",
+      "draft_image_reused": true,
+      "draft_image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+      "image_operations": [
+        {
+          "operation": "validate",
+          "project_commit": "68140c398d540ffc65769ec15dcfb5f75a990e9b",
+          "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+          "actual_container_image": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+          "container_id": "84735925e8ba9086488a6e9997b94cbdb10ccd0e7480105c7bd5225cadbb166c",
+          "container_exit_code": 0,
+          "tools": {
+            "python3": "Python 3.13.16",
+            "git": "git version 2.47.3",
+            "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+            "make": "GNU Make 4.4.1",
+            "strace": "strace -- version 6.13"
+          },
+          "marker": null,
+          "code_sha256": {
+            "image_worker.py": "df64ec4d129030c548cdf8f1b64f34afc378953937357801333c2d3ee52320b6",
+            "lab.py": "726bc551f59d9caecc74ae754c79459725a10cadffd81d7995648f2f58bf5e18",
+            "fullcheck.py": "21a66422856be2d46a28db3569a9645864a83622d552841873e3c6a82fdea0e9"
+          },
+          "transport": "docker cp -a; no host bind mounts"
+        },
+        {
+          "operation": "full",
+          "project_commit": "68140c398d540ffc65769ec15dcfb5f75a990e9b",
+          "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+          "actual_container_image": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+          "container_id": "bba3c125a346a76f8ea3a4fff4e3db1851042f3c79aa6edbc35bb70451a5f0b6",
+          "container_exit_code": 0,
+          "tools": {
+            "python3": "Python 3.13.16",
+            "git": "git version 2.47.3",
+            "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+            "make": "GNU Make 4.4.1",
+            "strace": "strace -- version 6.13"
+          },
+          "marker": null,
+          "code_sha256": {
+            "image_worker.py": "df64ec4d129030c548cdf8f1b64f34afc378953937357801333c2d3ee52320b6",
+            "lab.py": "726bc551f59d9caecc74ae754c79459725a10cadffd81d7995648f2f58bf5e18",
+            "fullcheck.py": "21a66422856be2d46a28db3569a9645864a83622d552841873e3c6a82fdea0e9"
+          },
+          "transport": "docker cp -a; no host bind mounts"
+        }
+      ]
+    },
+    {
+      "case": "handoff-declaration",
+      "base_commit": "68140c398d540ffc65769ec15dcfb5f75a990e9b",
+      "target_commit": "f6e1e947ddfe362b57e0715e35fdca201af7c598",
+      "job_id": "job-44e7ce9af0464ca1b9820d45d926347b",
+      "trace_id": "trace-d7c8bb38a41d4d328febf28cc3cdb5b7",
+      "status": "SUCCEEDED",
+      "accepted": true,
+      "missing_count": 0,
+      "redundant": [
+        {
+          "type": "REDUNDANT",
+          "target": "main.o",
+          "dependency": "unused.h",
+          "evidence": [
+            {
+              "source": "make_database",
+              "artifact": "make-db.txt",
+              "line": 1046,
+              "declaration": "main.o: main.c unused.h config.h extra.h"
+            }
+          ],
+          "scope": "Not observed in this recipe job under this build configuration"
+        }
+      ],
+      "envelope_sha256": "bc3fb25842f7ad78086f3ac950970ab5073bd44629171d1254135633022d988f",
+      "payload_sha256": "75f8786e8b3bb35510af7d758ee198ec7de8a9ee190606231bf5451754996a7d",
+      "patch_sha256": "4f50c1a8988f0fdd8eeca49b5ef07bd4ec8f082e4d1d49707aa0318603f8782d",
+      "artifacts_verified": 189,
+      "execution_environment": "draft-image",
+      "draft_image_reused": true,
+      "draft_image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+      "image_operations": [
+        {
+          "operation": "validate",
+          "project_commit": "f6e1e947ddfe362b57e0715e35fdca201af7c598",
+          "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+          "actual_container_image": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+          "container_id": "e7c985d319441c9980345cbba3e8585af98ebe177abf13c3327c0e1fe6497874",
+          "container_exit_code": 0,
+          "tools": {
+            "python3": "Python 3.13.16",
+            "git": "git version 2.47.3",
+            "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+            "make": "GNU Make 4.4.1",
+            "strace": "strace -- version 6.13"
+          },
+          "marker": null,
+          "code_sha256": {
+            "image_worker.py": "df64ec4d129030c548cdf8f1b64f34afc378953937357801333c2d3ee52320b6",
+            "lab.py": "726bc551f59d9caecc74ae754c79459725a10cadffd81d7995648f2f58bf5e18",
+            "fullcheck.py": "21a66422856be2d46a28db3569a9645864a83622d552841873e3c6a82fdea0e9"
+          },
+          "transport": "docker cp -a; no host bind mounts"
+        },
+        {
+          "operation": "full",
+          "project_commit": "f6e1e947ddfe362b57e0715e35fdca201af7c598",
+          "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+          "actual_container_image": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+          "container_id": "a77b84780fa7ccf77b005abd25e246e4f5b74d2dd5ca9e9b6e3e1c57b7cb6f6a",
+          "container_exit_code": 0,
+          "tools": {
+            "python3": "Python 3.13.16",
+            "git": "git version 2.47.3",
+            "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+            "make": "GNU Make 4.4.1",
+            "strace": "strace -- version 6.13"
+          },
+          "marker": null,
+          "code_sha256": {
+            "image_worker.py": "df64ec4d129030c548cdf8f1b64f34afc378953937357801333c2d3ee52320b6",
+            "lab.py": "726bc551f59d9caecc74ae754c79459725a10cadffd81d7995648f2f58bf5e18",
+            "fullcheck.py": "21a66422856be2d46a28db3569a9645864a83622d552841873e3c6a82fdea0e9"
+          },
+          "transport": "docker cp -a; no host bind mounts"
+        }
+      ]
+    }
+  ],
+  "image_operations_checked": [
+    {
+      "case": "handoff-include",
+      "operation": "validate",
+      "container_id": "c058f04b2cedfb8c65165625b1997d1c31b976d03dfc6deed20fe615dcfee32d",
+      "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0"
+    },
+    {
+      "case": "handoff-include",
+      "operation": "full",
+      "container_id": "22fe73ef3c21ddd42d36cf56783aa864b0d320761846fbd9006dccd0c84c47cf",
+      "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0"
+    },
+    {
+      "case": "handoff-body",
+      "operation": "validate",
+      "container_id": "84735925e8ba9086488a6e9997b94cbdb10ccd0e7480105c7bd5225cadbb166c",
+      "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0"
+    },
+    {
+      "case": "handoff-body",
+      "operation": "full",
+      "container_id": "bba3c125a346a76f8ea3a4fff4e3db1851042f3c79aa6edbc35bb70451a5f0b6",
+      "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0"
+    },
+    {
+      "case": "handoff-declaration",
+      "operation": "validate",
+      "container_id": "e7c985d319441c9980345cbba3e8585af98ebe177abf13c3327c0e1fe6497874",
+      "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0"
+    },
+    {
+      "case": "handoff-declaration",
+      "operation": "full",
+      "container_id": "a77b84780fa7ccf77b005abd25e246e4f5b74d2dd5ca9e9b6e3e1c57b7cb6f6a",
+      "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0"
+    }
+  ],
+  "artifacts_verified_after_download": 567,
+  "input_files_verified_after_download": 270,
+  "image_provenance": "Member2 local teaching E12 DRAFT successful image; original member2 source dccc8fb0b6f78245b65a96eed1556bdae3dc6534; not A13 exported image",
+  "a13_cross_host_image_loaded": false,
+  "a13_http_participation": false,
+  "status": "PASS"
+}
