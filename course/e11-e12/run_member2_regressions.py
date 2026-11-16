@@ -8,6 +8,17 @@ import sys
 import unittest
 
 
+def discover_suite(root, suite_name):
+    selected = root / 'labs' / suite_name
+    other = root / 'labs' / ('e8e10' if suite_name == 'e11e12' else 'e11e12')
+    # Both suites have test_member3.py. unittest does not move a discovery
+    # directory to the front when it is already present in sys.path.
+    paths = [str(selected), str(other)]
+    sys.path[:] = paths + [entry for entry in sys.path if entry not in paths]
+    return unittest.TestLoader().discover(str(selected), pattern='test_*.py',
+                                         top_level_dir=str(selected))
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--suite',choices=['e11e12','e8e10'],required=True)
@@ -19,8 +30,7 @@ def main():
         p.error('Use Linux and a new OUT below work/')
     output.mkdir(parents=True)
     os.environ['M2_E11E12_TEST_OUT']=str(output/'member2-cases')
-    sys.path[:0]=[str(root/'labs/e11e12'),str(root/'labs/e8e10')]
-    suite=unittest.defaultTestLoader.discover(str(root/'labs'/args.suite),pattern='test_*.py')
+    suite=discover_suite(root,args.suite)
     result=unittest.TextTestRunner(verbosity=2).run(suite)
     summary={'status':'PASS' if result.wasSuccessful() and result.testsRun and not result.skipped else 'FAIL',
         'suite':args.suite,'tests_run':result.testsRun,'skipped':result.skipped,
