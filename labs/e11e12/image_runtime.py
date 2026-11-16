@@ -13,6 +13,7 @@ import re
 import shutil
 import subprocess
 import uuid
+import project_profile as pp
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -52,9 +53,12 @@ def validate_probe(probe):
 
 
 class ImageRuntime:
-    def __init__(self, image_id, out, probe=None):
+    def __init__(self, image_id, out, probe=None, profile=None):
         validate_image_id(image_id)
         validate_probe(probe)
+        self.profile = pp.resolve_profile(profile)
+        if self.profile is not None:
+            pp.check_environment()
         require(os.name == 'posix' and os.getuid() != 0, 'IMAGE_EXECUTION_IDENTITY',
                 'Image operations require a non-root Linux caller')
         self.image_id, self.out, self.probe = image_id, Path(out), probe
@@ -93,13 +97,16 @@ class ImageRuntime:
         sources = {'image_worker.py': Path(__file__).with_name('image_worker.py'),
                    'lab.py': ROOT / 'labs/e8e10/lab.py',
                    'fullcheck.py': ROOT / 'labs/e11e12/environment/services/buildchecker/buildchecker/fullcheck.py'}
+        if self.profile is not None:
+            sources['project_profile.py'] = Path(__file__).with_name('project_profile.py')
         hashes = {}
         for name, source in sources.items():
             shutil.copyfile(source, bundle / name)
             hashes[name] = hashlib.sha256(source.read_bytes()).hexdigest()
         if patchfile:
             shutil.copyfile(patchfile, bundle / 'candidate.patch')
-        save(bundle / 'request.json', {'operation': kind, 'old': old, 'probe': self.probe, 'code_sha256': hashes})
+        save(bundle / 'request.json', {'operation': kind, 'old': old, 'probe': self.probe, 'code_sha256': hashes,
+            'profile': self.profile, 'profile_sha256': pp.profile_hash(self.profile) if self.profile is not None else None})
         token = uuid.uuid4().hex
         create = ['docker', 'create', '--network', 'none', '--cpus', '1', '--memory', '512m',
                   '--pids-limit', '256', '--cap-drop', 'ALL', '--cap-add', 'SYS_PTRACE',
@@ -127,11 +134,15 @@ class ImageRuntime:
             response = json.loads((op / 'output/response.json').read_bytes())
             require(response['status'] == 'SUCCEEDED' and response['operation'] == kind
                     and response['uid'] == os.getuid(), 'IMAGE_OPERATION_FAILED', str(response))
+            if self.profile is not None:
+                require(response.get('profile_sha256') == pp.profile_hash(self.profile) and response['payload'].get('profile_sha256') == pp.profile_hash(self.profile),
+                        'PROFILE_HASH_MISMATCH', 'Worker/profile response binding differs')
             witness = {'operation': kind, 'project_commit': subprocess.check_output(
                 ['git', 'rev-parse', 'HEAD'], cwd=project, text=True).strip(),
                 'image_id': self.image_id, 'actual_container_image': info['Image'], 'container_id': cid,
                 'container_exit_code': info['State']['ExitCode'], 'tools': response['tools'],
                 'marker': response.get('marker'), 'code_sha256': hashes,
+                'profile_sha256': response.get('profile_sha256'),
                 'transport': 'docker cp -a; no host bind mounts'}
             save(op / 'execution.json', witness)
             self.operations.append(witness)

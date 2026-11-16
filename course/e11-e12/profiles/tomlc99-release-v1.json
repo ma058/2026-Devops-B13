@@ -1,0 +1,42 @@
+{
+  "schema_version": "b13-project-profile-1",
+  "id": "a13-tomlc99-release-1",
+  "units": [
+    [
+      "toml.o",
+      "toml.c"
+    ]
+  ],
+  "repair_targets": [
+    "toml.o"
+  ],
+  "clean_argv": [
+    "make",
+    "clean"
+  ],
+  "build_argv": [
+    "make",
+    "toml_json"
+  ],
+  "run_argv": [
+    "./toml_json"
+  ],
+  "stdin_hex": "",
+  "stdout_hex": "7b7d0a",
+  "exit_code": 0,
+  "effective_flags": [
+    "-std=c99",
+    "-Wall",
+    "-Wextra",
+    "-fpic",
+    "-O2",
+    "-DNDEBUG"
+  ],
+  "header_probe": {
+    "path": "toml.h",
+    "append_hex": "0a2f2a2065313165313220646570656e64656e63792070726f6265202a2f0a"
+  },
+  "recursive_scan": false,
+  "strict_sources": false,
+  "makefile_template_sha256": "9247cc0f838a47456213d49d4aed2af11c6ba4c17b67dfff81d58aa486fb2c15"
+}
