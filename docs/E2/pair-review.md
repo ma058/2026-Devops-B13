@@ -88,7 +88,7 @@ B13 独立校验器 `scripts/validate_v2.py` 的四处缺陷已修复（8 份 A1
 | 2 | B13 用独立 commit 更新 fixtures/validator/tests | 完成（PR #27，合并于 main `1d7f4839…`） |
 | 3 | 双方交换完整 commit SHA | 完成：A13 `931563895a40df91a326cac5791e089d767e49a7` / B13 `1d7f4839eff567aa7037d431df86952f24076c4d` |
 | 4 | B13 读取 A13 v2 report；A13 读取 B13 v2 REPAIR/report | 完成：A13 互读 B13 19 原件（2 有效接受、17 负例拒绝）；B13 重放 A13 16 项定向测试并读取 A13 6 样例（1 有效接受、5 负例拒绝） |
-| 5 | 双方记录文件 SHA-256 | 完成：B13 manifest.json（19 文件全量）；A13 v2-interop.json（19 份记录），A13 validator SHA-256 `20ae9007cd184404ceb07080222d5af91dbb49d35805019e07d91e2ea56a4023` |
+| 5 | 双方记录文件 SHA-256 | 完成：B13 `contracts/paired/a13-v2/manifest.json` 登记 8 个 A13 固定快照文件；A13 `frozen-interop.json` 登记 19 份 B13 样例（2 有效、17 负例），A13 validator SHA-256 `20ae9007cd184404ceb07080222d5af91dbb49d35805019e07d91e2ea56a4023` |
 | 6 | 两边文档写入同一组固定 commit | **完成：双方共同标记 frozen（2026-11-16）** |
 
 ### v2 冻结登记回填（2026-11-16，成员3 依 A13 回执执行）
@@ -96,5 +96,6 @@ B13 独立校验器 `scripts/validate_v2.py` 的四处缺陷已修复（8 份 A1
 - 状态：**FROZEN_FIXED_PAIR**（A13 `pair13-finding-report-v2.freeze.json`）
 - 固定对：A13 `931563895a40df91a326cac5791e089d767e49a7` / B13 `1d7f4839eff567aa7037d431df86952f24076c4d`（即实际互读执行版本；**不以后续文档 head 替换**）
 - A13 冻结登记归档提交：`069ef09263bb08ca3deba541813e722013006fab`（A13 PR #16）；冻结登记脚本实际执行 `196d84ff89cee65afd678b1f5c48d6a28fb078f8`
-- B13 公开 ACK：`evidence/coordination/20261116/B13_V2_ACK_20261116.md`（SHA-256 `367ff249…a8d5`，公共归档提交 `e3bc9a91`＝PR #33 head，待其合并）
+- B13 公开 ACK 原件：`docs/E2/V2_B13_ACK_20261116.md`，归档提交 `e3bc9a9105b508636945ff250ae57a336c2b07b4`（PR #33，待正常合并）。A13 保存的逐字节副本位于 `evidence/coordination/20261116/B13_V2_ACK_20261116.md`，归档提交为上述 `069ef092…`。两份 SHA-256 均为 `367ff249aa4783072d56e37ea52e47bfbabd1bbc5c2211c3854b7be30044a8d5`。
+- 双方固定版本技术冻结已达成；本登记随 PR #35 合入 main 的状态另行记录，不把文档 PR 尚未合并写成技术互读未完成。
 - 范围：仅 E2 finding-report 2.0；E11 的 e11e12-1/e8e10-1 与运行时/环境验收为独立工作线，不在本冻结内
