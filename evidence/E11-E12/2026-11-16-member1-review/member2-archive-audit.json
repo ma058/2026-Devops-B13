@@ -1,0 +1,176 @@
+{
+  "peer_archive_sha256": "a4030eaabb292f1663ecadc1ebccd3193e7e6da0cff18f65fde8a9dd2029d06a",
+  "archive_members": 12279,
+  "archive_link_members_not_extracted": 0,
+  "source_sha": "dccc8fb0b6f78245b65a96eed1556bdae3dc6534",
+  "reviewed_head": "64ee6c948693f8f35a30b53b31d0d69508cb7336",
+  "implementation_file_hashes_matched": 56,
+  "scope": "Read-only verification of member2 executed evidence; not member1 Docker execution",
+  "regressions": {
+    "e11e12": {
+      "tests_run": 63,
+      "skipped": 0,
+      "status": "PASS"
+    },
+    "e8e10": {
+      "tests_run": 46,
+      "skipped": 0,
+      "status": "PASS"
+    }
+  },
+  "image_operations": [
+    {
+      "case": "e12",
+      "operation": "full",
+      "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+      "container_id": "f238527a5766ab995b2506acbc7090c3310392c153935edd417c7990a7f29d34",
+      "uid": 1001,
+      "raw_inspects_checked": 2
+    },
+    {
+      "case": "e12",
+      "operation": "scan",
+      "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+      "container_id": "36508186ede497b7a1fbe3ebca20eeb2718f63630aa86c31286bcda33f4562d3",
+      "uid": 1001,
+      "raw_inspects_checked": 2
+    },
+    {
+      "case": "e12",
+      "operation": "scan",
+      "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+      "container_id": "b167637a646eb8207a9a98e3a9935c7b7c4799c96b9ccd3404af2e602b21a3b5",
+      "uid": 1001,
+      "raw_inspects_checked": 2
+    },
+    {
+      "case": "e12",
+      "operation": "full",
+      "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+      "container_id": "cac98be3a12cd61ddae0545ac6b72e412955bb96b8ed9b026a1a025283680366",
+      "uid": 1001,
+      "raw_inspects_checked": 2
+    },
+    {
+      "case": "e12",
+      "operation": "validate",
+      "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+      "container_id": "eee295ca63731c6bac11ec1420f3bf4a7a1d39354148c61b2cbf42e34c8c923a",
+      "uid": 1001,
+      "raw_inspects_checked": 2
+    },
+    {
+      "case": "e12",
+      "operation": "full",
+      "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+      "container_id": "d1160e3c8ccb939a38956cfca4d61afaec65eed52de4bc16dfb6c61660772fd1",
+      "uid": 1001,
+      "raw_inspects_checked": 2
+    },
+    {
+      "case": "e11-b",
+      "operation": "validate",
+      "image_id": "sha256:c5a156263b51909f48030a3a1ea75c36588a55d65dd46fe50c562b28ddec297d",
+      "container_id": "92a66d8377d4f5ea7d57d56480b588a27c1a5ea996f1247a6767a6316177779f",
+      "uid": 1001,
+      "raw_inspects_checked": 2
+    },
+    {
+      "case": "e11-b",
+      "operation": "full",
+      "image_id": "sha256:c5a156263b51909f48030a3a1ea75c36588a55d65dd46fe50c562b28ddec297d",
+      "container_id": "e138ef685b8ce189bf844ed5cb107821e43e7891388b3fcca95cd544f3d0e59a",
+      "uid": 1001,
+      "raw_inspects_checked": 2
+    },
+    {
+      "case": "consumer",
+      "operation": "validate",
+      "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+      "container_id": "8a9dd1de62337922a0054f9d8580055d4f93233e0496ddffeffc68a96f9d0d21",
+      "uid": 1001,
+      "raw_inspects_checked": 2
+    },
+    {
+      "case": "consumer",
+      "operation": "full",
+      "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+      "container_id": "e2797a670ac3dbf501d126a0f4cfc6bec5dddb24bdb54f624162d35ad1e9f1f8",
+      "uid": 1001,
+      "raw_inspects_checked": 2
+    }
+  ],
+  "artifact_references_checked": 962,
+  "eight_cases": [
+    {
+      "case": "e12",
+      "status": "PASS",
+      "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+      "operations": [
+        "full",
+        "scan",
+        "scan",
+        "full",
+        "validate",
+        "full"
+      ]
+    },
+    {
+      "case": "e11-b",
+      "status": "PASS",
+      "image_id": "sha256:c5a156263b51909f48030a3a1ea75c36588a55d65dd46fe50c562b28ddec297d",
+      "operations": [
+        "validate",
+        "full"
+      ]
+    },
+    {
+      "case": "consumer",
+      "status": "PASS",
+      "image_id": "sha256:c2e79b20c4f8019b6ca2cf98f8eaa57502cc246ff90b002edc298f3285a187d0",
+      "operations": [
+        "validate",
+        "full"
+      ]
+    },
+    {
+      "case": "mutable-tag",
+      "status": "PASS",
+      "rejection": "INVALID_IMAGE_ID"
+    },
+    {
+      "case": "missing-id",
+      "status": "PASS",
+      "rejection": "INVALID_IMAGE_ID"
+    },
+    {
+      "case": "absent-image",
+      "status": "PASS",
+      "rejection": {
+        "code": "IMAGE_COMMAND_FAILED",
+        "message": "Inspect /course/work/m2-e11e12-20261111-134430-krozl6/delivery-20261116-w34xJr/retest/image-tests/absent-image/image-execution/01-validate/01-image"
+      }
+    },
+    {
+      "case": "wrong-environment",
+      "status": "PASS",
+      "rejection": {
+        "code": "IMAGE_OPERATION_FAILED",
+        "message": "Container failed; inspect /course/work/m2-e11e12-20261111-134430-krozl6/delivery-20261116-w34xJr/retest/image-tests/wrong-environment/image-execution/01-validate"
+      }
+    },
+    {
+      "case": "missing-tool",
+      "status": "PASS",
+      "image_id": "sha256:b6b59c69a4f0baae02ae207a0a0f2e01f003f8842f82fd647e3931fb9b717ea6",
+      "error": "IMAGE_TOOL_MISSING: strace"
+    }
+  ],
+  "original_received_bytes_match": true,
+  "status": "PASS",
+  "notes": [
+    "Original reports retain pending real-project/A13 scope.",
+    "Invalid-tag/missing-ID rejection has summary evidence and absence of workspace; no worker should run.",
+    "No peer archive content was executed or extracted."
+  ]
+}
