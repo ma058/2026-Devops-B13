@@ -87,3 +87,20 @@ AI生成代码仍可能存在缺陷；本次实测覆盖课程两源文件显式
 真实项目来源、版本化通用配置、A13原始报告及镜像交接暂缓；本人未做服务重启恢复试验。当前没有该个人提交的远端CI、Draft PR和最终head实质Review交付证据。后续如补充这些工作，应以新原件更新文档并追加提交，不回写旧归档或伪造已完成状态。
 
 原归档不含后来生成的三份文档和Docker镜像二进制；文档通过单独安装包交付，镜像跨机传递仍待实际需要及授权。报告/ADR的最终审核和提交责任由本人承担。
+
+
+## 本人真实 tomlc99 适配与验收补充
+
+AI 协助分析收到的材料、实现 profile/执行驱动/测试、编写可复制命令。本地 Windows 契约测试和服务器实际容器实验分别记账；Windows 符号链接用例曾跳过，未当成正式门禁通过。本节由脚本读取本人实际 summary、校验当前源码与报告工件后生成；收到的成员一、成员三、A13 日志不计成本人执行。仍须人工核对范围、执行 SHA、镜像 ID、原始证据与本次最终提交；未授权自动合并。
+
+本次执行代码 SHA：`c8ed0dcc92017e6ec8ecf4b2bb228c5b94cc6f2d`。profile canonical SHA256：`0f2bc52c0e791b97a833c1c4a22c70d6cd72a97befc3959c578ccf5c85d40ee1`。
+
+E11–E12 回归 74 项、E8–E10 回归 46 项，均无跳过/失败/错误。本人真实 E11-B、E12、独立消费及 8 类拒绝检查通过。E11-B 固定报告由本人依据已核验 C1 建立，明确不冒充 A13 原始 incremental 报告；独立消费保留本次 E12 两份原始报告字节及其 SHA256。
+
+E12 DRAFT：`sha256:2a9765dff295ddb466b9679122c289937c70e65ab90bd011f8805af23bebc651`；HTTP DRAFT：`sha256:42ff007e5dd1b8c7e63ed2d9ac79b730119fa698a0fe078ecce76794b3594841`。full/scan/validate/recheck 的真实容器镜像、工具版本、worker代码哈希和退出码见原始 execution.json。新镜像包含 git/strace，不是原 A13 de2ea79e 镜像；没有静默回退编排器。
+
+本人 loopback 8082 job：`job-4771c494abce47bc84392034397bcbf3`，完成 POST、轮询、原始工件下载/哈希核对、同键幂等及 409 冲突。此结果不是 A13 客户端正式跨机联调，也不代表共享 8081 已部署本次代码。
+
+**验收范围仅 toml.o。** 保留全量 findings 中的 `MISSING(toml_json,toml.h)`；不能写成全项目零缺失。头文件注释变更通过真实编译器 exec/argv 与对象更新时间证明重编译，不要求对象哈希改变。
+
+证据路径：formal `/home/m2_241880091/241880091/2026-Devops-B13-e11-e12-tomlc99/work/member2-profile-install-OXkxen/formal-attempt-H7jhIV/results`；HTTP `/home/m2_241880091/241880091/2026-Devops-B13-e11-e12-tomlc99/work/member2-profile-install-OXkxen/http-attempt-ASe6ie/results`；回归 `/home/m2_241880091/241880091/2026-Devops-B13-e11-e12-tomlc99/work/member2-profile-install-OXkxen/regressions-9dMRGt`。

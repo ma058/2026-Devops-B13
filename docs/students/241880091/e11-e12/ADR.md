@@ -92,3 +92,20 @@ patch先在编排器生成精确候选，不修改原始数据仓库。validate�
 ## 后续条件
 
 取得真实项目来源/许可、C0/C1和独立预期后扩展配置；取得A13原始报告及实际镜像后完成传输/加载校验与独立消费；对最终提交核验CI和实质Review。继续保持Draft及待办状态，不因教学样例通过自动合并或宣布整个E11–E12完成。
+
+
+## 本人真实 tomlc99 适配与验收补充
+
+决策：新增显式版本化的受限 tomlc99 release profile，教学逻辑继续使用原入口默认分支。只有已审计 Makefile 的 toml.o 依赖行允许加项，其余字节和配方必须不变；不引入通用 Makefile 重写器。两入口、worker 和报告绑定同一 canonical hash，拒绝未知字段、外部 flags 覆盖及错误版本。缓存键包含编译器身份/版本、有序有效 flags、profile、对象映射、源码与 Makefile 字节。代价：其他项目或 Makefile 布局须单独审计并版本化；当前真实项目全量残留仍明确开放。
+
+本次执行代码 SHA：`c8ed0dcc92017e6ec8ecf4b2bb228c5b94cc6f2d`。profile canonical SHA256：`0f2bc52c0e791b97a833c1c4a22c70d6cd72a97befc3959c578ccf5c85d40ee1`。
+
+E11–E12 回归 74 项、E8–E10 回归 46 项，均无跳过/失败/错误。本人真实 E11-B、E12、独立消费及 8 类拒绝检查通过。E11-B 固定报告由本人依据已核验 C1 建立，明确不冒充 A13 原始 incremental 报告；独立消费保留本次 E12 两份原始报告字节及其 SHA256。
+
+E12 DRAFT：`sha256:2a9765dff295ddb466b9679122c289937c70e65ab90bd011f8805af23bebc651`；HTTP DRAFT：`sha256:42ff007e5dd1b8c7e63ed2d9ac79b730119fa698a0fe078ecce76794b3594841`。full/scan/validate/recheck 的真实容器镜像、工具版本、worker代码哈希和退出码见原始 execution.json。新镜像包含 git/strace，不是原 A13 de2ea79e 镜像；没有静默回退编排器。
+
+本人 loopback 8082 job：`job-4771c494abce47bc84392034397bcbf3`，完成 POST、轮询、原始工件下载/哈希核对、同键幂等及 409 冲突。此结果不是 A13 客户端正式跨机联调，也不代表共享 8081 已部署本次代码。
+
+**验收范围仅 toml.o。** 保留全量 findings 中的 `MISSING(toml_json,toml.h)`；不能写成全项目零缺失。头文件注释变更通过真实编译器 exec/argv 与对象更新时间证明重编译，不要求对象哈希改变。
+
+证据路径：formal `/home/m2_241880091/241880091/2026-Devops-B13-e11-e12-tomlc99/work/member2-profile-install-OXkxen/formal-attempt-H7jhIV/results`；HTTP `/home/m2_241880091/241880091/2026-Devops-B13-e11-e12-tomlc99/work/member2-profile-install-OXkxen/http-attempt-ASe6ie/results`；回归 `/home/m2_241880091/241880091/2026-Devops-B13-e11-e12-tomlc99/work/member2-profile-install-OXkxen/regressions-9dMRGt`。
