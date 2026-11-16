@@ -1,0 +1,84 @@
+{
+  "schema_version": "b13-ssh-administrator-summary-1",
+  "review_date": "2026-11-16",
+  "review_method": "Independent file review of administrator readonly export, member3 record and prior A13 client correlation",
+  "status": "ADMINISTRATOR_LOG_FOLLOWUP_COMPLETE",
+  "collected_utc": "2026-11-16T09:48:44.904486Z",
+  "time_note": "Original collection timestamp includes +08:00; this index converts the offset to UTC without rewriting the original.",
+  "source_index": [
+    {
+      "name": "member3-ssh-preverify-20261116.md",
+      "sha256": "1268b9564fb6defe172c6039f6520d94f7e075b3339e4dd455e104612b60c2b4",
+      "reported_hash_matches": true,
+      "scope": "Member3 B13-side configuration and health record plus own unauthorized-key negative"
+    },
+    {
+      "name": "sshd-private-audit.json",
+      "sha256": "3ec3ebbff26d5bd18a65a7096b1e634d80de89a6c5ec837ea368619f5dbf7c02",
+      "availability": "Private team evidence only; original not included in public Git",
+      "filter": "Target account mentions and associated sshd process events within bounded windows"
+    }
+  ],
+  "effective_restrictions": {
+    "authentication": "publickey only",
+    "maxsessions": "0",
+    "permittty": "no",
+    "forcecommand": "nologin",
+    "allowtcpforwarding": "local",
+    "permitopen": "Only the previously authorized loopback API destination; address omitted",
+    "permitlisten": "none",
+    "allowstreamlocalforwarding": "no",
+    "allowagentforwarding": "no",
+    "x11forwarding": "no",
+    "permittunnel": "no",
+    "extra_groups": false,
+    "account_expiry_date": "2026-11-23",
+    "sshd_syntax_check_exit": 0,
+    "configuration_or_permission_changes": false
+  },
+  "a13_client_correlation": {
+    "window_start_utc": "2026-11-16T05:27:00Z",
+    "window_end_utc": "2026-11-16T05:29:00Z",
+    "selected_event_count": 20,
+    "authorized_publickey_authentications": 7,
+    "pam_contexts_opened": 7,
+    "pam_contexts_closed": 6,
+    "authentication_processes_match_prior_index": true,
+    "all_authentications_match_authorized_key": true,
+    "client_observed_allowed_health_tunnel": true,
+    "client_observed_forbidden_channels_not_established": [
+      "exec", "PTY", "SFTP", "other TCP destination", "remote forwarding", "Unix socket forwarding"
+    ],
+    "association": "Same authorized account and key plus chronological correlation; no shared client/server request identifier",
+    "server_log_level": "INFO",
+    "individual_rejection_rule_directly_logged": false,
+    "pam_open_is_not_session_channel_authorization": true
+  },
+  "member3_correlation": {
+    "recorded_health_check_utc": "2026-11-16T05:50:05Z",
+    "journal_window_start_utc": "2026-11-16T05:40:00Z",
+    "journal_window_end_utc": "2026-11-16T06:05:00Z",
+    "preauthentication_disconnect_utc": "2026-11-16T05:50:16.590920Z",
+    "association": "Time-window correlation only",
+    "successful_authentication_in_selected_events": false,
+    "operator_or_offered_key_proved_by_server_log": false,
+    "client_exit_code_proved_by_server_log": false,
+    "client_error_and_exit_255_source": "Member3 personal record"
+  },
+  "current_process_observation": {
+    "account_processes_listed": 0,
+    "query_exit_code": 1,
+    "stderr_empty": true,
+    "scope": "Point-in-time observation; does not create a missing historical PAM close event"
+  },
+  "experiment_scope": {
+    "precheck_deployment_source": "9cf6d26e0abba6477bd41e3fd9c54aaf19c54961",
+    "new_E12_formal_execution_established_by_this_audit": false,
+    "formal_execution_requires_separate_evidence": [
+      "POST", "polling", "artifact download and verification", "idempotency", "409 conflict"
+    ]
+  },
+  "ssh_precheck_rerun_required": false,
+  "next_action": "Close administrator SSH-log followup; retain normal approval and deployment workflow, then have A13 complete its own formal E12 run.",
+  "privacy": "Public summary omits login identity, IP addresses, key fingerprints, host identifiers and access instructions."
+}
