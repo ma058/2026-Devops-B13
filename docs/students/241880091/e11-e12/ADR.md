@@ -112,3 +112,14 @@ E12 DRAFT：`sha256:2a9765dff295ddb466b9679122c289937c70e65ab90bd011f8805af23beb
 **验收范围仅 toml.o。** 保留全量 findings 中的 `MISSING(toml_json,toml.h)`；不能写成全项目零缺失。头文件注释变更通过真实编译器 exec/argv 与对象更新时间证明重编译，不要求对象哈希改变。
 
 证据路径：formal `/home/m2_241880091/241880091/2026-Devops-B13-e11-e12-tomlc99/work/member2-profile-install-OXkxen/formal-attempt-H7jhIV/results`；HTTP `/home/m2_241880091/241880091/2026-Devops-B13-e11-e12-tomlc99/work/member2-profile-install-OXkxen/http-attempt-ASe6ie/results`；回归 `/home/m2_241880091/241880091/2026-Devops-B13-e11-e12-tomlc99/work/member2-profile-install-OXkxen/regressions-9dMRGt`。
+
+
+## 2026-11-17 跨组交付进展（回执仍待收）
+
+已发布[真实项目交接预发布包](https://github.com/ma058/2026-Devops-B13/releases/tag/member2-tomlc99-handoff-20261117-d47ac126)，含新DRAFT镜像、小型白名单交接ZIP及SHA256SUMS。小包保留原始incremental envelope/payload字节，提供profile、源码恢复材料、公开代码bundle、接收独立消费和正式HTTP客户端脚本。已直接通知A13 241870063并抄送成员一，见[A13交付登记](https://github.com/Dufunare/2026-Devops-A13/pull/17#issuecomment-6922793749)；已向成员三登记轮转审阅与独立验证，见[B13协作记录](https://github.com/ma058/2026-Devops-B13/pull/37#issuecomment-6922794985)。
+
+本次交付代码固定d47ac126f58046406c86c35fc3eecb100e3cc535；本人实测代码与镜像证据仍沿用前节，不因发送材料而生成新的运行结论。客户端输入校验5项及恢复C1的154文件复算通过；这些是交付脚本本地检查，不是A13本人实跑。
+
+**当前仅“发布、直接交付通知、抄送”完成。** A13签收/实际load与独立消费原件、成员三最终Review、成员一按正常流程批准的tomlc99部署回执、A13本人正式跨机HTTP及服务端关联原件仍待收到。新任务单称教学API已上线，但不能由此认定tomlc99已部署。部署模板明确PENDING，客户端会拒绝缺少批准及源码绑定的记录。最终三文档与归档只能在收到这些真实原件后收口。范围仍限toml.o，保留toml_json相关全量finding。
+
+字段与状态见[跨组交付索引](CROSS_GROUP_HANDOFF_20261117.json)。

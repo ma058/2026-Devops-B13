@@ -1,0 +1,36 @@
+{
+  "schema_version": "member2-crossgroup-progress-1",
+  "date": "2026-11-17",
+  "release": "https://github.com/ma058/2026-Devops-B13/releases/tag/member2-tomlc99-handoff-20261117-d47ac126",
+  "pr": "https://github.com/ma058/2026-Devops-B13/pull/37",
+  "frozen_handoff_code_head": "d47ac126f58046406c86c35fc3eecb100e3cc535",
+  "original_tested_source": "c8ed0dcc92017e6ec8ecf4b2bb228c5b94cc6f2d",
+  "image_id": "sha256:2a9765dff295ddb466b9679122c289937c70e65ab90bd011f8805af23bebc651",
+  "image_archive_sha256": "4d8fda75dcbcd4a61949b4892bf114f11c0191c476ec54f99419edf359c0f978",
+  "handoff_zip_sha256": "18bb875962ab552cd577f262ef0a1a3ddba075736f6ad36d50a63d1d2a676bea",
+  "profile_sha256": "0f2bc52c0e791b97a833c1c4a22c70d6cd72a97befc3959c578ccf5c85d40ee1",
+  "a13_delivery_comment": "https://github.com/Dufunare/2026-Devops-A13/pull/17#issuecomment-6922793749",
+  "b13_coordination_comment": "https://github.com/ma058/2026-Devops-B13/pull/37#issuecomment-6922794985",
+  "status": {
+    "package_publication": "COMPLETE",
+    "direct_contact_and_cc": "COMPLETE",
+    "recipient_acknowledgement": "PENDING",
+    "recipient_independent_execution": "PENDING",
+    "member3_review": "PENDING",
+    "tomlc99_deployment": "PENDING_MAINTAINER_WORKFLOW",
+    "a13_formal_cross_machine_http": "PENDING",
+    "final_evidence_closure": "PENDING_EXTERNAL_ORIGINALS"
+  },
+  "supplied_scripts": [
+    "receive_handoff.py: verify + real load/inspect/tool/program/independent consume",
+    "http_acceptance.py: refuse unapproved deployment; real POST/poll/download/idempotency/409"
+  ],
+  "local_validation": {
+    "script_contract_tests": 5,
+    "restored_C1_files_verified": 154,
+    "receiver_Docker_executed_by_sender": false,
+    "A13_client_executed_by_sender": false
+  },
+  "scope": "toml.o only; retain MISSING(toml_json,toml.h)",
+  "new_task_reconciliation": "Items 1-5 already evidenced by PR37; item6 direct handoff/contact now sent. Teaching deployment claim does not establish tomlc99 deployment."
+}
