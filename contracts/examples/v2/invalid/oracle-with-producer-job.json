@@ -1,0 +1,17 @@
+{
+  "schema_version": "2.0",
+  "report_id": "b13-bad-oracle-job",
+  "repository": {
+    "url": "https://github.com/example/b13-demo.git",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "configuration_id": "gcc-default",
+  "environment": {
+    "os": "linux",
+    "arch": "x86_64"
+  },
+  "detector": "B13_MANUAL_ORACLE",
+  "provenance": "B13 negative fixture: oracle/manual reports must not carry producer_job_id",
+  "producer_job_id": "job-b13-manual-001",
+  "findings": []
+}

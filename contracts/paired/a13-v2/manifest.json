@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "source_repository": "https://github.com/Dufunare/2026-Devops-A13",
+  "source_commit": "c4364e96521a8729fe11695c030916e1746eca1b",
+  "source_context": "A13 introduced the finding-report 2.0 candidate (schema + examples + validator + tests) in this commit on 2026-10-10; see A13 docs/E2/B13_REVIEW_RESPONSE_2026-10-10.md and docs/E2/PAIR_REVIEW.md",
+  "retrieved_at": "2026-11-10",
+  "files": [
+    {
+      "snapshot_path": "schemas/pair13-finding-report-v2.schema.json",
+      "source_path": "contracts/schemas/pair13-finding-report-v2.schema.json",
+      "upstream_sha256": "96f7374f484ad55ddab56989eaf9fbffb8d5d2636df7520be648ba9af2303f3e",
+      "snapshot_sha256": "96f7374f484ad55ddab56989eaf9fbffb8d5d2636df7520be648ba9af2303f3e"
+    },
+    {
+      "snapshot_path": "examples/md-report.valid.json",
+      "source_path": "contracts/examples/v2/md-report.valid.json",
+      "upstream_sha256": "5d4682258615043bc1211ef60a8979daf9f38ebcfca0468728ace279138a83e9",
+      "snapshot_sha256": "5d4682258615043bc1211ef60a8979daf9f38ebcfca0468728ace279138a83e9"
+    },
+    {
+      "snapshot_path": "examples/invalid/empty-evidence.json",
+      "source_path": "contracts/examples/v2/invalid/empty-evidence.json",
+      "upstream_sha256": "b60dd63eb4872a9728cda7a7ea64070f68b9b42ab1ab697dda647ca1f75e1a2a",
+      "snapshot_sha256": "b60dd63eb4872a9728cda7a7ea64070f68b9b42ab1ab697dda647ca1f75e1a2a"
+    },
+    {
+      "snapshot_path": "examples/invalid/tool-without-producer-job.json",
+      "source_path": "contracts/examples/v2/invalid/tool-without-producer-job.json",
+      "upstream_sha256": "20acea313d0a0d682e4f0296791334963b2f8068a8ae57f96835bbcf24eec82c",
+      "snapshot_sha256": "20acea313d0a0d682e4f0296791334963b2f8068a8ae57f96835bbcf24eec82c"
+    },
+    {
+      "snapshot_path": "examples/invalid/unknown-core-field.json",
+      "source_path": "contracts/examples/v2/invalid/unknown-core-field.json",
+      "upstream_sha256": "59361215180a89e6be001d56e468549c7a1145f514883059fed8d4de95c0972c",
+      "snapshot_sha256": "59361215180a89e6be001d56e468549c7a1145f514883059fed8d4de95c0972c"
+    },
+    {
+      "snapshot_path": "examples/invalid/unresolved-with-path.json",
+      "source_path": "contracts/examples/v2/invalid/unresolved-with-path.json",
+      "upstream_sha256": "6abe55dc6a94ca006c3cab27e8fbf84d6291f80395cda94a37152dc61903fe9f",
+      "snapshot_sha256": "6abe55dc6a94ca006c3cab27e8fbf84d6291f80395cda94a37152dc61903fe9f"
+    },
+    {
+      "snapshot_path": "examples/invalid/unsafe-dependency.json",
+      "source_path": "contracts/examples/v2/invalid/unsafe-dependency.json",
+      "upstream_sha256": "0d4e8235ed06f82c71c6731c9e4e1e0fc551f9ab8d5e31eeb3d3a22d576903ab",
+      "snapshot_sha256": "0d4e8235ed06f82c71c6731c9e4e1e0fc551f9ab8d5e31eeb3d3a22d576903ab"
+    },
+    {
+      "snapshot_path": "validator/validate_e2_v2.py",
+      "source_path": "scripts/validate_e2_v2.py",
+      "upstream_sha256": "d3fe4f9da364ce5fa9e4394eb9c45ce9b90d34fb77bdf866050510c2e4941804",
+      "snapshot_sha256": "d3fe4f9da364ce5fa9e4394eb9c45ce9b90d34fb77bdf866050510c2e4941804"
+    }
+  ]
+}

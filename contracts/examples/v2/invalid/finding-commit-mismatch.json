@@ -1,0 +1,36 @@
+{
+  "schema_version": "2.0",
+  "report_id": "b13-bad-commit-mismatch",
+  "repository": {
+    "url": "https://github.com/example/b13-demo.git",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "configuration_id": "gcc-default",
+  "environment": {
+    "os": "linux",
+    "arch": "x86_64"
+  },
+  "detector": "B13_MANUAL_ORACLE",
+  "provenance": "B13 negative fixture: a finding-level commit, when present, must equal repository.commit",
+  "producer_job_id": null,
+  "findings": [
+    {
+      "finding_id": "f1",
+      "type": "MISSING",
+      "target": "main.o",
+      "dependency": "config.h",
+      "commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "location": {
+        "status": "RESOLVED",
+        "path": "Makefile",
+        "line": 1
+      },
+      "evidence": [
+        {
+          "kind": "MANUAL_ANALYSIS",
+          "detail": "fixture"
+        }
+      ]
+    }
+  ]
+}
