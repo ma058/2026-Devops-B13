@@ -18,8 +18,12 @@
     "recipient_independent_execution": "PENDING",
     "member3_review": "PENDING",
     "tomlc99_deployment": "PENDING_MAINTAINER_WORKFLOW",
-    "a13_formal_cross_machine_http": "PENDING",
-    "final_evidence_closure": "PENDING_EXTERNAL_ORIGINALS"
+    "a13_formal_cross_machine_http": "PENDING_TOMLC99_ONLY",
+    "final_evidence_closure": "PENDING_EXTERNAL_ORIGINALS",
+    "teaching_a13_formal_http": "COUNTERSIGNED_FROM_ORIGINALS",
+    "a13_real06_archive_receipt": "OFFLINE_VERIFIED_WITH_GAPS",
+    "a13_real06_runtime_receipt": "NOT_RUN",
+    "external_profile_contract": "REJECTED_PROFILE_HASH_MISMATCH"
   },
   "supplied_scripts": [
     "receive_handoff.py: verify + real load/inspect/tool/program/independent consume",
@@ -32,5 +36,11 @@
     "A13_client_executed_by_sender": false
   },
   "scope": "toml.o only; retain MISSING(toml_json,toml.h)",
-  "new_task_reconciliation": "Items 1-5 already evidenced by PR37; item6 direct handoff/contact now sent. Teaching deployment claim does not establish tomlc99 deployment."
+  "new_task_reconciliation": "Items 1-5 already evidenced by PR37; item6 direct handoff/contact now sent. Teaching deployment claim does not establish tomlc99 deployment.",
+  "receipt_index": "A13_RECEIPTS_20261117.json",
+  "receipt_links": {
+    "teaching": "https://github.com/Dufunare/2026-Devops-A13/pull/16#issuecomment-6935852744",
+    "real06_followup": "https://github.com/Dufunare/2026-Devops-A13/pull/17#issuecomment-6935853721"
+  },
+  "scope_note": "Teaching HTTP closed separately; A13 6907 new image receipt does not establish A13 receipt of B13 2a9765 image."
 }
