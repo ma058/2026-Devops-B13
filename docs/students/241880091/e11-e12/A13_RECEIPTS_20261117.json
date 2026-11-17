@@ -1,0 +1,180 @@
+{
+  "schema_version": "member2-a13-receipts-1",
+  "date": "2026-11-17",
+  "input_files": {
+    "给成员二_后续真实项目任务.md": {
+      "sha256": "c4039286e7c6d5361cf2813c17ef88c9c8e6dbd20796a28daf2dfd11a93b3153",
+      "bytes": 2179
+    },
+    "A13_给B13_正式教学E12本人执行回包_20261117.zip": {
+      "sha256": "90efb8bdbeb48a45c7465ce3d6ac8575464399d3d7e24570233e1ced88438aed",
+      "bytes": 1244460
+    },
+    "A13_241870063_给B13_镜像贯通修复与新成品交付_20261117.md": {
+      "sha256": "e6ef1a70af099f0b9a004660e3082a7a8f8d65c7e0f145ecf922af5808ce838e",
+      "bytes": 4966
+    },
+    "A13_241870063_real06-inimage_20261117.tar.gz": {
+      "sha256": "31dd1757583097383888a8fa58e41e229710cdf35792ff9767493912658a8870",
+      "bytes": 860575
+    },
+    "A13_E12_real06_DRAFT_6907c50a_20261117.tar.gz": {
+      "sha256": "ca2ae3a59751208357537c2dd3f3867529c77b386ba8e56335c6ce9bd56f0f62",
+      "bytes": 180106141
+    }
+  },
+  "teaching": {
+    "status": "ACCEPTED_OFFLINE_EVIDENCE",
+    "scope": "A13 241830088 teaching E12 client run; not tomlc99",
+    "manifest_files": 1614,
+    "http_exchanges": 522,
+    "http_status_counts": {
+      "GET 200": 519,
+      "POST 202": 2,
+      "POST 409": 1
+    },
+    "downloads": 512,
+    "job_id": "job-a3c1043460ec4948ae659e5cf9fb5d62",
+    "trace_id": "trace-3fa471caa6314d80b0feb21a93bebf56",
+    "image_id": "sha256:7abc98db1b1792a0a8ebe58f8eaec4ca30fe5d2e361a865bd6484064ed6e8fa1",
+    "image_operations": 6,
+    "raw_container_inspects": 12,
+    "checks": {
+      "patch_applies": true,
+      "build": true,
+      "test": true,
+      "header_change": true,
+      "no_missing": true
+    },
+    "missing": 0,
+    "redundant": 1,
+    "preserved_first_draft_failure": true,
+    "identity_scope": "Recipient-provided Mac records; no independent SSH identity authentication by this auditor",
+    "server_administration_performed": false,
+    "real_project_http_accepted": false
+  },
+  "real06": {
+    "status": "VERIFIED_WITH_OPEN_GAPS",
+    "scope": "A13 supplied real06 outputs; not B13 independent container execution",
+    "artifact_references_verified": 1192,
+    "job_id": "job-47382aad4eb445b6ac4d403470a5efd5",
+    "trace_id": "trace-2e6d919ed9014d17a9ca20437ca24b7e",
+    "image_id": "sha256:6907c50a74cfd623200abb7b6694f6bb64f086fec6230ff013e81d648b065cad",
+    "candidate_sha256": "eb506f89177da2eb5736b7a62336b0f2d156e81feca04de1ef5747ce27f7eb8a",
+    "request_sha256": "c328dbcde632244d5c346cf3b1c84a660350a29a87ba82f439bcb72916651125",
+    "envelope_sha256": "0832c57c9253970ada91f6acefbc78d96be7cd48f5abd68219f7b2cf21e3fb23",
+    "payload_sha256": "759a39df4ad4f942a80c2eea9a00f519437d61653d98ee13cd7818e8f518b451",
+    "checks": {
+      "patch_applies": true,
+      "build": true,
+      "test": true,
+      "header_change": true,
+      "no_missing": true
+    },
+    "scope_targets": [
+      "toml.o"
+    ],
+    "retained_full_missing": [
+      "toml_json -> toml.h"
+    ],
+    "actual_build_flags": "-std=c99 -Wall -Wextra -fpic -O2 -DNDEBUG",
+    "cache_key_flags": "-std=c99 -Wall -Wextra -fpic",
+    "gaps": [
+      "binding dirty_count=4; checked-out commit alone does not bind executed files",
+      "no downstream create/run/inspect/exit/container identity records in received package",
+      "cache key flags omit -O2 -DNDEBUG present in actual compilation",
+      "real-e12-tools.json, real-e11b-tools.json and prior-run directories promised by note are absent"
+    ],
+    "verified_claim_limit": "Image fields and successful outputs corroborated; actual downstream container reuse and exact runtime source not certified"
+  },
+  "image_archive": {
+    "status": "OFFLINE_CONTENT_VERIFIED",
+    "image_id": "sha256:6907c50a74cfd623200abb7b6694f6bb64f086fec6230ff013e81d648b065cad",
+    "image_id_kind": "OCI image index",
+    "config_digest": "sha256:a099e7ab8326068bba7be8ad11234865f2b427186dabcaba8baa43fe96932e27",
+    "blob_hashes_verified": 14,
+    "platform": "linux/amd64",
+    "rootfs_layers": 8,
+    "docker_loaded": false,
+    "runtime_tools_tested": false
+  },
+  "image_layer_content": {
+    "status": "OFFLINE_LAYER_CONTENT_VERIFIED",
+    "C1_baked_source_files_matching": 5,
+    "C1_build_context_files_matching": 154,
+    "tool_entries": {
+      "usr/local/bin/python3": {
+        "type": "2",
+        "link": "python3.13",
+        "mode": "0o777"
+      },
+      "usr/bin/gcc": {
+        "type": "2",
+        "link": "gcc-14",
+        "mode": "0o777"
+      },
+      "usr/bin/git": {
+        "type": "0",
+        "link": "",
+        "mode": "0o755"
+      },
+      "usr/bin/make": {
+        "type": "0",
+        "link": "",
+        "mode": "0o755"
+      },
+      "usr/bin/strace": {
+        "type": "0",
+        "link": "",
+        "mode": "0o755"
+      }
+    },
+    "tools_executed": false,
+    "note": "File presence and source bytes only; not docker load/run proof"
+  },
+  "runtime_source_binding": {
+    "checkout_claim": "27c7d2d0a558b19aec72eb6b3002ece9ae1e4215",
+    "dirty_count": 4,
+    "current_pr17_head": "4f71afbbedd23c2fde576778077426497a19242f",
+    "imgrunner_in_claimed_commit": false,
+    "imgrunner_in_current_pr_head": false,
+    "files": {
+      "labs/e11e12/pipeline.py": {
+        "claimed_git_blob": "91135f82388b82d6e0cfa61ed57363c0320da5fb",
+        "current_git_blob": "91135f82388b82d6e0cfa61ed57363c0320da5fb",
+        "same_blob": true,
+        "saved_sha256": "a942e7b72dd76bee638651699db3e7931ad9050d974e4e172fe2215168de61e1"
+      },
+      "labs/e8e10/lab.py": {
+        "claimed_git_blob": "886eebc5ffb154d26d4f285637eef19b0037e4a5",
+        "current_git_blob": "886eebc5ffb154d26d4f285637eef19b0037e4a5",
+        "same_blob": true,
+        "saved_sha256": "b20f2b414a2c6e6f8aa9d5b85e7f8bc8903e42763832ee606be46ae1de3cc943"
+      }
+    },
+    "conclusion": "Published code cannot certify claimed uncommitted image-runtime implementation; request actual executed diff and hashes."
+  },
+  "consumer_preflight": {
+    "transport_contract": "PASS",
+    "b13_profile_contract": "REJECTED",
+    "reason": "Report/profile binding differs",
+    "error_code": "PROFILE_HASH_MISMATCH",
+    "source_written": false,
+    "original_bytes_preserved": true,
+    "profile_sha256": "0f2bc52c0e791b97a833c1c4a22c70d6cd72a97befc3959c578ccf5c85d40ee1"
+  },
+  "teaching_countersign_url": "https://github.com/Dufunare/2026-Devops-A13/pull/16#issuecomment-6935852744",
+  "real06_followup_url": "https://github.com/Dufunare/2026-Devops-A13/pull/17#issuecomment-6935853721",
+  "audit_script_sha256": "35d1b2c4cabd1e1226b6cdc3459166ff11e9c3c2222f78986c2aa3170d838ab4",
+  "runtime_source_changed": false,
+  "audit_runtime": "Windows local offline audit; no new server or A13-client execution",
+  "pending": [
+    "A13 real06 executed source snapshot/diff and container records",
+    "A13 effective flags/cache binding and missing original requests",
+    "Agreed external profile contract; no rewriting original reports",
+    "B13 independent load/probe/consume of A13 new image",
+    "A13 independent receipt/consume of B13 2a9765 image",
+    "Member3 final-head review and maintainer tomlc99 deployment",
+    "A13 tomlc99 cross-machine HTTP and final evidence closure"
+  ]
+}

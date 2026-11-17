@@ -16,6 +16,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from pipeline import Failure, artifact, check_envelope, full, patch, save, snapshot, validate
 from image_runtime import ImageRuntime, validate_image_id, validate_probe
+import project_profile as pp
 
 
 @dataclass(frozen=True)
@@ -110,10 +111,17 @@ def verify_received(envelope_path, envelope_sha256, payload_path, payload_sha256
 
 def consume(envelope_path, envelope_sha256, payload_path, payload_sha256, repo,
             target, job_id, trace_id, out, source_label='unconfirmed-external-report',
-            image_id=None, image_probe=None):
+            image_id=None, image_probe=None, profile=None, profile_sha256=None):
     # All report checks precede creating an output or cloning a repair target.
     received = verify_received(envelope_path, envelope_sha256, payload_path,
                                payload_sha256, target, job_id, trace_id)
+    profile = pp.bind_profile(profile, profile_sha256)
+    if profile is not None:
+        pp.check_environment()
+        pp.check_report(received.payload, profile)
+        pp.require(received.envelope.get('profile_sha256') == profile_sha256, 'PROFILE_HASH_MISMATCH', 'Envelope/profile binding differs')
+    elif received.payload.get('profile_sha256') is not None:
+        raise Failure('PROFILE_REQUIRED', 'Profile report requires an explicitly bound profile')
     validate_image_id(image_id)
     validate_probe(image_probe)
     repo = Path(repo).resolve()
@@ -129,7 +137,8 @@ def consume(envelope_path, envelope_sha256, payload_path, payload_sha256, repo,
     if resolved.returncode or resolved.stdout.strip() != target:
         raise Failure('STALE_REPORT', 'Target commit is not available in the supplied repository')
     out.mkdir(parents=True, exist_ok=False)
-    runtime = ImageRuntime(image_id, out / 'image-execution', image_probe)
+    extra = {'profile': profile} if profile is not None else {}
+    runtime = ImageRuntime(image_id, out / 'image-execution', image_probe, **extra)
     result = {'schema_version': 'e11e12-1', 'kind': 'b-report-consumption',
               'job_id': job_id, 'trace_id': trace_id, 'commit': target,
               'status': 'RUNNING', 'execution_environment': 'draft-image', 'draft_image_id': image_id,
@@ -137,6 +146,8 @@ def consume(envelope_path, envelope_sha256, payload_path, payload_sha256, repo,
               'stages': [], 'upstream': {'kind': 'incremental-check',
                   'envelope_sha256': envelope_sha256, 'payload_sha256': payload_sha256,
                   'payload_uri': received.payload_uri}}
+    if profile is not None:
+        result.update(profile_sha256=profile_sha256, success_scope=profile['repair_targets'])
     (out / 'received').mkdir()
     (out / 'received' / 'incremental-check.json').write_bytes(received.envelope_bytes)
     (out / 'received' / 'incremental-report.json').write_bytes(received.payload_bytes)
@@ -144,7 +155,7 @@ def consume(envelope_path, envelope_sha256, payload_path, payload_sha256, repo,
         'expected_job_id': job_id, 'expected_trace_id': trace_id,
         'expected_envelope_sha256': envelope_sha256,
         'expected_payload_sha256': payload_sha256, 'source_label': source_label,
-        'image_id': image_id, 'image_probe': image_probe})
+        'image_id': image_id, 'image_probe': image_probe, 'profile': profile, 'profile_sha256': profile_sha256})
 
     def stage(name, data, files):
         envelope = {'schema_version': 'e11e12-1', 'kind': name, 'status': 'SUCCEEDED',
@@ -152,22 +163,24 @@ def consume(envelope_path, envelope_sha256, payload_path, payload_sha256, repo,
                     'execution_environment': 'draft-image', 'image_id': image_id,
                     'draft_image_reused': bool(runtime.operations), 'image_operations': list(runtime.operations),
                     'data': data, 'artifacts': [artifact(file, out, job_id) for file in files]}
+        if profile is not None:
+            envelope.update(profile_sha256=profile_sha256, success_scope=profile['repair_targets'])
         save(out / (name + '.json'), envelope)
         result['stages'].append({'name': name, 'artifact': artifact(out / (name + '.json'), out, job_id)})
 
     working_copy = out / 'target-project'
     before = None
     try:
-        snapshot(repo, target, working_copy, out / 'logs')
+        snapshot(repo, target, working_copy, out / 'logs', **extra)
         before = (working_copy / 'Makefile').read_bytes()
         (out / 'source-before.Makefile').write_bytes(before)
-        diff, edits = patch(working_copy, received.payload)
+        diff, edits = pp.patch(working_copy, received.payload, profile) if profile is not None else patch(working_copy, received.payload)
         if not diff:
             raise Failure('NO_MISSING_DEPENDENCY', 'Received report has no repairable missing dependency')
         if (working_copy / 'Makefile').read_bytes() != before:
             raise Failure('SOURCE_CHANGED', 'Candidate generation changed its input')
         patchfile = out / 'candidate.patch'
-        patchfile.write_text(diff, encoding='utf-8')
+        patchfile.write_bytes(diff.encode('utf-8'))
         save(out / 'repair-plan.json', edits)
         stage('repair', {'edits': edits, 'input_report': result['upstream']},
               [patchfile, out / 'repair-plan.json'])
@@ -175,7 +188,7 @@ def consume(envelope_path, envelope_sha256, payload_path, payload_sha256, repo,
         if not verdict['accepted']:
             raise Failure('REPAIR_REJECTED', 'Candidate did not pass sandbox validation')
         final = runtime.full(working_copy, out / 'final-full')
-        if any(item['type'] == 'MISSING' for item in final['findings']):
+        if any(item['type'] == 'MISSING' and (profile is None or item['target'] in profile['repair_targets']) for item in final['findings']):
             raise Failure('RECHECK_FAILED', 'Dynamic recheck still reports missing dependencies')
         (out / 'source-after.Makefile').write_bytes((working_copy / 'Makefile').read_bytes())
         stage('recheck', {'validation': verdict, 'findings': final['findings'],
@@ -204,10 +217,13 @@ def main():
         parser.add_argument('--' + name, required=True)
     parser.add_argument('--source-label', default='unconfirmed-external-report')
     parser.add_argument('--image-id', required=True, help='Exchanged immutable DRAFT sha256 image ID')
+    parser.add_argument('--profile', type=Path)
+    parser.add_argument('--profile-sha256')
     args = parser.parse_args()
     try:
         result = consume(args.envelope, args.envelope_sha256, args.payload, args.payload_sha256,
-                         args.repo, args.target, args.job_id, args.trace_id, args.out, args.source_label, image_id=args.image_id)
+                         args.repo, args.target, args.job_id, args.trace_id, args.out, args.source_label, image_id=args.image_id,
+                         profile=_json_object(args.profile.read_bytes()) if args.profile else None, profile_sha256=args.profile_sha256)
     except (Failure, OSError, ValueError, subprocess.TimeoutExpired) as exc:
         result = {'status': 'FAILED', 'execution_environment': 'not-started',
                   'draft_image_reused': False,

@@ -41,12 +41,18 @@ def main():
         from lab import scan, validate
         from fullcheck import full_check
         kind = request['operation']
+        profile = request.get('profile')
+        if profile is not None or request.get('profile_sha256') is not None:
+            import project_profile as pp
+            profile = pp.bind_profile(profile, request.get('profile_sha256'))
+            pp.check_environment()
+            result['profile_sha256'] = pp.profile_hash(profile)
         if kind == 'full':
-            payload = full_check(project, output / 'evidence')
+            payload = pp.full(project, output / 'evidence', profile) if profile is not None else full_check(project, output / 'evidence')
         elif kind == 'scan':
-            payload = scan(project, request.get('old'))
+            payload = pp.scan(project, request.get('old'), profile) if profile is not None else scan(project, request.get('old'))
         elif kind == 'validate':
-            payload = validate(project, bundle / 'candidate.patch', output / 'evidence')
+            payload = pp.validate(project, bundle / 'candidate.patch', output / 'evidence', profile) if profile is not None else validate(project, bundle / 'candidate.patch', output / 'evidence')
             if payload['accepted']:
                 (output / 'accepted.Makefile').write_bytes((project / 'Makefile').read_bytes())
         else:
