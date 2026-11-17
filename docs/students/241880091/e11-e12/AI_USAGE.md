@@ -1,5 +1,24 @@
 # AI_USAGE：E11–E12 AI辅助使用记录
 
+## 2026-11-17 最新回包核对与当前结论
+
+本节更新此前历史待办。本人 tomlc99 适配、版本化 profile、新 DRAFT、E11-B/E12 与本人8082验证继续沿用既有真实证据；PR #37 已建立，未自动合并。本轮只做原件审计和文档变更，不冒充新的服务器执行。
+
+**教学跨机回签已完成。** A13 241830088 回包1614项外层文件清单及嵌套清单通过；522次HTTP交换、512个下载文件、同键幂等/409、6次镜像操作和12份inspect相符。job `job-a3c1043460ec4948ae659e5cf9fb5d62` / trace `trace-3fa471caa6314d80b0feb21a93bebf56`；五项checks全true，MD=0、RD=1，首次MISSING_MAKE失败保留。[成员2技术回签](https://github.com/Dufunare/2026-Devops-A13/pull/16#issuecomment-6935852744)仅确认收到的客户端和下载服务端原件，不代替成员一审批或独立SSH身份核验。此结论属于教学E12，不是tomlc99 HTTP。
+
+**A13 real06已接收并完成离线复核，运行验收仍有缺口。** 新镜像`sha256:6907c50a74cfd623200abb7b6694f6bb64f086fec6230ff013e81d648b065cad`的外层SHA、14个OCI内容块/描述符及8层diffID一致，镜像内5份源码和构建上下文154文件与C1一致。real06的1192项工件引用、job/trace、候选SHA及scoped/full结果相符；仅toml.o清零，全量保留toml_json→toml.h。
+
+不能关闭的实际差异：绑定记录dirty_count=4；所列27c7提交与PR17当前4f71提交均没有imgrunner.py，已发布pipeline/lab仍直接执行；缺下游容器命令/inspect/退出等原件；实际编译带-O2 -DNDEBUG而缓存键未包含；说明承诺的另外两份请求及旧运行目录未随包提供。[已向A13反馈并抄送成员一](https://github.com/Dufunare/2026-Devops-A13/pull/17#issuecomment-6935853721)，要求补执行源码/原始日志并修复真实flags绑定，不篡改旧run。
+
+B13对A13原始envelope/payload双SHA、schema、C1、job/trace及引用检查通过，但版本化profile检查实际拒绝`PROFILE_HASH_MISMATCH`。保留原字节，没有手补profile hash或绕过保护；需双方明确跨组profile映射/新版本报告后再独立消费。A13新6907镜像和B13新2a9765镜像并列登记，不能相互替代签收。
+
+本机Docker Linux引擎未运行，启动被执行策略拒绝；新镜像仅静态复核，未执行docker load/run。准备了独立、非root、只清理本人容器的接收探针，但未标记执行通过。
+
+**剩余闭环：** A13补齐real06源码与容器证据、有效flags/cache绑定、缺失请求和profile契约；双方新镜像的实际接收/独立消费；成员三对最终head的Review、成员一tomlc99批准部署、A13本人tomlc99跨机HTTP及最终归档。旧教学工作和已通过本人实验无需重做。详细机器可读结果见[A13回包索引](A13_RECEIPTS_20261117.json)。
+
+> **2026-11-17 发布核对：** 本文旧教学章节保留为历史快照；当前状态以文末“本人真实 tomlc99 适配与验收补充”和[本次证据索引](REAL_PROJECT_EVIDENCE_20261117.json)为准。本人真实项目、工具齐备的新DRAFT及8082 loopback已验收；此前“真实项目未接入”等描述只适用于旧阶段。A13接收本次新镜像/报告并完成新版跨机HTTP仍为待办。
+> 服务器实测代码为 `c8ed0dcc92017e6ec8ecf4b2bb228c5b94cc6f2d`，服务器文档提交为 `0bb9c60888b15652edd0bfe6b51b66edfad535f0`。本地普通同步 main `6a98a4f0ad6d37f342ff4cefc08af923b797dee1` 后，运行代码、测试与profile相对实测版本没有变化；新增提交只包含文档及证据索引，不冒充另一次服务器实验。
+
 ## 2026-11-16续接：main同步、测试发现修复与复测
 
 本节为后续状态；下方2026-11-11正文保留为历史快照，其中“待安装/未提交/待公共合并”等只描述当时状态。
@@ -87,3 +106,33 @@ AI生成代码仍可能存在缺陷；本次实测覆盖课程两源文件显式
 真实项目来源、版本化通用配置、A13原始报告及镜像交接暂缓；本人未做服务重启恢复试验。当前没有该个人提交的远端CI、Draft PR和最终head实质Review交付证据。后续如补充这些工作，应以新原件更新文档并追加提交，不回写旧归档或伪造已完成状态。
 
 原归档不含后来生成的三份文档和Docker镜像二进制；文档通过单独安装包交付，镜像跨机传递仍待实际需要及授权。报告/ADR的最终审核和提交责任由本人承担。
+
+
+## 本人真实 tomlc99 适配与验收补充
+
+AI 协助分析收到的材料、实现 profile/执行驱动/测试、编写可复制命令。本地 Windows 契约测试和服务器实际容器实验分别记账；Windows 符号链接用例曾跳过，未当成正式门禁通过。本节由脚本读取本人实际 summary、校验当前源码与报告工件后生成；收到的成员一、成员三、A13 日志不计成本人执行。仍须人工核对范围、执行 SHA、镜像 ID、原始证据与本次最终提交；未授权自动合并。
+
+本次执行代码 SHA：`c8ed0dcc92017e6ec8ecf4b2bb228c5b94cc6f2d`。profile canonical SHA256：`0f2bc52c0e791b97a833c1c4a22c70d6cd72a97befc3959c578ccf5c85d40ee1`。
+
+E11–E12 回归 74 项、E8–E10 回归 46 项，均无跳过/失败/错误。本人真实 E11-B、E12、独立消费及 8 类拒绝检查通过。E11-B 固定报告由本人依据已核验 C1 建立，明确不冒充 A13 原始 incremental 报告；独立消费保留本次 E12 两份原始报告字节及其 SHA256。
+
+E12 DRAFT：`sha256:2a9765dff295ddb466b9679122c289937c70e65ab90bd011f8805af23bebc651`；HTTP DRAFT：`sha256:42ff007e5dd1b8c7e63ed2d9ac79b730119fa698a0fe078ecce76794b3594841`。full/scan/validate/recheck 的真实容器镜像、工具版本、worker代码哈希和退出码见原始 execution.json。新镜像包含 git/strace，不是原 A13 de2ea79e 镜像；没有静默回退编排器。
+
+本人 loopback 8082 job：`job-4771c494abce47bc84392034397bcbf3`，完成 POST、轮询、原始工件下载/哈希核对、同键幂等及 409 冲突。此结果不是 A13 客户端正式跨机联调，也不代表共享 8081 已部署本次代码。
+
+**验收范围仅 toml.o。** 保留全量 findings 中的 `MISSING(toml_json,toml.h)`；不能写成全项目零缺失。头文件注释变更通过真实编译器 exec/argv 与对象更新时间证明重编译，不要求对象哈希改变。
+
+证据路径：formal `/home/m2_241880091/241880091/2026-Devops-B13-e11-e12-tomlc99/work/member2-profile-install-OXkxen/formal-attempt-H7jhIV/results`；HTTP `/home/m2_241880091/241880091/2026-Devops-B13-e11-e12-tomlc99/work/member2-profile-install-OXkxen/http-attempt-ASe6ie/results`；回归 `/home/m2_241880091/241880091/2026-Devops-B13-e11-e12-tomlc99/work/member2-profile-install-OXkxen/regressions-9dMRGt`。
+
+
+## 历史快照：2026-11-17 回包前的跨组交付进展
+
+已发布[真实项目交接预发布包](https://github.com/ma058/2026-Devops-B13/releases/tag/member2-tomlc99-handoff-20261117-d47ac126)，含新DRAFT镜像、小型白名单交接ZIP及SHA256SUMS。小包保留原始incremental envelope/payload字节，提供profile、源码恢复材料、公开代码bundle、接收独立消费和正式HTTP客户端脚本。已直接通知A13 241870063并抄送成员一，见[A13交付登记](https://github.com/Dufunare/2026-Devops-A13/pull/17#issuecomment-6922793749)；已向成员三登记轮转审阅与独立验证，见[B13协作记录](https://github.com/ma058/2026-Devops-B13/pull/37#issuecomment-6922794985)。
+
+本次交付代码固定d47ac126f58046406c86c35fc3eecb100e3cc535；本人实测代码与镜像证据仍沿用前节，不因发送材料而生成新的运行结论。客户端输入校验5项及恢复C1的154文件复算通过；这些是交付脚本本地检查，不是A13本人实跑。
+
+**该历史快照当时仅“发布、直接交付通知、抄送”完成；最新结论以前述回包核对为准。** A13签收/实际load与独立消费原件、成员三最终Review、成员一按正常流程批准的tomlc99部署回执、A13本人正式跨机HTTP及服务端关联原件仍待收到。新任务单称教学API已上线，但不能由此认定tomlc99已部署。部署模板明确PENDING，客户端会拒绝缺少批准及源码绑定的记录。最终三文档与归档只能在收到这些真实原件后收口。范围仍限toml.o，保留toml_json相关全量finding。
+
+字段与状态见[跨组交付索引](CROSS_GROUP_HANDOFF_20261117.json)。
+
+本轮AI辅助：读取并独立复算A13原件、审核公开固定源码、真实调用B13只读传输/profile校验、发出技术回签和补证请求。审计器开发中修正了嵌套清单范围、OCI index/config与压缩层diffID识别、Dockerfile仅复制5文件的假设；未改收到的字节，也未把这些本地审计器修正当成服务器实验失败或通过。未代跑A13身份、未自动合并、未绕过profile拒绝。

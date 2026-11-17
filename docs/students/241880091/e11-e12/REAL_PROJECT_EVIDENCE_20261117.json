@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "head": "0bb9c60888b15652edd0bfe6b51b66edfad535f0",
+  "tested_source": "c8ed0dcc92017e6ec8ecf4b2bb228c5b94cc6f2d",
+  "manifest_files": 15,
+  "archive_files": 16872,
+  "source_files": 864,
+  "regressions": {
+    "e11e12": 74,
+    "e8e10": 46
+  },
+  "runs": {
+    "e11-b": {
+      "job_id": "job-2420e028759d4789a5b9af659a892601",
+      "artifacts_verified": 1346,
+      "image_id": "sha256:72d462826de409659e32846dcbf1ca00bc30ea3f436a39888ec0ed00225d0b7b",
+      "operations": [
+        "validate",
+        "full"
+      ]
+    },
+    "e12": {
+      "job_id": "job-18ae9f2ef97e4b1092a3de126f4c47a8",
+      "artifacts_verified": 2216,
+      "image_id": "sha256:2a9765dff295ddb466b9679122c289937c70e65ab90bd011f8805af23bebc651",
+      "operations": [
+        "full",
+        "scan",
+        "scan",
+        "full",
+        "validate",
+        "full"
+      ]
+    },
+    "consumer": {
+      "job_id": "job-18ae9f2ef97e4b1092a3de126f4c47a8",
+      "artifacts_verified": 1024,
+      "image_id": "sha256:2a9765dff295ddb466b9679122c289937c70e65ab90bd011f8805af23bebc651",
+      "operations": [
+        "validate",
+        "full"
+      ]
+    },
+    "http": {
+      "job_id": "job-4771c494abce47bc84392034397bcbf3",
+      "artifacts_verified": 2216,
+      "image_id": "sha256:42ff007e5dd1b8c7e63ed2d9ac79b730119fa698a0fe078ecce76794b3594841",
+      "operations": [
+        "full",
+        "scan",
+        "scan",
+        "full",
+        "validate",
+        "full"
+      ]
+    }
+  },
+  "rejection_cases": 8,
+  "http_downloads": 2216,
+  "image_blobs_verified": 14,
+  "exported_image_id": "sha256:2a9765dff295ddb466b9679122c289937c70e65ab90bd011f8805af23bebc651",
+  "scope": "Original server evidence independently rehashed locally; no new server/Docker run; toml.o only; A13 new cross-machine acceptance pending",
+  "imported_server_head": "0bb9c60888b15652edd0bfe6b51b66edfad535f0",
+  "synced_main": "6a98a4f0ad6d37f342ff4cefc08af923b797dee1",
+  "merge_commit": "865805551ec991af17a7f8a8f9186584b7004c9d",
+  "runtime_source_equal_to_tested_commit": true,
+  "archive_folder": "member2-tomlc99-20261116-fmJWde",
+  "archive_sha256": {
+    "member2-tomlc99.bundle": "b8cdd2f44ab1b5102a073af98891e71f7570ee84068e6792b9a684763a53c27e",
+    "member2-tomlc99-evidence.tar.gz": "f3381bdf54626498f3fb1677edce96e602bdb438b8bab9ddab921d0c1356eb54",
+    "member2-tomlc99-DRAFT.tar.gz": "4d8fda75dcbcd4a61949b4892bf114f11c0191c476ec54f99419edf359c0f978",
+    "source.tar": "8c18159e93549a4ff6abea920b212dfcd2dbdfdf3ff9db4eb547bfd365f053c3"
+  },
+  "remaining": [
+    "A13 reception and independent consumption of the new image/report/profile",
+    "A13 client formal cross-machine HTTP against an explicitly deployed version",
+    "Current-head CI and independent review; no automatic merge"
+  ],
+  "evidence_access": "Raw artifacts retained in member2 server export and verified local archive; large image/archive binaries are not committed to Git"
+}
