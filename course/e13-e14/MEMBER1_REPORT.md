@@ -54,6 +54,12 @@ C8 job为 `job-1152f9791c1742b2a9ca889e0b423a30`，trace为 `trace-86f77047381a4
 - 关键路径：`repo/work/member1-e13-1b667dd.../summary.json`、`C1-local-A/`、`C1-B-consumption/validation/validation.json`、`C2-rejection/result.json`、`C3-rejection/result.json`、`C8-http/download-checks.json`、`C8-http/server-cleanup.json`。目录中的 `1b667dd...` 应替换为上文完整源码SHA。
 - 复现命令和正式交付参数见 `labs/e13e14/README.md` 与 `HANDOFF_CONTRACT.md`。CI是另一个执行环境，最终run/head/artifact索引登记在本分支PR描述和阶段交付包中，不把服务器日志写成CI日志。
 
+## CI 首跑缺陷与修复
+
+`b89ec19` 的新工作流首跑（push `45031889227`、PR `45031943346`）中，契约及成员一C1/C2/C3/C8已通过；四服务教学彩排在EChecker被Git拒绝：宿主创建的副本属于Runner UID，模板容器使用root，出现 `detected dubious ownership`。同head的原E7/E8–E10/E11–E12六次运行成功。
+
+修复通过 `E14_UID/E14_GID` 让四角色与编排器使用相同身份；仅DRAFT额外加入实际Docker socket组。保留Git所有权检查，不设置 `safe.directory=*`。参数未提供时保留模板默认root行为，实际环境必须如实记录。后续CI必须在修复后head重跑，不能把首跑失败写成网络偶发。首跑日志及artifact另存，详见最终交付CI索引。
+
 ## 当前边界与后续
 
 上述 A 端来源全部为 `LOCAL_SIMULATED_A`，是成员一准备链路；尚不是A13本人客户端、本轮双向实际项目矩阵、教师隐藏测试或正式E14验收。新四服务同步接口未宣称具有旧异步接口幂等功能。

@@ -4,6 +4,8 @@ Course origin and boundaries: [`course/e13-e14/MATERIALS.md`](../../course/e13-e
 
 This directory is additive. Keep the E7, E8–E10, and E11–E12 workflows and regression tests. The four-role course scaffold is a fixture rehearsal; the current branch does not claim production deployment or general-project E14 acceptance.
 
+When using Compose, set `E14_UID` and `E14_GID` to the identity creating the shared snapshots, and `E14_DOCKER_GID` to the host Docker socket group for DRAFT. CI derives these values from its Runner. This preserves Git ownership checks; do not add a global `safe.directory=*` exception. Defaults remain the teaching template's root identity until explicitly configured.
+
 ## Member 1 checks
 
 On the Linux personal environment with the existing compiler/strace/vendor dependencies:
