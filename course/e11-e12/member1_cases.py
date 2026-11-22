@@ -155,11 +155,12 @@ def execute_cases(data, out):
             if name == 'e11-stale':
                 require(result['status'] == 'FAILED' and result['error']['code'] == 'STALE_REPORT',
                         'Historical report was not rejected for version mismatch')
-                require([stage['name'] for stage in result['stages']] == ['draft'],
-                        'Stale input reached repair stages')
+                require(result['stages'] == [], 'Stale input reached an execution stage')
                 require(not (out / name / 'candidate.patch').exists(), 'Stale input generated a patch')
-                require((out / name / 'target-project/Makefile').read_bytes() == before['Makefile'],
-                        'Stale rejection changed copied target source')
+                require(all(not (out / name / folder).exists()
+                            for folder in ('base-project', 'target-project', 'draft-build')),
+                        'Stale input reached snapshots or DRAFT')
+                require(source_bytes(project) == before, 'Stale rejection changed original source bytes')
                 verify_manifest(result, out / name)
                 summary['cases'][name] = {'passed': True, 'expected_failure': result['error'],
                                          'job_id': result['job_id'], 'trace_id': result['trace_id']}

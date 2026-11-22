@@ -43,6 +43,71 @@ def load_artifact(path, expected_sha256):
         raise Failure('ARTIFACT_HASH_MISMATCH','Artifact content changed during transfer')
     return json.loads(data)
 
+def read_fixed_report(request, target_sha, profile=None):
+    """Check one received byte string before cloning or executing project code.
+
+    The checksum remains optional for legacy classroom requests. If the key is
+    supplied, even null/empty/malformed values are errors, never an opt-out.
+    The lazy import reuses the existing strict report parser without creating
+    a module initialization cycle (consume_report also imports this module).
+    """
+    from consume_report import _json_object
+    if not isinstance(target_sha, str) or not re.fullmatch(r'[0-9a-f]{40}', target_sha):
+        raise Failure('INVALID_REQUEST', 'Fixed report target must be a resolved complete Git SHA')
+    path = request.get('fixed_report')
+    if not isinstance(path, str) or not path:
+        raise Failure('INVALID_REQUEST', 'fixed_report must be a nonempty file path')
+    expected = request.get('fixed_report_sha256')
+    if 'fixed_report_sha256' in request and (
+        not isinstance(expected, str) or not re.fullmatch(r'[0-9a-f]{64}', expected)
+    ):
+        raise Failure('INVALID_REQUEST', 'fixed_report_sha256 must be 64 lowercase hex digits')
+    received = Path(path).read_bytes()
+    actual = hashlib.sha256(received).hexdigest()
+    if expected is not None and expected != actual:
+        raise Failure('ARTIFACT_HASH_MISMATCH', 'Fixed report differs from the exchanged SHA-256')
+    envelope = _json_object(received)
+    check_envelope(envelope, target_sha, 'fixed-md')
+    current = envelope.get('data')
+    if not isinstance(current, dict):
+        raise Failure('INVALID_REPORT', 'Fixed report data must be an object')
+    if current.get('commit') != target_sha:
+        raise Failure('STALE_REPORT', 'Fixed report data commit mismatch')
+    if current.get('schema_version') != 'e8e10-1':
+        raise Failure('SCHEMA_MISMATCH', 'Expected e8e10-1 fixed report data')
+    findings = current.get('findings')
+    if not isinstance(findings, list) or any(
+        not isinstance(item, dict)
+        or item.get('type') not in ('MISSING', 'REDUNDANT')
+        or not isinstance(item.get('target'), str) or not item['target']
+        or not isinstance(item.get('dependency'), str) or not item['dependency']
+        for item in findings
+    ):
+        raise Failure('INVALID_REPORT', 'Fixed findings must contain typed target/dependency records')
+    if profile is not None:
+        pp.require(envelope.get('profile_sha256') == pp.profile_hash(profile),
+                   'PROFILE_HASH_MISMATCH', 'Fixed envelope/profile mismatch')
+        pp.check_report(current, profile)
+    elif envelope.get('profile_sha256') is not None or current.get('profile_sha256') is not None:
+        raise Failure('PROFILE_REQUIRED', 'Profile report requires an explicitly bound profile')
+    source = envelope.get('source_report')
+    if 'source_report' in envelope:
+        if not isinstance(source, dict):
+            raise Failure('INVALID_REPORT', 'source_report must be an object')
+        for name in ('job_id', 'trace_id'):
+            value = source.get(name)
+            if not isinstance(value, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._-]{0,127}', value):
+                raise Failure('INVALID_REPORT', 'source_report requires safe task identifiers')
+        if source.get('uri') != f"artifact://{source['job_id']}/incremental-check.json":
+            raise Failure('ARTIFACT_REFERENCE_MISMATCH', 'source_report URI must identify its incremental-check stage')
+        if not isinstance(source.get('sha256'), str) or not re.fullmatch(r'[0-9a-f]{64}', source['sha256']):
+            raise Failure('INVALID_REPORT', 'source_report requires its original stage SHA-256')
+    binding = {'sha256': actual, 'bytes': len(received),
+               'exchanged_hash_verified': 'fixed_report_sha256' in request}
+    if source is not None:
+        binding['source_report'] = source
+    return received, envelope, binding
+
 def command(argv, cwd, log):
     log.parent.mkdir(parents=True, exist_ok=True)
     p = subprocess.run(argv, cwd=cwd, capture_output=True, text=True, timeout=120)
@@ -112,10 +177,27 @@ def execute(request, out, job_id=None):
         repo=Path(request['repo']).resolve()
         if not repo.is_dir():
             raise Failure('INVALID_REQUEST','Repository missing')
+        fixed_input = None
+        target_revision = request['target']
+        if mode == 'e11-b':
+            if not isinstance(target_revision, str) or not target_revision:
+                raise Failure('INVALID_REQUEST', 'Target must identify an existing Git commit')
+            # Resolve once and use the immutable result for both validation and
+            # snapshotting; a moving branch cannot change the checked target.
+            target_revision = command(['git', 'rev-parse', '--verify', '--end-of-options',
+                                       target_revision + '^{commit}'], repo,
+                                      out/'logs/fixed-target-resolve.log')
+            if not re.fullmatch(r'[0-9a-f]{40}', target_revision):
+                raise Failure('INVALID_REQUEST', 'Target must resolve to a complete Git SHA')
+            fixed_input = read_fixed_report(request, target_revision, profile)
+            result['fixed_report_binding'] = fixed_input[2]
+            # Preserve the exact verified bytes, including whitespace and any
+            # upstream provenance, rather than serializing a new JSON document.
+            (out/'fixed-md-input.json').write_bytes(fixed_input[0])
         base=out/'base-project'; target=out/'target-project'
         extra = {'profile': profile} if profile is not None else {}
         base_sha=snapshot(repo,request['base'],base,out/'logs', **extra)
-        target_sha=snapshot(repo,request['target'],target,out/'logs', **extra)
+        target_sha=snapshot(repo,target_revision,target,out/'logs', **extra)
         result.update(base_commit=base_sha,target_commit=target_sha)
         if mode in ('e11-b','e12'):
             from draft.autobuild import auto_build
@@ -152,17 +234,11 @@ def execute(request, out, job_id=None):
                 raise Failure('FINDINGS_MISMATCH','Incremental/full object-target findings differ')
             md_envelope=stage('incremental-check',target_sha,current,[out/'incremental-report.json',out/'target-full/findings.json'])
         else:
-            # E11-B still consumes a fixed MD input, separately from A's live output.
-            fixed=Path(request['fixed_report'])
-            envelope=json.loads(fixed.read_text(encoding='utf-8'))
+            # Consume the same preflighted bytes; never reopen mutable input
+            # after DRAFT has run. The received original is already archived.
+            envelope=fixed_input[1]
             check_envelope(envelope,target_sha,'fixed-md')
             current=envelope['data']
-            if profile is not None:
-                pp.require(envelope.get('profile_sha256') == pp.profile_hash(profile), 'PROFILE_HASH_MISMATCH', 'Fixed envelope/profile mismatch')
-                pp.check_report(current, profile)
-            if current.get('commit') != target_sha:
-                raise Failure('STALE_REPORT','Fixed report data commit mismatch')
-            save(out/'fixed-md-input.json',envelope)
             md_envelope=stage('fixed-md',target_sha,current,[out/'fixed-md-input.json'])
         if mode in ('e11-b','e12'):
             reference=result['stages'][-1]['artifact']

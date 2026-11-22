@@ -27,7 +27,10 @@ class HandoffTests(unittest.TestCase):
         self.job = "job-example"
         self.trace = "trace-example"
         inner = self.root / "incremental-report.json"
-        inner.write_text('{"findings": []}\n')
+        # Match real E8/E11 payloads; the original teaching fixture omitted
+        # schema/commit and differed from envelope.data, which B13 rejects.
+        payload = {"schema_version": "e8e10-1", "commit": self.sha, "findings": []}
+        inner.write_text(json.dumps(payload) + '\n', encoding='utf-8')
         stage = {
             "schema_version": "e11e12-1",
             "kind": "incremental-check",
@@ -35,7 +38,7 @@ class HandoffTests(unittest.TestCase):
             "commit": self.sha,
             "job_id": self.job,
             "trace_id": self.trace,
-            "data": {"commit": self.sha, "findings": []},
+            "data": payload,
             "artifacts": [artifact(inner, self.root, self.job)],
         }
         stage_path = self.root / "incremental-check.json"
