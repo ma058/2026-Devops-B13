@@ -27,6 +27,7 @@ services:
     <<: *common
     environment:
       E14_ROLE: buildchecker
+      HOME: /tmp
       PYTHONDONTWRITEBYTECODE: "1"
     command: ["python3", "labs/e13e14/service.py"]
     ports: ["127.0.0.1:18081:8080"]
@@ -36,6 +37,7 @@ services:
     <<: *common
     environment:
       E14_ROLE: echecker
+      HOME: /tmp
       PYTHONDONTWRITEBYTECODE: "1"
     command: ["python3", "labs/e13e14/service.py"]
     ports: ["127.0.0.1:18082:8080"]
@@ -45,6 +47,7 @@ services:
     group_add: ["${E14_DOCKER_GID:-0}"]
     environment:
       E14_ROLE: draft
+      HOME: /tmp
       PYTHONDONTWRITEBYTECODE: "1"
     command: ["python3", "labs/e13e14/service.py"]
     ports: ["127.0.0.1:18083:8080"]
@@ -56,6 +59,7 @@ services:
     <<: *common
     environment:
       E14_ROLE: mdfixer
+      HOME: /tmp
       PYTHONDONTWRITEBYTECODE: "1"
     command: ["python3", "labs/e13e14/service.py"]
     ports: ["127.0.0.1:18084:8080"]

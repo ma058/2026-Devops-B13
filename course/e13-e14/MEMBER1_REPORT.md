@@ -60,6 +60,10 @@ C8 job为 `job-1152f9791c1742b2a9ca889e0b423a30`，trace为 `trace-86f77047381a4
 
 修复通过 `E14_UID/E14_GID` 让四角色与编排器使用相同身份；仅DRAFT额外加入实际Docker socket组。保留Git所有权检查，不设置 `safe.directory=*`。参数未提供时保留模板默认root行为，实际环境必须如实记录。后续CI必须在修复后head重跑，不能把首跑失败写成网络偶发。首跑日志及artifact另存，详见最终交付CI索引。
 
+第一轮修复 `bc8bd52` 进一步暴露无passwd条目的Runner UID缺少可写HOME：PR run `45032279265` 的DRAFT原始stderr为 `ERROR: mkdir /.docker: permission denied`。再次补齐四角色 `HOME=/tmp`，保持相同UID/Socket组，不放宽DRAFT缺失make的判定。两轮失败日志和artifact均保留；通过后的最终head/run在PR描述与交付包登记。
+
+推送第二轮修复前，已在服务器独立Compose项目 `b13-e14-m1-check` 验证相同配置：UID/GID10001、HOME=/tmp、仅DRAFT增加Socket组，完整五阶段SUCCEEDED，job `job-aab901e2087448e09c9674fea1e0dee9` / trace `trace-f94a01fd77914889943aaa5137b0c9fd`，四角色日志均对应此任务。运行使用既有测试源码1b667dd加归档中的新版Compose文件；清理只移除此项目，生产health仍ok。这是课程生成样例四服务彩排，不是实际项目/profile成品执行贯通或正式E14验收。此修复链对应Issue #41，随PR #40正常评审合并。
+
 ## 当前边界与后续
 
 上述 A 端来源全部为 `LOCAL_SIMULATED_A`，是成员一准备链路；尚不是A13本人客户端、本轮双向实际项目矩阵、教师隐藏测试或正式E14验收。新四服务同步接口未宣称具有旧异步接口幂等功能。
