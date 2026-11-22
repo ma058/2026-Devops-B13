@@ -42,9 +42,24 @@ jobs:
           docker build --progress=plain \
             --build-arg BASE_IMAGE=python:3.13-slim@sha256:f82c96458eedc847b233e582eb31336f4954b39cae020b6dcf5b3ed0e5cbcd74 \
             --build-arg DOCKER_CLI_IMAGE=docker:28.5.1-cli@sha256:9190b0613792e658a7783cf14b2d5ace5941bb68ede7276922ea36ee457d76ad \
+            --build-arg DEBIAN_MIRROR=https://deb.debian.org/debian \
+            --build-arg DEBIAN_SECURITY_MIRROR=https://deb.debian.org/debian-security \
+            --build-arg PIP_INDEX_URL=https://pypi.org/simple \
             -f labs/e11e12/environment/services/buildchecker/Dockerfile \
             -t course-e11e12:999999999 labs/e11e12/environment
           python3 run_e11e12.py prepare
+      - name: Member1 C1 C2 C3 C8 preparation (local A fixture, not A13 acceptance)
+        run: |
+          set -euo pipefail
+          mkdir -p work/ci-member1-logs
+          docker run --rm --network bridge --group-add "$(stat -c %g /var/run/docker.sock)" \
+            -v /var/run/docker.sock:/var/run/docker.sock --cap-add SYS_PTRACE \
+            --user "$(id -u):$(id -g)" -e HOME=/tmp -e PYTHONDONTWRITEBYTECODE=1 \
+            -e PYTHONPATH=/course/labs/e11e12:/course/labs/e8e10:/course/labs/e11e12/vendor:/app \
+            -v "$PWD:/course:ro" -v "$PWD/data:/course/data:rw" -v "$PWD/work:/course/work:rw" \
+            -w /course course-e11e12:999999999 python3 labs/e13e14/member1_run.py \
+            --request data/integration-sample/e12.json --out work/ci-member1 \
+            2>&1 | tee work/ci-member1-logs/run.log
       - name: Start four services and run E2E fixture
         run: |
           set -euo pipefail
@@ -52,8 +67,21 @@ jobs:
           docker compose -f labs/e13e14/compose.yaml -p e14-ci up -d --wait
           python3 labs/e13e14/orchestrate.py --request data/integration-sample/e12.json --out work/ci-e14
           python3 labs/e13e14/scan_runtime_logs.py work/ci-e14
-          docker compose -f labs/e13e14/compose.yaml -p e14-ci logs --no-color > work/ci-e14-services.log
-          python3 labs/e13e14/scan_runtime_logs.py work/ci-e14-services.log
+      - name: Preserve service diagnostics before cleanup (including failed runs)
+        if: always()
+        run: |
+          mkdir -p work/ci-service-diagnostics
+          export E14_ROOT="$PWD" E14_IMAGE=course-e11e12:999999999
+          set +e
+          docker compose -f labs/e13e14/compose.yaml -p e14-ci ps -a > work/ci-service-diagnostics/ps.log 2>&1
+          ps_exit=$?
+          docker compose -f labs/e13e14/compose.yaml -p e14-ci logs --no-color > work/ci-service-diagnostics/services.log 2>&1
+          logs_exit=$?
+          printf 'ps_exit=%s\nlogs_exit=%s\n' "$ps_exit" "$logs_exit" > work/ci-service-diagnostics/capture-status.txt
+          test "$ps_exit" -eq 0 && test "$logs_exit" -eq 0
+      - name: Scan all captured runtime evidence
+        if: always()
+        run: python3 labs/e13e14/scan_runtime_logs.py work
       - name: Stop only this Compose project
         if: always()
         run: |
@@ -63,6 +91,13 @@ jobs:
         uses: actions/upload-artifact@v7.0.2
         with:
           name: e13e14-evidence-${{ github.run_id }}-${{ github.run_attempt }}
-          path: work/
+          include-hidden-files: true
+          path: |
+            work/
+            !work/**/.git/**
+            !work/**/.env
+            !work/**/.env.*
+            !work/**/*.pem
+            !work/**/*.key
           if-no-files-found: warn
           retention-days: 14
