@@ -42,10 +42,28 @@ C5：原始git apply stderr为No valid patches in input；accepted=false、rollb
 
 本人服务器Linux 76项测试全部通过、无skip。本地此前Windows76项中75通过/1平台skip、双版本GCC/12功能用例和6项扫描回归原件保留，不混记为服务器用例。下载复核5240个断言包含路径/逐文件哈希与业务证据，不称为5240个独立实验。
 
-早期Windows测试隔离/换行问题、CI动态表达式误报及快照属性问题均保留失败记录和修复历史。PR40固定dd35a439f8fb67f5e4d8267cff54239a6ceaac54已Approve：https://github.com/ma058/2026-Devops-B13/pull/40#pullrequestreview-6017306734 。本PR保持Draft：https://github.com/ma058/2026-Devops-B13/pull/42 。
+早期Windows测试隔离/换行问题、CI动态表达式误报及快照属性问题均保留失败记录和修复历史。PR40固定dd35a439f8fb67f5e4d8267cff54239a6ceaac54已Approve：https://github.com/ma058/2026-Devops-B13/pull/40#pullrequestreview-6017306734 。#42 创建时为 Draft，整合后的 head 和评审记录见下节。
 
 A13 v2原件恢复、候选及源历史哈希已核验；三层profile绑定的新报告、A13对B项目的新运行/C5、双方字段与时窗待回签。tomlc99旧toml.o范围不等于全项目MD0。本轮是本人B13项目E13–E14验证，不重做E11–E12，不替代跨组验收。
 
 历史CI曾因全分支--history扫描命中测试假密钥字面量而失败，失败原件保留。证据提交5e697e2a3f519fb03dde933321bd22440e6151d4的10项CI已全部通过。收到成员3协调意见后，又将四处动态表达式改名/拆行：导出blob、容器nonce、认证expected_auth、配置auth_file与分离env格式化；保持认证、清理标签、私有文件权限和导出拦截语义。四个文件使用未经AST豁免的原始正则也无命中。已保留精确AST历史识别；单纯删除当前表达式不能消除旧667bc445历史命中，没有force push或关闭门禁。新head需核对CI及成员3Review，不能以旧head或个人PASS替代。
 
 AI协助实现、原件复核、可重放核验脚本与报告；服务器实际执行者为本人，AI本轮仅读取下载原件，没有连接或重跑服务器。
+
+## 整合后版本与 CI（2026-11-23）
+
+本人服务器矩阵的执行源码为 `99f2c7abd1cad161cbfa4affe8d2109568d948ab`，四个 job、编排器及各 DRAFT image_id、原归档路径和 SHA-256 见上文。原 PR 重整版本 `0889bafd` 已由负责人对照过执行代码。#42 随后整合了 #40/#44，送审 head 为 `40281a57ed525d1655e4df71ed05239323c0d159`，base 为 main。11 月 23 日 18:41（北京时间）读取 GitHub 时，#42 为 Ready，成员三 yqy241880115 已被请求审查，成员一在该 head 登记了 COMMENTED。正式批准由成员三在同一 head 独立提交。[PR #42](https://github.com/ma058/2026-Devops-B13/pull/42) · [成员一辅助复核](https://github.com/ma058/2026-Devops-B13/pull/42#pullrequestreview-6019313449)
+
+该 head 的 push 和 pull_request 共 8 次工作流、10 个 check job 全部成功。负责人在 Linux 复核旧套件 74 项、新套件 104 项及 scanner 6 项，均无跳过。PR 的 E13–E14 集成 run 由 GitHub Actions 于 09:35:03–09:36:13 UTC 执行。归档 `e13e14-evidence-45148359925-1` 的 ZIP SHA-256 为 `6adba8784120c218046f24307b41bd82e79da4e285451901b29c66f5e84cc894`。本轮在本地辅助下载并复算 914 个文件，逐项校验 746 项清单、85 份 HTTP 下载和 162 个 E14 产物，另核对五个阶段引用。其四服务任务采用教学协议。以上数据分别来自整合 CI 和辅助核验。[CI run](https://github.com/ma058/2026-Devops-B13/actions/runs/45148359925) · [原始 artifact](https://github.com/ma058/2026-Devops-B13/actions/runs/45148359925/artifacts/14806020024)
+
+### 跨组原件与本轮签收
+
+本地已取阅 A13 旧版 `A13_给B13_E13项目与当次报告_v2_20261118.zip`，SHA-256 为 `e1b08ce371f372dd330e741bce46c28414e44b748e22e2f952df7bc2cd8498b0`。下列原始字节随组内取阅包提供。
+
+| 旧 v2 原件 | 字节 | SHA-256 |
+|---|---:|---|
+| result.json | 144737 | `84b38878cf10e6f862a0eedd26d052e4b5a22009359546ccf451adf58bb2f013` |
+| incremental-check.json | 4766 | `05e561fca546d09a2ffa0d08c5a565e3d7322c084964d6ec664831b80ccd32e4` |
+| incremental-report.json | 3790 | `3ae064328c43a34c84eaa707c68e648be5973ee15c28f311168869073a946652` |
+
+result、full 和 incremental 引用分别核对了 665、3、2 项。旧三层均缺少 `profile_sha256`。A13 需在确认规范后用新任务绑定三层原件，并独立回传 B13 项目的接收记录、新 job/trace 和日志。本轮准备的 `member2-e14-1` 示例沿用 `toml.o` profile（canonical SHA-256 为 `0f2bc52c0e791b97a833c1c4a22c70d6cd72a97befc3959c578ccf5c85d40ee1`）。完整重检保留 `MISSING(toml_json, toml.h)`。共同验收范围和运行记录由成员三、A13 与成员二回签后补录。

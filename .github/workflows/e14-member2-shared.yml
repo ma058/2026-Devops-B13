@@ -1,0 +1,64 @@
+name: E14 shared B13 project
+
+on:
+  pull_request:
+    paths:
+      - 'labs/e13e14/**'
+      - 'course/e13-e14/projects/b13-level-v1/**'
+      - '.github/workflows/e14-member2-shared.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  b13:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Build service image
+        run: |
+          set -euo pipefail
+          docker build --progress=plain \
+            --build-arg BASE_IMAGE=python:3.13-slim@sha256:f82c96458eedc847b233e582eb31336f4954b39cae020b6dcf5b3ed0e5cbcd74 \
+            --build-arg DOCKER_CLI_IMAGE=docker:28.5.1-cli@sha256:9190b0613792e658a7783cf14b2d5ace5941bb68ede7276922ea36ee457d76ad \
+            --build-arg DEBIAN_MIRROR=https://deb.debian.org/debian \
+            --build-arg DEBIAN_SECURITY_MIRROR=https://deb.debian.org/debian-security \
+            --build-arg PIP_INDEX_URL=https://pypi.org/simple \
+            -f labs/e11e12/environment/services/buildchecker/Dockerfile \
+            -t b13-four-roles:ci labs/e11e12/environment
+      - name: Check shared service health
+        run: bash labs/e13e14/run_shared_member2.sh b13-four-roles:ci 19281 smoke
+      - name: Exercise frozen B13 project and targeted worker recovery
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/b13-export"
+          for entry in 1-normal 2-C4 3-normal 4-C5; do
+            mode=${entry#*-}
+            log="$RUNNER_TEMP/$entry.log"
+            rc=0
+            bash labs/e13e14/run_shared_member2.sh b13-four-roles:ci 19281 "$mode" | tee "$log" || rc=$?
+            session=$(sed -n 's/^SESSION=//p' "$log")
+            if [[ -n "$session" && -f "$session" ]]; then
+              source "$session"
+              python3 labs/e13e14/member2_export.py --config "$M2_E14_CONFIG" --out "$RUNNER_TEMP/b13-export/$entry"
+            else
+              echo "::error::Run context unavailable for $entry"
+              exit 1
+            fi
+            if (( rc != 0 )); then exit "$rc"; fi
+          done
+      - name: Preserve verified exports
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: shared-b13-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/b13-export/*/*.tar.gz
+            ${{ runner.temp }}/b13-export/*/*.tar.gz.sha256
+          if-no-files-found: warn
+          retention-days: 14
