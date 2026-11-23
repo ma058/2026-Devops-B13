@@ -3,6 +3,7 @@ import hmac,json,os,re,shutil,subprocess,sys,time,urllib.request,urllib.error
 from datetime import datetime, timezone
 from pathlib import Path
 from http.server import BaseHTTPRequestHandler,HTTPServer
+from tempfile import TemporaryDirectory
 import member2_profiles as profiles
 from member2_faults import permits_fault
 from member2_runtime import execute,fingerprint,save
@@ -148,6 +149,36 @@ def report_payload(data,job,m):
     if any(f['target'] not in m['profile']['repair_targets'] for f in got.payload['findings']):raise ValueError('UNSUPPORTED_TARGET')
     return got.payload
 
+def baked_files(m):
+    targets = m['target_files']
+    names = m.get('image_files')
+    if names is None:
+        names = [name for name in targets if name.endswith(('.c', '.h')) or name == 'Makefile']
+    return {name: targets[name] for name in names}
+
+
+def stage_draft_context(source, destination, m):
+    """Copy only registered C1 files into a private build context, without changing the checkout."""
+    copied_to_image = baked_files(m)
+    for name, expected_digest in m['target_files'].items():
+        relative = Path(name)
+        if relative.is_absolute() or '..' in relative.parts:
+            raise ValueError('UNSAFE_PATH')
+        original = below(source / relative, source)
+        staged = destination / relative
+        staged.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        shutil.copyfile(original, staged)
+        if profiles.digest(staged.read_bytes()) != expected_digest:
+            raise ValueError('SOURCE_BINDING_MISMATCH')
+        executable = bool(original.stat().st_mode & 0o111)
+        # Docker COPY sets root ownership and carries the source mode into the
+        # image. The production worker must read these files with its own UID.
+        mode = 0o755 if executable else 0o644
+        if name not in copied_to_image:
+            mode &= 0o700
+        staged.chmod(mode)
+
+
 def broker(data):
     if ROLE!='draft':raise ValueError('DRAFT_ONLY')
     m,profile,job=context(data);b,state=load_binding(data)
@@ -175,8 +206,7 @@ def broker(data):
         if old.get('commit')!=m['base'] or old.get('profile_sha256')!=m['profile_sha256']:raise ValueError('OLD_REPORT_BINDING_MISMATCH')
     result=execute(b['image_id'],p,out,profile,operation,old=old,patchfile=patchfile,
                    timeout_seconds=data.get('timeout_seconds',120),fault=fault,
-                   baked_files={n:h for n,h in m['target_files'].items() if n in m.get('image_files',[]) or
-                                ('image_files' not in m and (n.endswith(('.c','.h')) or n=='Makefile'))})
+                   baked_files=baked_files(m))
     if operation=='validate' and result['status']=='SUCCEEDED' and result['payload']['accepted']:
         before=(p/'Makefile').read_bytes();accepted=(out/'output/accepted.Makefile').read_bytes()
         import difflib
@@ -218,7 +248,9 @@ def run(data):
         from draft.autobuild import auto_build
         budget=data.get('build_timeout',900)
         if type(budget) not in (int,float) or not 1<=budget<=900:raise ValueError('INVALID_BUILD_BUDGET')
-        result=auto_build(p,candidate,out,m['expected_output'],timeout=budget)
+        with TemporaryDirectory(prefix='draft-context-', dir=job) as staging:
+            stage_draft_context(p, Path(staging), m)
+            result=auto_build(Path(staging), candidate, out, m['expected_output'], timeout=budget)
         if result['status']!='SUCCEEDED':return {'status':result['status'],'result':result,'error':'DRAFT_FAILED'}
         image=result['attempts'][-1]['image_id']
         if not re.fullmatch('sha256:[0-9a-f]{64}',image):raise ValueError('IMMUTABLE_IMAGE_REQUIRED')
