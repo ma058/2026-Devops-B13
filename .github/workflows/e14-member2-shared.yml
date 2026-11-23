@@ -4,8 +4,19 @@ on:
   pull_request:
     paths:
       - 'labs/e13e14/**'
-      - 'course/e13-e14/projects/b13-level-v1/**'
+      - 'labs/e11e12/**'
+      - 'labs/e8e10/**'
+      - 'course/e13-e14/projects/**'
       - '.github/workflows/e14-member2-shared.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'labs/e13e14/**'
+      - 'labs/e11e12/**'
+      - 'labs/e8e10/**'
+      - 'course/e13-e14/projects/**'
+      - '.github/workflows/e14-member2-shared.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -17,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
       - name: Build service image

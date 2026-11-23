@@ -47,7 +47,8 @@ finish() {
   if ((rc == 0 && capture == 0 && cleanup == 0)) && [[ $mode == normal ]]; then
     python3 labs/e13e14/verify_member2_shared.py "$M2_E14_RUN" > "$diag/verify.log" 2>&1 || verification=1
   fi
-  python3 labs/e13e14/scan_runtime_logs.py "$diag" > "$M2_E14_RUN/diagnostics-scan.log" 2>&1 || scan_rc=1
+  python3 labs/e13e14/member2_evidence.py "$M2_E14_RUN" > "$M2_E14_RUN/diagnostics-scan.log" 2>&1
+  scan_rc=$?
   printf 'CLIENT_EXIT=%s CAPTURE_EXIT=%s CLEANUP_EXIT=%s VERIFICATION_EXIT=%s DIAGNOSTIC_SCAN_EXIT=%s\n' \
     "$rc" "$capture" "$cleanup" "$verification" "$scan_rc"
   if ((scan_rc != 0)); then echo 'STOP: inspect diagnostics-scan.log locally before sharing'; exit 1; fi
