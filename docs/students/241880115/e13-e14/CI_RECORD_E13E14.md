@@ -24,5 +24,5 @@ py_compile + test_contract（10 项）+ labs/e13e14/tests（28 项）+ compose c
 
 ## 5. 失败与恢复记录（诚实登记）
 
-- 服务器出口网络劣化（2026-11-23 下午起，小文件 3-5s 正常、中等传输宿主/容器同挂）：教学样例基线三次（e13-baseline-01/02/03）与教师三项目首跑（-01）均 DRAFT 客户端 600s 超时——失败任务目录与构建 stderr 原件保留，属基础设施故障非业务判定；Runner 侧同内容全绿佐证链路正确。恢复后新目录复测并更新本记录。
+- 服务器基线 `e13-baseline-01` 是 iter-01 的 docker.io metadata i/o timeout，外层 DRAFT_FAILED 表示没有复现预期 missing-make；`02/03` 及 H1/H2/H3 的首跑才是 `Docker client command exceeded 600s`。各任务原始result与构建stderr均保留。宿主网络探测只有事后说明文字，本包未交原stdout/stderr；客户端超时不等于已证明BuildKit终止。Runner当前证据仅覆盖教学fixture正常路径，不代替这些公开上游项目或故障恢复的实跑。恢复后新目录复测并更新本记录。
 - 本人服务器侧四服务编排（18281-84）与受控故障注入/恢复：**待执行**（同上阻塞）；不以 CI 正常路径或容器 healthy 替代业务证据。
