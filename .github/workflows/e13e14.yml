@@ -29,6 +29,11 @@ jobs:
   four-services:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
+    env:
+      E14_PORT_BUILDCHECKER: "18281"
+      E14_PORT_ECHECKER: "18282"
+      E14_PORT_DRAFT: "18283"
+      E14_PORT_MDFIXER: "18284"
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -81,7 +86,12 @@ jobs:
           docker compose -f labs/e13e14/compose.yaml -p e14-ci logs --no-color > work/ci-service-diagnostics/services.log 2>&1
           logs_exit=$?
           printf 'ps_exit=%s\nlogs_exit=%s\n' "$ps_exit" "$logs_exit" > work/ci-service-diagnostics/capture-status.txt
-          test "$ps_exit" -eq 0 && test "$logs_exit" -eq 0
+          FINAL_EXIT=0
+          for code in "$ps_exit" "$logs_exit"; do
+            if [ "$code" -ne 0 ]; then FINAL_EXIT=$code; fi
+          done
+          echo "DIAGNOSTIC_CAPTURE_FINAL_EXIT=$FINAL_EXIT"
+          exit "$FINAL_EXIT"
       - name: Scan all captured runtime evidence
         if: always()
         run: python3 labs/e13e14/scan_runtime_logs.py work

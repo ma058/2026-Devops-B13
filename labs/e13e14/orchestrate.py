@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
@@ -10,7 +11,27 @@ import urllib.request
 import uuid
 from pathlib import Path
 
-PORTS = {'buildchecker': 18081, 'echecker': 18082, 'draft': 18083, 'mdfixer': 18084}
+DEFAULT_PORTS = {'buildchecker': 18081, 'echecker': 18082, 'draft': 18083, 'mdfixer': 18084}
+
+
+def ports_from_env(env):
+    """Resolve per-role loopback ports from E14_PORT_<ROLE> variables.
+
+    Defaults keep the teaching template ports (18081-18084). Each member sets
+    the same variables used by compose.yaml so the orchestrator and the Compose
+    stack always agree, e.g. member3 exports E14_PORT_BUILDCHECKER=18281 ...
+    E14_PORT_MDFIXER=18284.
+    """
+    ports = {}
+    for role, default in DEFAULT_PORTS.items():
+        raw = env.get('E14_PORT_' + role.upper(), str(default))
+        if not raw.isdigit() or not 1024 <= int(raw) <= 65535:
+            raise ValueError(f'Invalid port for {role}: {raw!r}')
+        ports[role] = int(raw)
+    return ports
+
+
+PORTS = ports_from_env(os.environ)
 ROOT = Path(__file__).resolve().parents[2]
 
 
