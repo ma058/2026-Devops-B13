@@ -1,0 +1,47 @@
+{
+  "schema_version": "b13-e14-profile-1",
+  "id": "b13-level-v1",
+  "units": [
+    [
+      "main.o",
+      "main.c"
+    ],
+    [
+      "helper.o",
+      "helper.c"
+    ]
+  ],
+  "repair_targets": [
+    "main.o",
+    "helper.o"
+  ],
+  "effective_flags": [
+    "-O0"
+  ],
+  "clean_argv": [
+    "make",
+    "clean"
+  ],
+  "build_argv": [
+    "make",
+    "app"
+  ],
+  "test_argv": [
+    "make",
+    "check"
+  ],
+  "run_argv": [
+    "./app"
+  ],
+  "stdout_hex": "310a",
+  "exit_code": 0,
+  "makefile_templates": [
+    "5ccb59f58de377595a4ae1440e779e49dc978b310b1edddeb1c522f24278521e",
+    "a7426d35735cf8ca7f35040cb497c83a278c7b6adb887900aac5651b634c5b77"
+  ],
+  "header_probe": {
+    "path": "config.h",
+    "content_hex": "23646566696e652056414c554520320a",
+    "stdout_hex": "320a"
+  }
+}

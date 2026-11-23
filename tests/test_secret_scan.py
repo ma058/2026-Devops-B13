@@ -43,6 +43,30 @@ class SecretScanTests(unittest.TestCase):
                 with self.subTest(scanner=str(path), sample=sample[:8]):
                     self.assertTrue(load(path).scan_text('token = ' + 'uuid.uuid4().hex # ' + sample, 'diff'))
 
+    def test_dynamic_file_env_and_semicolon_assignments(self):
+        samples = [
+            "secret=" + "Path(config['token_file']).read_bytes().strip()",
+            "token=" + "os.environ.get('E14_TOKEN','')",
+            "token=" + "uuid.uuid4().hex; number=0",
+            "envfile.write_text('E14_TOKEN=" + "'+token.read_text()+'\\n')",
+        ]
+        for path in SCANNERS:
+            for sample in samples:
+                for prefix in ('', '+    ', '-    '):
+                    with self.subTest(scanner=str(path), sample=sample, prefix=prefix):
+                        self.assertEqual(load(path).scan_text(prefix+sample, 'diff'), [])
+
+    def test_dynamic_exemptions_do_not_hide_literals_or_suffixes(self):
+        exprs = ["Path(config['token_file']).read_bytes().strip()",
+                 "os.environ.get('E14_TOKEN','')"]
+        for path in SCANNERS:
+            scan = load(path).scan_text
+            for expr in exprs:
+                self.assertTrue(scan('secret = '+repr(expr), 'source'))
+                self.assertTrue(scan('secret = '+expr+' + '+repr('z'*24), 'source'))
+                self.assertTrue(scan('secret = '+expr+'; api_key='+repr('q'*24), 'source'))
+            self.assertTrue(scan("envfile.write_text('E14_TOKEN="+'z'*24+"')", 'source'))
+
     def test_deleted_literal_is_detected_in_actual_git_history(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)

@@ -1,0 +1,97 @@
+{
+  "schema_version": "b13-e14-project-1",
+  "provider": "B13 member2 241880091",
+  "project_id": "b13-level-v1",
+  "base": "cb6545b3e8eddda5bec89b12ee390ae5e930f822",
+  "target": "5cfaf2014db78635b61d88b62760481834a344d5",
+  "profile": {
+    "schema_version": "b13-e14-profile-1",
+    "id": "b13-level-v1",
+    "units": [
+      [
+        "main.o",
+        "main.c"
+      ],
+      [
+        "helper.o",
+        "helper.c"
+      ]
+    ],
+    "repair_targets": [
+      "main.o",
+      "helper.o"
+    ],
+    "effective_flags": [
+      "-O0"
+    ],
+    "clean_argv": [
+      "make",
+      "clean"
+    ],
+    "build_argv": [
+      "make",
+      "app"
+    ],
+    "test_argv": [
+      "make",
+      "check"
+    ],
+    "run_argv": [
+      "./app"
+    ],
+    "stdout_hex": "310a",
+    "exit_code": 0,
+    "makefile_templates": [
+      "5ccb59f58de377595a4ae1440e779e49dc978b310b1edddeb1c522f24278521e",
+      "a7426d35735cf8ca7f35040cb497c83a278c7b6adb887900aac5651b634c5b77"
+    ],
+    "header_probe": {
+      "path": "config.h",
+      "content_hex": "23646566696e652056414c554520320a",
+      "stdout_hex": "320a"
+    }
+  },
+  "profile_sha256": "f0367b454aff9cb0a5304e3e3330b61d4bbd01c3f19069eaf5930a1664d3733b",
+  "candidate_sha256": "8b26c9034b1535b243b99cb43361ad2d44625473c902e0f5f7a78ffbb678fd4a",
+  "bundle_sha256": "393bf653106c6c7d37fc64d6d4b8d6c37e9053a7ec7c31674599a7237161a267",
+  "expected_output": "1",
+  "build_timeout": 900,
+  "expected_missing": [
+    {
+      "type": "MISSING",
+      "target": "main.o",
+      "dependency": "config.h"
+    },
+    {
+      "type": "MISSING",
+      "target": "helper.o",
+      "dependency": "extra.h"
+    }
+  ],
+  "base_files": {
+    ".gitignore": "01c009e9b353977e88e2ba85b874e6178f0b919b70f1c09a7eafbf884f676893",
+    "config.h": "ac32a92f4af359517c993d6e8583ea2d9b053c2ad171b4c602bc242894bd9696",
+    "Dockerfile.broken": "ef01134bca7161e3ae43427da7c35af03131552f343dba3b57f386ae6be2136b",
+    "extra.h": "4eae351001b415d2eba1d6c1f9135011fb863f22750213618a839494f65f9f12",
+    "helper.c": "e7239e93207b5aaab916e31aa8f21bef4978078d9449bd802260cc35881fe48f",
+    "LICENSE": "3eb4213b14e1e5a41fb18af58679c2036bdb8df4167ad56476581349eaa2e199",
+    "main.c": "dc7d88feb5d2dfdd2c748da28967f82241de15bf8226af91ea49c4fc6d43f5b5",
+    "Makefile": "5ccb59f58de377595a4ae1440e779e49dc978b310b1edddeb1c522f24278521e",
+    "README.md": "c0fcdfbfcefbe4088697cd879e25d8e947435e64ae556b99622e79dc02874383",
+    "unused.h": "7340fe274b39b2a7f70dcae78afdde6ad9e7a16c8edf4127c881e3113bb55564"
+  },
+  "target_files": {
+    ".gitignore": "01c009e9b353977e88e2ba85b874e6178f0b919b70f1c09a7eafbf884f676893",
+    "config.h": "ac32a92f4af359517c993d6e8583ea2d9b053c2ad171b4c602bc242894bd9696",
+    "Dockerfile.broken": "ef01134bca7161e3ae43427da7c35af03131552f343dba3b57f386ae6be2136b",
+    "extra.h": "c6d9d5f560999a0fa358aa27a13c32169ab1400ade263c6feb520e6bff178363",
+    "helper.c": "350fb8cd2489f7cc95ca2f0ed1375b1e875e9e9f45d5cffad5ab81d5170118a1",
+    "LICENSE": "3eb4213b14e1e5a41fb18af58679c2036bdb8df4167ad56476581349eaa2e199",
+    "main.c": "880db950a2a905107a81dc91c8990e7aa3c7912d5a6c0238cbff2efd024271d1",
+    "Makefile": "a7426d35735cf8ca7f35040cb497c83a278c7b6adb887900aac5651b634c5b77",
+    "README.md": "c0fcdfbfcefbe4088697cd879e25d8e947435e64ae556b99622e79dc02874383",
+    "unused.h": "7340fe274b39b2a7f70dcae78afdde6ad9e7a16c8edf4127c881e3113bb55564"
+  },
+  "receiver_acceptance": "PENDING_A13_NEW_RUN",
+  "candidate_origin": "B13 Dockerfile.broken plus pinned Python base and tool-install pattern from received A13 candidate; COPY/build/test/CMD bind this new B13 project"
+}

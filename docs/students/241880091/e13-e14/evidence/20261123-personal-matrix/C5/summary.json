@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "scenario": "C5",
+  "job_id": "job-9dded64c61b54ca4b381031ba6dd9d45",
+  "trace_id": "trace-9014e5cd22b448868845ed535218df6d",
+  "uid": 1001,
+  "implementation_sha": "99f2c7abd1cad161cbfa4affe8d2109568d948ab",
+  "profile_sha256": "f0367b454aff9cb0a5304e3e3330b61d4bbd01c3f19069eaf5930a1664d3733b",
+  "candidate_sha256": "8b26c9034b1535b243b99cb43361ad2d44625473c902e0f5f7a78ffbb678fd4a",
+  "base": "cb6545b3e8eddda5bec89b12ee390ae5e930f822",
+  "target": "5cfaf2014db78635b61d88b62760481834a344d5",
+  "image_id": "sha256:f0a0f28f3a24daeb6e24377a0d285bdf17a94023dc2acf026cbf632a831ba0bd",
+  "C5": {
+    "accepted": false,
+    "complete_source_unchanged": true,
+    "git_status_unchanged": true,
+    "stderr": "bad-repair/runtime/output/evidence/apply-check.stderr"
+  },
+  "remaining_missing": [],
+  "changed_sources": [
+    "Makefile"
+  ]
+}

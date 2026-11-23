@@ -1,0 +1,1 @@
+{"accepted":false,"checks":{},"error":"apply-check: error: No valid patches in input (allow with \"--allow-empty\")\n","profile_sha256":"f0367b454aff9cb0a5304e3e3330b61d4bbd01c3f19069eaf5930a1664d3733b","rollback":true,"source_unchanged":true,"success_scope":["main.o","helper.o"]}

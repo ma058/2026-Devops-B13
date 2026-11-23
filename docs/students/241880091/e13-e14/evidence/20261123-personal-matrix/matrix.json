@@ -1,0 +1,103 @@
+{
+  "status": "PASS",
+  "scope": "MEMBER2_PERSONAL_SERVER_RUN_NOT_A13_ACCEPTANCE",
+  "records": [
+    {
+      "scenario": "normal",
+      "path": "/home/m2_241880091/241880091/m2-e13e14-20261123-ZAKC2v/repository/work/m2-e14-396e048fe158/jobs/job-aa20b0af94524337ba35ecf951823a2c",
+      "result": {
+        "status": "PASS",
+        "scenario": "normal",
+        "job_id": "job-aa20b0af94524337ba35ecf951823a2c",
+        "trace_id": "trace-3fa369e8ee694087a57379c2b408d276",
+        "uid": 1001,
+        "implementation_sha": "99f2c7abd1cad161cbfa4affe8d2109568d948ab",
+        "profile_sha256": "f0367b454aff9cb0a5304e3e3330b61d4bbd01c3f19069eaf5930a1664d3733b",
+        "candidate_sha256": "8b26c9034b1535b243b99cb43361ad2d44625473c902e0f5f7a78ffbb678fd4a",
+        "base": "cb6545b3e8eddda5bec89b12ee390ae5e930f822",
+        "target": "5cfaf2014db78635b61d88b62760481834a344d5",
+        "image_id": "sha256:3549cee8177407e632992d01cf3c3768790e850b8d36d07f9a7b34fdfdc840fe",
+        "remaining_missing": [],
+        "changed_sources": [
+          "Makefile"
+        ]
+      }
+    },
+    {
+      "scenario": "C4",
+      "path": "/home/m2_241880091/241880091/m2-e13e14-20261123-ZAKC2v/repository/work/m2-e14-396e048fe158/jobs/job-7cb2ad1fc6984ae289be793f69758727",
+      "result": {
+        "status": "EXPECTED_TIMEOUT_VERIFIED",
+        "scenario": "C4",
+        "job_id": "job-7cb2ad1fc6984ae289be793f69758727",
+        "trace_id": "trace-3be602c6488a46208ef2e14e85bcee80",
+        "uid": 1001,
+        "implementation_sha": "99f2c7abd1cad161cbfa4affe8d2109568d948ab",
+        "profile_sha256": "f0367b454aff9cb0a5304e3e3330b61d4bbd01c3f19069eaf5930a1664d3733b",
+        "candidate_sha256": "8b26c9034b1535b243b99cb43361ad2d44625473c902e0f5f7a78ffbb678fd4a",
+        "base": "cb6545b3e8eddda5bec89b12ee390ae5e930f822",
+        "target": "5cfaf2014db78635b61d88b62760481834a344d5",
+        "image_id": "sha256:ee16ed51726898a29bba6328c569751152cdf494617d5ecc2d1ac8ab0be9158c",
+        "cleanup": {
+          "ownership_label": "c6b5e370097d4b458b75f80d4f29c33a",
+          "removed": [
+            "51516c0cb488c9187d3958751fd477ecae85e37425fbecce42ecf799280ed107"
+          ],
+          "verified_no_owned_containers": true,
+          "observed_at_utc": "2026-11-23T06:49:45.557635+00:00"
+        },
+        "source_unchanged": true,
+        "recovery": "REQUIRES_NEW_NORMAL_JOB"
+      }
+    },
+    {
+      "scenario": "normal",
+      "path": "/home/m2_241880091/241880091/m2-e13e14-20261123-ZAKC2v/repository/work/m2-e14-396e048fe158/jobs/job-cffaec1e0cbf4f9c9f911a485ae63f6a",
+      "result": {
+        "status": "PASS",
+        "scenario": "normal",
+        "job_id": "job-cffaec1e0cbf4f9c9f911a485ae63f6a",
+        "trace_id": "trace-debc02b3d2a94b1dbb57df972eaf9490",
+        "uid": 1001,
+        "implementation_sha": "99f2c7abd1cad161cbfa4affe8d2109568d948ab",
+        "profile_sha256": "f0367b454aff9cb0a5304e3e3330b61d4bbd01c3f19069eaf5930a1664d3733b",
+        "candidate_sha256": "8b26c9034b1535b243b99cb43361ad2d44625473c902e0f5f7a78ffbb678fd4a",
+        "base": "cb6545b3e8eddda5bec89b12ee390ae5e930f822",
+        "target": "5cfaf2014db78635b61d88b62760481834a344d5",
+        "image_id": "sha256:c254b91f01a214ecb20965edbfacc52074fa9875b4b7a52093c9b5b2bbb50d6b",
+        "remaining_missing": [],
+        "changed_sources": [
+          "Makefile"
+        ]
+      }
+    },
+    {
+      "scenario": "C5",
+      "path": "/home/m2_241880091/241880091/m2-e13e14-20261123-ZAKC2v/repository/work/m2-e14-396e048fe158/jobs/job-9dded64c61b54ca4b381031ba6dd9d45",
+      "result": {
+        "status": "PASS",
+        "scenario": "C5",
+        "job_id": "job-9dded64c61b54ca4b381031ba6dd9d45",
+        "trace_id": "trace-9014e5cd22b448868845ed535218df6d",
+        "uid": 1001,
+        "implementation_sha": "99f2c7abd1cad161cbfa4affe8d2109568d948ab",
+        "profile_sha256": "f0367b454aff9cb0a5304e3e3330b61d4bbd01c3f19069eaf5930a1664d3733b",
+        "candidate_sha256": "8b26c9034b1535b243b99cb43361ad2d44625473c902e0f5f7a78ffbb678fd4a",
+        "base": "cb6545b3e8eddda5bec89b12ee390ae5e930f822",
+        "target": "5cfaf2014db78635b61d88b62760481834a344d5",
+        "image_id": "sha256:f0a0f28f3a24daeb6e24377a0d285bdf17a94023dc2acf026cbf632a831ba0bd",
+        "C5": {
+          "accepted": false,
+          "complete_source_unchanged": true,
+          "git_status_unchanged": true,
+          "stderr": "bad-repair/runtime/output/evidence/apply-check.stderr"
+        },
+        "remaining_missing": [],
+        "changed_sources": [
+          "Makefile"
+        ]
+      }
+    }
+  ],
+  "C4_recovered_in_new_job": true
+}
