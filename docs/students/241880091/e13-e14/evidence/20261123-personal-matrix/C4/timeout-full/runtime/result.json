@@ -1,0 +1,8 @@
+{
+  "status": "TIMED_OUT",
+  "error": "WORKER_TIMED_OUT",
+  "operation": "full",
+  "container_id": "51516c0cb488c9187d3958751fd477ecae85e37425fbecce42ecf799280ed107",
+  "cleanup_verified": true,
+  "source_unchanged": true
+}

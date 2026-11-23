@@ -1,0 +1,23 @@
+{
+  "status": "EXPECTED_TIMEOUT_VERIFIED",
+  "scenario": "C4",
+  "job_id": "job-7cb2ad1fc6984ae289be793f69758727",
+  "trace_id": "trace-3be602c6488a46208ef2e14e85bcee80",
+  "uid": 1001,
+  "implementation_sha": "99f2c7abd1cad161cbfa4affe8d2109568d948ab",
+  "profile_sha256": "f0367b454aff9cb0a5304e3e3330b61d4bbd01c3f19069eaf5930a1664d3733b",
+  "candidate_sha256": "8b26c9034b1535b243b99cb43361ad2d44625473c902e0f5f7a78ffbb678fd4a",
+  "base": "cb6545b3e8eddda5bec89b12ee390ae5e930f822",
+  "target": "5cfaf2014db78635b61d88b62760481834a344d5",
+  "image_id": "sha256:ee16ed51726898a29bba6328c569751152cdf494617d5ecc2d1ac8ab0be9158c",
+  "cleanup": {
+    "ownership_label": "c6b5e370097d4b458b75f80d4f29c33a",
+    "removed": [
+      "51516c0cb488c9187d3958751fd477ecae85e37425fbecce42ecf799280ed107"
+    ],
+    "verified_no_owned_containers": true,
+    "observed_at_utc": "2026-11-23T06:49:45.557635+00:00"
+  },
+  "source_unchanged": true,
+  "recovery": "REQUIRES_NEW_NORMAL_JOB"
+}
