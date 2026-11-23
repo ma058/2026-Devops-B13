@@ -31,17 +31,16 @@ jobs:
             --build-arg PIP_INDEX_URL=https://pypi.org/simple \
             -f labs/e11e12/environment/services/buildchecker/Dockerfile \
             -t b13-four-roles:ci labs/e11e12/environment
-      - name: Check shared service health
-        run: bash labs/e13e14/run_shared_member2.sh b13-four-roles:ci 19281 smoke
-      - name: Exercise frozen B13 project and targeted worker recovery
+      - name: Check service health and run frozen B13 project with targeted recovery
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/b13-export"
-          for entry in 1-normal 2-C4 3-normal 4-C5; do
+          for entry in 0-smoke 1-normal 2-C4 3-normal 4-C5; do
             mode=${entry#*-}
+            port=$((19281 + 10 * ${entry%%-*}))
             log="$RUNNER_TEMP/$entry.log"
             rc=0
-            bash labs/e13e14/run_shared_member2.sh b13-four-roles:ci 19281 "$mode" | tee "$log" || rc=$?
+            bash labs/e13e14/run_shared_member2.sh b13-four-roles:ci "$port" "$mode" | tee "$log" || rc=$?
             session=$(sed -n 's/^SESSION=//p' "$log")
             if [[ -n "$session" && -f "$session" ]]; then
               source "$session"
