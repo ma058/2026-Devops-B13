@@ -115,3 +115,34 @@ jobs:
             !work/**/*.key
           if-no-files-found: warn
           retention-days: 14
+      - name: Run b13-level-v1 through the shared four services
+        id: b13_project
+        run: |
+          set -euo pipefail
+          # Keep this stack's private runtime outside the teaching work/ artifact.
+          checkout=$(mktemp -d "$RUNNER_TEMP/four-services-b13.XXXXXX")
+          git init -q "$checkout"
+          git -C "$checkout" fetch -q --no-tags "$GITHUB_WORKSPACE" HEAD
+          git -C "$checkout" checkout -q --detach FETCH_HEAD
+          test "$(git -C "$checkout" rev-parse HEAD)" = "$(git rev-parse HEAD)"
+          cd "$checkout"
+          log="$RUNNER_TEMP/four-services-b13.log"
+          rc=0
+          bash labs/e13e14/run_shared_member2.sh course-e11e12:999999999 19381 normal | tee "$log" || rc=$?
+          run=$(sed -n 's/^RUN=//p' "$log")
+          if [[ "$run" != "$checkout"/work/m2-e14-* || ! -f "$run/config.json" ]]; then
+            echo "::error::B13 run did not produce its runtime configuration"
+            exit 1
+          fi
+          python3 labs/e13e14/member2_export.py --config "$run/config.json" --out "$RUNNER_TEMP/four-services-b13-export"
+          exit "$rc"
+      - name: Upload scanned B13 project evidence
+        if: always() && steps.b13_project.outcome != 'skipped'
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: four-services-b13-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/four-services-b13-export/*.tar.gz
+            ${{ runner.temp }}/four-services-b13-export/*.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 14
