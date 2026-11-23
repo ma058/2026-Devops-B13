@@ -1,0 +1,148 @@
+# E14 four-role Compose. Set E14_ROOT and E14_IMAGE before use.
+# Loopback ports are parameterized so each member runs an isolated stack:
+#   member1 18081-18084, member2 18181-18184, member3 18281-18284.
+# Defaults keep the teaching template values (18081-18084) so CI is unchanged.
+# Container identity matches the orchestrator owner (E14_UID/E14_GID, default
+# root) so shared Git snapshots do not trigger dubious-ownership refusals;
+# DRAFT additionally joins the docker.sock group (E14_DOCKER_GID).
+# Hardening: the repository source tree is mounted read-only; only the
+# experiment work directory is writable. Only the DRAFT role mounts the
+# Docker socket. The effective user is recorded as-is in the member3 report.
+x-identity: &identity
+  user: "${E14_UID:-0}:${E14_GID:-0}"
+  environment: &identity-env
+    PYTHONPATH: /course/labs/e8e10:/course/labs/e11e12/vendor:/app
+    PYTHONDONTWRITEBYTECODE: "1"
+    HOME: /tmp
+
+services:
+  buildchecker:
+    image: ${E14_IMAGE:?set E14_IMAGE}
+    pull_policy: never
+    restart: unless-stopped
+    <<: *identity
+    working_dir: /course
+    environment:
+      <<: *identity-env
+      E14_ROLE: buildchecker
+    command: ["python3", "labs/e13e14/service.py"]
+    ports:
+      - "127.0.0.1:${E14_PORT_BUILDCHECKER:-18081}:8080"
+    cap_add:
+      - SYS_PTRACE
+    volumes:
+      - type: bind
+        source: ${E14_ROOT:?set E14_ROOT}
+        target: /course
+        read_only: true
+      - type: bind
+        source: ${E14_ROOT:?set E14_ROOT}/work
+        target: /course/work
+    cpus: 1.0
+    mem_limit: 768m
+    pids_limit: 128
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+
+  echecker:
+    image: ${E14_IMAGE:?set E14_IMAGE}
+    pull_policy: never
+    restart: unless-stopped
+    <<: *identity
+    working_dir: /course
+    environment:
+      <<: *identity-env
+      E14_ROLE: echecker
+    command: ["python3", "labs/e13e14/service.py"]
+    ports:
+      - "127.0.0.1:${E14_PORT_ECHECKER:-18082}:8080"
+    volumes:
+      - type: bind
+        source: ${E14_ROOT:?set E14_ROOT}
+        target: /course
+        read_only: true
+      - type: bind
+        source: ${E14_ROOT:?set E14_ROOT}/work
+        target: /course/work
+    cpus: 1.0
+    mem_limit: 768m
+    pids_limit: 128
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+
+  draft:
+    image: ${E14_IMAGE:?set E14_IMAGE}
+    pull_policy: never
+    restart: unless-stopped
+    <<: *identity
+    group_add:
+      - "${E14_DOCKER_GID:-0}"
+    working_dir: /course
+    environment:
+      <<: *identity-env
+      E14_ROLE: draft
+    command: ["python3", "labs/e13e14/service.py"]
+    ports:
+      - "127.0.0.1:${E14_PORT_DRAFT:-18083}:8080"
+    volumes:
+      - type: bind
+        source: ${E14_ROOT:?set E14_ROOT}
+        target: /course
+        read_only: true
+      - type: bind
+        source: ${E14_ROOT:?set E14_ROOT}/work
+        target: /course/work
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+    cpus: 1.0
+    mem_limit: 768m
+    pids_limit: 128
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+
+  mdfixer:
+    image: ${E14_IMAGE:?set E14_IMAGE}
+    pull_policy: never
+    restart: unless-stopped
+    <<: *identity
+    working_dir: /course
+    environment:
+      <<: *identity-env
+      E14_ROLE: mdfixer
+    command: ["python3", "labs/e13e14/service.py"]
+    ports:
+      - "127.0.0.1:${E14_PORT_MDFIXER:-18084}:8080"
+    volumes:
+      - type: bind
+        source: ${E14_ROOT:?set E14_ROOT}
+        target: /course
+        read_only: true
+      - type: bind
+        source: ${E14_ROOT:?set E14_ROOT}/work
+        target: /course/work
+    cpus: 1.0
+    mem_limit: 768m
+    pids_limit: 128
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 6

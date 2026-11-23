@@ -1,0 +1,95 @@
+name: E13-E14 integration gate
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Python and interface contracts
+        run: |
+          set -euo pipefail
+          python3 -m py_compile labs/e11e12/pipeline.py labs/e13e14/*.py
+          python3 -m unittest discover -s labs/e11e12 -p 'test_contract.py' -v
+          python3 -m unittest discover -s labs/e13e14/tests -p 'test_*.py' -v
+      - name: Compose config and source scan
+        run: |
+          set -euo pipefail
+          E14_ROOT="$PWD" E14_IMAGE=course-e11e12:999999999 docker compose -f labs/e13e14/compose.yaml config --quiet
+          python3 scripts/secret_scan.py . --history
+
+  four-services:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Build pinned teaching image
+        run: |
+          set -euo pipefail
+          git config --local user.name 999999999
+          git config --local user.email ci@example.invalid
+          echo "E14_UID=$(id -u)" >> "$GITHUB_ENV"
+          echo "E14_GID=$(id -g)" >> "$GITHUB_ENV"
+          echo "E14_DOCKER_GID=$(stat -c %g /var/run/docker.sock)" >> "$GITHUB_ENV"
+          docker build --progress=plain \
+            --build-arg BASE_IMAGE=python:3.13-slim@sha256:f82c96458eedc847b233e582eb31336f4954b39cae020b6dcf5b3ed0e5cbcd74 \
+            --build-arg DOCKER_CLI_IMAGE=docker:28.5.1-cli@sha256:9190b0613792e658a7783cf14b2d5ace5941bb68ede7276922ea36ee457d76ad \
+            -f labs/e11e12/environment/services/buildchecker/Dockerfile \
+            -t course-e11e12:999999999 labs/e11e12/environment
+          python3 run_e11e12.py prepare
+      - name: Run E2E fixture and collect evidence even on failure
+        run: |
+          set -uo pipefail
+          export E14_ROOT="$PWD" E14_IMAGE=course-e11e12:999999999
+          docker compose -f labs/e13e14/compose.yaml -p e14-ci up -d --wait
+          UP_EXIT=$?
+          echo "COMPOSE_UP_EXIT=$UP_EXIT"
+          RUN_EXIT=0
+          python3 labs/e13e14/orchestrate.py --request data/integration-sample/e12.json --out work/ci-e14 || RUN_EXIT=$?
+          echo "ORCHESTRATE_EXIT=$RUN_EXIT"
+          docker compose -f labs/e13e14/compose.yaml -p e14-ci ps > work/ci-e14-compose-ps.txt || echo "COMPOSE_PS_COLLECT_ERROR=$?" >> work/ci-e14-compose-ps.txt
+          docker compose -f labs/e13e14/compose.yaml -p e14-ci logs --no-color > work/ci-e14-services.log || echo "COMPOSE_LOGS_COLLECT_ERROR=$?" >> work/ci-e14-services.log
+          SCAN_WORK_EXIT=0
+          python3 labs/e13e14/scan_runtime_logs.py work/ci-e14 > work/ci-e14-scan.txt 2>&1 || SCAN_WORK_EXIT=$?
+          SCAN_LOGS_EXIT=0
+          python3 labs/e13e14/scan_runtime_logs.py work/ci-e14-services.log >> work/ci-e14-scan.txt 2>&1 || SCAN_LOGS_EXIT=$?
+          cat work/ci-e14-scan.txt || true
+          printf 'compose_up_exit=%s\norchestrate_exit=%s\nscan_work_exit=%s\nscan_logs_exit=%s\n' \
+            "$UP_EXIT" "$RUN_EXIT" "$SCAN_WORK_EXIT" "$SCAN_LOGS_EXIT" > work/ci-e14-collection-status.txt
+          cat work/ci-e14-collection-status.txt
+          FINAL_EXIT=0
+          for code in "$UP_EXIT" "$RUN_EXIT" "$SCAN_WORK_EXIT" "$SCAN_LOGS_EXIT"; do
+            if [ "$code" -ne 0 ]; then FINAL_EXIT=$code; fi
+          done
+          echo "FOUR_SERVICES_FINAL_EXIT=$FINAL_EXIT"
+          exit "$FINAL_EXIT"
+      - name: Stop only this Compose project
+        if: always()
+        run: |
+          E14_ROOT="$PWD" E14_IMAGE=course-e11e12:999999999 docker compose -f labs/e13e14/compose.yaml -p e14-ci down
+      - name: Preserve evidence
+        if: always()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: e13e14-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          include-hidden-files: true
+          path: |
+            work/
+            !work/**/.git/**
+            !work/**/.env
+            !work/**/.env.*
+            !work/**/*.pem
+            !work/**/*.key
+          if-no-files-found: warn
+          retention-days: 14
