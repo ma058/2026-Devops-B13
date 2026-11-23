@@ -8,6 +8,7 @@
 发现疑似密钥时退出码为 1。输出只显示前 4 位，避免检查本身再泄露一次。
 """
 import argparse
+import ast
 import os
 import re
 import subprocess
@@ -28,6 +29,42 @@ def mask(s):
     return s[:4] + "***" if len(s) > 4 else "***"
 
 
+def runtime_expression(line, match):
+    """Exempt only parsed dynamic RHS nodes at this exact match position.
+
+    Never exempt quoted literals, appended values, or another match on the line.
+    Git patch prefixes are removed only for parsing, not for reported locations.
+    """
+    prefix = 1 if line.startswith(('+', '-')) else 0
+    tail = line[prefix:]
+    source = tail.lstrip()
+    offset = prefix + len(tail) - len(source)
+    position = match.start(1) - offset
+    if position < 0:
+        return False
+    column = len(source[:position].encode('utf-8'))
+    try:
+        tree = ast.parse(source)
+    except (SyntaxError, ValueError):
+        return False
+    known = ["uuid.uuid4().hex",
+             "Path(config['token_file']).read_bytes().strip()",
+             "os.environ.get('E14_TOKEN','')"]
+    shapes = {ast.dump(ast.parse(s, mode='eval').body) for s in known}
+    env_shape = ast.dump(ast.parse("'E14_TOKEN" + "='+token.read_text()+'\\n'", mode='eval').body)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            if node.value.col_offset == column and ast.dump(node.value) in shapes:
+                return True
+        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                and node.func.attr == 'write_text' and len(node.args) == 1
+                and ast.dump(node.args[0]) == env_shape):
+            literal = node.args[0].left.left
+            if literal.end_col_offset == column:
+                return True
+    return False
+
+
 def scan_text(text, where):
     hits = []
     for n, line in enumerate(text.splitlines(), 1):
@@ -36,19 +73,14 @@ def scan_text(text, where):
                 value = m.group(m.lastindex or 0)
                 if name == "密钥赋值" and PLACEHOLDER.search(value):
                     continue
-                # A bare UUID-generating expression is code, not a stored key.
-                # Keep quoted strings, longer expressions and other matches on
-                # this line subject to the normal checks (including Git diffs).
-                if (name == "密钥赋值" and value == "uuid.uuid4().hex"
-                        and not line[m.start(1)-1:m.start(1)] in ("'", '"')
-                        and re.fullmatch(r"\s*(?:#.*)?", line[m.end():])):
+                if name == "密钥赋值" and runtime_expression(line, m):
                     continue
                 hits.append(f"{where}:{n}  {name}  {mask(value)}")
     return hits
 
 
 def git(root, *args):
-    return subprocess.run(["git", "-C", str(root), *args], capture_output=True, text=True)
+    return subprocess.run(["git", "-C", str(root), *args], capture_output=True, text=True, encoding='utf-8', errors='replace')
 
 
 def files(root):
@@ -95,7 +127,7 @@ def main():
     if args.image:
         for cmd, where in ((["docker", "history", "--no-trunc", "--format", "{{.CreatedBy}}", args.image], "image-history"),
                            (["docker", "image", "inspect", "--format", "{{range .Config.Env}}{{println .}}{{end}}", args.image], "image-env")):
-            p = subprocess.run(cmd, capture_output=True, text=True)
+            p = subprocess.run(cmd, capture_output=True, text=True, encoding='utf-8', errors='replace')
             if p.returncode != 0:
                 print(f"无法检查镜像 {args.image}：{p.stderr.strip()}", file=sys.stderr)
                 sys.exit(2)

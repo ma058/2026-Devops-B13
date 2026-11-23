@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "docker",
+    "rm",
+    "-f",
+    "51516c0cb488c9187d3958751fd477ecae85e37425fbecce42ecf799280ed107"
+  ]
+}

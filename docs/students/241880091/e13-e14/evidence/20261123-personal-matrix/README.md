@@ -1,0 +1,7 @@
+# 本人服务器证据摘录
+
+执行源码99f2c7abd1cad161cbfa4affe8d2109568d948ab；完整下载原件SHA 4157bd945a4fbd5bf3e87a935d0fb38a90fac77d478f97873e6101ef3f6e4707。
+
+C4/C5/diagnostics/matrix.json来自原归档，保持字节；verification-summary/image-source-bindings由本地逐条原件核对生成。MANIFEST对本目录除自身外逐文件计数/哈希，.gitattributes禁止Git换行转换。完整归档包含2387项清单，摘录不能代替原件。
+
+C4内层TIMED_OUT和C5 accepted=false是已验收的预期负例；恢复正常及正确patch对照在matrix中。此证据仅证明本人B13 b13-level-v1项目E14矩阵，不是A13跨组回签，也不是当前head新一次执行。
