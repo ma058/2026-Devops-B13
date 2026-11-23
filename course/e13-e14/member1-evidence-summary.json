@@ -1,0 +1,109 @@
+{
+  "student": "241880054",
+  "source_label": "LOCAL_SIMULATED_A",
+  "passed": true,
+  "cases": {
+    "C1": {
+      "passed": true,
+      "local_A": {
+        "status": "SUCCEEDED",
+        "job_id": "job-285cd0dff7f446f8befb89d8cb04949e",
+        "trace_id": "trace-600309c367564e9ba3e9ec8e098deef9",
+        "artifacts_verified": 85
+      },
+      "B": {
+        "status": "SUCCEEDED",
+        "job_id": "job-2285fc804b5d4f929b9d9298fc0f19b9",
+        "trace_id": "trace-73577d5ce6ba473b8b8ec5c4557a7c7d",
+        "artifacts_verified": 227
+      },
+      "result_sha256": "406f15c1707597da77219a55b90056830fb72139924ec8b20ad7ca01cdf6cc42",
+      "fixed_report_sha256": "8f7f5df86b63cad2e9e2d29f93337f69e10ef4ead4b170f4dddfd4c024e6e30e",
+      "source_report": {
+        "job_id": "job-285cd0dff7f446f8befb89d8cb04949e",
+        "trace_id": "trace-600309c367564e9ba3e9ec8e098deef9",
+        "uri": "artifact://job-285cd0dff7f446f8befb89d8cb04949e/incremental-check.json",
+        "sha256": "43c1a126451b33445b93aa2a035dc53ba7f2c7cf135a4a638db47a5a84b72019",
+        "payload_uri": "artifact://job-285cd0dff7f446f8befb89d8cb04949e/incremental-report.json",
+        "payload_sha256": "a72946c19837d62c04d101a24ace43a96a466940b40340ef999e8dbff29c7a19",
+        "result_sha256": "406f15c1707597da77219a55b90056830fb72139924ec8b20ad7ca01cdf6cc42",
+        "exchanged_result_sha256_verified": true,
+        "exchanged_job_id_verified": true,
+        "exchanged_trace_id_verified": true
+      },
+      "draft_image_id": "sha256:fbaf21b913d819acfc68d2b9045e6af8a6204c8c5d44242b9998eb7e4c79f0d4"
+    },
+    "C2": {
+      "passed": true,
+      "expected_error": "STALE_REPORT",
+      "job_id": "job-4e0231d66ac2492d890468ea850e102f",
+      "trace_id": "trace-27fef8c133be4b538fea734e703034e9",
+      "stages": [],
+      "original_sources_preserved": true
+    },
+    "C3": {
+      "passed": true,
+      "expected_error": "ARTIFACT_HASH_MISMATCH",
+      "job_id": "job-c3ed90ac36174e308865e6fe311744a4",
+      "trace_id": "trace-9a5788af270a4155815c6d1b60b67d0f",
+      "stages": [],
+      "original_sources_preserved": true
+    },
+    "C8": {
+      "passed": true,
+      "same_key_same_job": true,
+      "conflict_status": 409,
+      "job_id": "job-1152f9791c1742b2a9ca889e0b423a30",
+      "trace_id": "trace-86f77047381a49d4818b79014cda92c6",
+      "downloaded_files": 85,
+      "stage_checks": {
+        "files_verified": 85,
+        "stages_verified": [
+          {
+            "name": "full-check",
+            "sha256": "99ad4de7ba129b2d0cfa7391e526fea19a00532041c8f99007e95caef9aa6cd1",
+            "commit": "06bfe7598677d3ce1558807dbff0a8a622e147aa",
+            "job_id": "job-1152f9791c1742b2a9ca889e0b423a30",
+            "trace_id": "trace-86f77047381a49d4818b79014cda92c6"
+          },
+          {
+            "name": "incremental-check",
+            "sha256": "2592538655a3136a753b50463d2285385ac53d059bc41f67e5dd2a5cca266146",
+            "commit": "8da6d6f13f20a32e288d921983312ca61aed882f",
+            "job_id": "job-1152f9791c1742b2a9ca889e0b423a30",
+            "trace_id": "trace-86f77047381a49d4818b79014cda92c6"
+          }
+        ]
+      },
+      "api": "existing E12 asynchronous /v1/jobs",
+      "a13_client_session": false,
+      "cleanup": {
+        "pid": 300,
+        "process_group_id": 300,
+        "private_process_group_only": true,
+        "parent_exited_before_cleanup": false,
+        "parent_stopped": true,
+        "process_exit_code": -15,
+        "process_group_present_before": true,
+        "process_group_absent_at_observation": true,
+        "observation_utc": "2026-11-22T14:12:19Z",
+        "signals_sent": [
+          15
+        ],
+        "errors": [],
+        "scope": "Original private process group only; escaped descendants are not proven stopped",
+        "worker_terminal_before_shutdown": true
+      }
+    }
+  },
+  "formal_cross_group_matrix": "NOT_RUN",
+  "teacher_hidden_tests": "NOT_RECEIVED",
+  "scope": "Local controlled rehearsal; not A13 execution, not E14 four-service acceptance",
+  "request_sha256": "eee5474e79b4b630469f488b41669ee3adeb228b6f7d6b9020035bc28c6dac10",
+  "course_source_commit": "1b667ddaad2d1cd22ec640f72d2664a90e585686",
+  "base_commit": "06bfe7598677d3ce1558807dbff0a8a622e147aa",
+  "target_commit": "8da6d6f13f20a32e288d921983312ca61aed882f",
+  "uid": 10001,
+  "gid": 10001,
+  "original_sources_preserved": true
+}
