@@ -59,12 +59,8 @@ def main(argv=None) -> int:
                         for name, pattern in PATTERNS:
                             for match in pattern.finditer(line):
                                 value = match.group(match.lastindex or 0)
-                                if name == "secret assignment":
-                                    # Parser source may assign a token pointer from a
-                                    # function call or array. That is code, not a
-                                    # hard-coded credential.
-                                    if PLACEHOLDER.search(value) or value.startswith("&") or "(" in value or "[" in value:
-                                        continue
+                                if name == "secret assignment" and PLACEHOLDER.search(value):
+                                    continue
                                 print(f"FOUND {path}:{lineno} {name} {mask(value)}")
                                 hits += 1
             except OSError as exc:

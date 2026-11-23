@@ -47,6 +47,10 @@ def _json_object(data):
         raise Failure('INVALID_REPORT', 'Report must contain valid JSON') from exc
     if not isinstance(value, dict):
         raise Failure('INVALID_REPORT', 'Report must be a JSON object')
+    try:
+        json.dumps(value, allow_nan=False)
+    except ValueError as exc:
+        raise Failure('INVALID_REPORT', 'Non-finite JSON number') from exc
     return value
 
 
@@ -62,13 +66,32 @@ def _hash_bytes(path, expected):
 def verify_received(envelope_path, envelope_sha256, payload_path, payload_sha256,
                     target, job_id, trace_id):
     """Validate both immutable input byte strings; never create or write files."""
+    _validate_identity(target, job_id, trace_id)
+    envelope_bytes = _hash_bytes(envelope_path, envelope_sha256)
+    payload_bytes = _hash_bytes(payload_path, payload_sha256)
+    return verify_received_bytes(envelope_bytes, envelope_sha256, payload_bytes,
+                                 payload_sha256, target, job_id, trace_id)
+
+
+def _validate_identity(target, job_id, trace_id):
     if not isinstance(target, str) or not re.fullmatch(r'[0-9a-f]{40}', target):
         raise Failure('INVALID_REQUEST', 'Target must be a complete 40-digit Git commit SHA')
     for value in (job_id, trace_id):
         if not isinstance(value, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._-]{0,127}', value):
             raise Failure('INVALID_REQUEST', 'Expected job_id and trace_id must be nonempty safe identifiers')
-    envelope_bytes = _hash_bytes(envelope_path, envelope_sha256)
-    payload_bytes = _hash_bytes(payload_path, payload_sha256)
+
+
+def verify_received_bytes(envelope_bytes, envelope_sha256, payload_bytes,
+                          payload_sha256, target, job_id, trace_id):
+    """Verify and parse the exact bytes already received, with no file reread."""
+    _validate_identity(target, job_id, trace_id)
+    for data, expected in ((envelope_bytes, envelope_sha256), (payload_bytes, payload_sha256)):
+        if not isinstance(data, bytes):
+            raise Failure('INVALID_REPORT', 'Received content must be immutable bytes')
+        if not isinstance(expected, str) or not re.fullmatch(r'[0-9a-f]{64}', expected):
+            raise Failure('INVALID_REQUEST', 'Expected SHA-256 must be 64 lowercase hex digits')
+        if hashlib.sha256(data).hexdigest() != expected:
+            raise Failure('ARTIFACT_HASH_MISMATCH', 'Received file does not match exchanged SHA-256')
     envelope = _json_object(envelope_bytes)
     payload = _json_object(payload_bytes)
     check_envelope(envelope, target, 'incremental-check')

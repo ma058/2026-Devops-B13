@@ -1,6 +1,9 @@
 import contextlib
 import io
 import json
+import os
+import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -101,6 +104,28 @@ class ScanRuntimeLogsTests(unittest.TestCase):
             code, _ = self.run_scan(Path(tmp) / 'does-not-exist')
             self.assertEqual(code, 2)
 
+    def test_quoted_password_literals_with_code_punctuation_are_not_ignored(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            probe = Path(tmp) / 'fake.log'
+            for suffix in ('(alpha123456789', '[alpha123456789', '&alpha123456789'):
+                value = 'synthetic' + suffix
+                probe.write_text('pass' + 'word = "' + value + '"\n', encoding='utf-8')
+                completed = subprocess.run(
+                    [sys.executable, str(Path(scan_runtime_logs.__file__)), str(probe)],
+                    capture_output=True, text=True, timeout=15)
+                self.assertEqual(completed.returncode, 1, completed.stdout)
+                self.assertIn('FOUND', completed.stdout)
+                self.assertNotIn(value, completed.stdout)
+
+    def test_quoted_password_with_leading_ampersand_is_not_ignored(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            probe = Path(tmp) / 'fake.log'
+            value = '&' + 'syntheticAlpha123456789'
+            probe.write_text('pass' + 'word = "' + value + '"\n', encoding='utf-8')
+            code, output = self.run_scan(probe)
+            self.assertEqual(code, 1)
+            self.assertNotIn(value, output)
+
 
 class ComposeTemplateTests(unittest.TestCase):
     def setUp(self):
@@ -136,14 +161,49 @@ class WorkflowEvidenceCollectionTests(unittest.TestCase):
         self.text = (repo / '.github' / 'workflows' / 'e13e14.yml').read_text(encoding='utf-8')
 
     def test_orchestrate_failure_is_captured_not_aborting_collection(self):
-        self.assertIn('|| RUN_EXIT=$?', self.text)
-        self.assertIn('ci-e14-compose-ps.txt', self.text)
-        self.assertIn('ci-e14-services.log', self.text)
-        self.assertIn('ci-e14-collection-status.txt', self.text)
+        # Collection is an independent always() step, before project cleanup.
+        start = self.text.index('- name: Preserve service diagnostics')
+        end = self.text.index('- name: Scan all captured runtime evidence')
+        self.assertIn('if: always()', self.text[start:end])
+        self.assertIn('ci-service-diagnostics/ps.log', self.text[start:end])
+        self.assertIn('ci-service-diagnostics/services.log', self.text[start:end])
+        self.assertLess(end, self.text.index('- name: Stop only this Compose project'))
 
     def test_failure_codes_are_propagated_at_the_end(self):
-        self.assertIn('FOUR_SERVICES_FINAL_EXIT', self.text)
+        self.assertIn('DIAGNOSTIC_CAPTURE_FINAL_EXIT', self.text)
         self.assertIn('exit "$FINAL_EXIT"', self.text)
+
+    def test_real_shell_capture_errors_fail_without_docker_execution(self):
+        # Exercise the exact workflow block with local shell functions instead
+        # of Docker; collecting stderr alone must not convert failure to green.
+        if os.name == 'nt':
+            git = shutil.which('git')
+            bash = Path(git).resolve().parents[1] / 'bin/bash.exe' if git else None
+        else:
+            bash = shutil.which('bash')
+        if not bash or not Path(bash).is_file():
+            self.skipTest('Bash required for workflow failure propagation check')
+        lines = self.text.splitlines()
+        start = next(i for i, line in enumerate(lines)
+                     if '- name: Preserve service diagnostics' in line)
+        start = next(i for i in range(start, len(lines)) if lines[i].strip() == 'run: |') + 1
+        end = next(i for i in range(start, len(lines)) if lines[i].startswith('      - name:'))
+        block = '\n'.join(line[10:] for line in lines[start:end])
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp) / 'capture.sh'
+            script.write_text('''docker() {
+  case "$*" in
+    *" ps -a") return 7;;
+    *" logs --no-color") return 8;;
+    *) return 0;;
+  esac
+}
+''' + block + '\n', encoding='utf-8', newline='\n')
+            completed = subprocess.run([str(bash), '--noprofile', '--norc', str(script)],
+                                       cwd=tmp, capture_output=True, text=True, timeout=20)
+            self.assertEqual(completed.returncode, 8, completed.stdout + completed.stderr)
+            self.assertEqual((Path(tmp) / 'work/ci-service-diagnostics/capture-status.txt')
+                             .read_text().splitlines(), ['ps_exit=7', 'logs_exit=8'])
 
     def test_evidence_upload_always_runs(self):
         self.assertIn('if: always()', self.text)
