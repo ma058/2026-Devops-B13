@@ -1,0 +1,44 @@
+{
+  "status": "PASS_HISTORICAL_READ_ONLY_PREFLIGHT",
+  "implementation_sha": "40281a57ed525d1655e4df71ed05239323c0d159",
+  "checks": [
+    {
+      "case": "historical_original_handoff",
+      "outcome": "PASS_INTERNAL_AND_EXCHANGED_HASH_IDENTITY",
+      "profile_bound": false,
+      "derived_sha256": "10e7affd5e03d9d8fc0a2821af670637f521e17993a58f586007b450266c37ef"
+    },
+    {
+      "case": "profile_required_consumption",
+      "code": "PROFILE_HASH_MISMATCH",
+      "expected": "PROFILE_HASH_MISMATCH",
+      "passed": true,
+      "message": "Fixed envelope/profile mismatch"
+    },
+    {
+      "case": "wrong_target_using_original_report",
+      "code": "STALE_REPORT",
+      "expected": "STALE_REPORT",
+      "passed": true,
+      "message": "A task belongs to another target commit"
+    },
+    {
+      "case": "wrong_external_result_hash",
+      "code": "ARTIFACT_HASH_MISMATCH",
+      "expected": "ARTIFACT_HASH_MISMATCH",
+      "passed": true,
+      "message": "Result differs from independently exchanged SHA-256"
+    },
+    {
+      "case": "changed_bytes_retaining_original_hash",
+      "code": "ARTIFACT_HASH_MISMATCH",
+      "expected": "ARTIFACT_HASH_MISMATCH",
+      "passed": true,
+      "message": "Result differs from independently exchanged SHA-256"
+    }
+  ],
+  "original_files_unchanged": 670,
+  "archive_sha256": "e1b08ce371f372dd330e741bce46c28414e44b748e22e2f952df7bc2cd8498b0",
+  "scope": "No project build/repair/Docker/API executed; not new formal C1 or complete cross-group matrix",
+  "old_report_accepted_as_new_profile_bound_input": false
+}
