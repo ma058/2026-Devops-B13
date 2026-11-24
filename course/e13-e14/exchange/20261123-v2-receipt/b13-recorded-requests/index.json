@@ -1,0 +1,52 @@
+{
+  "source_archive_sha256": "4157bd945a4fbd5bf3e87a935d0fb38a90fac77d478f97873e6101ef3f6e4707",
+  "source_implementation_sha": "99f2c7abd1cad161cbfa4affe8d2109568d948ab",
+  "job_id": "job-aa20b0af94524337ba35ecf951823a2c",
+  "trace_id": "trace-3fa369e8ee694087a57379c2b408d276",
+  "actual_image_id": "sha256:3549cee8177407e632992d01cf3c3768790e850b8d36d07f9a7b34fdfdc840fe",
+  "scope": "Unmodified member2 normal-run request bodies and summary; not A13 requests or current production endpoints",
+  "files": [
+    {
+      "path": "01-draft-request.json",
+      "original_archive_path": "evidence/jobs/job-aa20b0af94524337ba35ecf951823a2c/http/01-draft-request.json",
+      "bytes": 1641,
+      "sha256": "603fd1c3aecbe3317c741066dd2976a71811b900a892644fa5721fd6bd249c46"
+    },
+    {
+      "path": "02-baseline-full-request.json",
+      "original_archive_path": "evidence/jobs/job-aa20b0af94524337ba35ecf951823a2c/http/02-baseline-full-request.json",
+      "bytes": 1640,
+      "sha256": "895e94bcaf93dea2eec798a5083d5113f0066f2e5cf349cfba0613498ec97fe4"
+    },
+    {
+      "path": "03-target-full-request.json",
+      "original_archive_path": "evidence/jobs/job-aa20b0af94524337ba35ecf951823a2c/http/03-target-full-request.json",
+      "bytes": 1640,
+      "sha256": "fc2d2e6312132c7ddfe68abeb5b912c3c9ddb9e9abd098b78fbec2b7f32881db"
+    },
+    {
+      "path": "04-incremental-request.json",
+      "original_archive_path": "evidence/jobs/job-aa20b0af94524337ba35ecf951823a2c/http/04-incremental-request.json",
+      "bytes": 2187,
+      "sha256": "e8cd81b3eaf09475cff1a4600d941232092ee8335f7e29993cf71e872864c204"
+    },
+    {
+      "path": "05-repair-request.json",
+      "original_archive_path": "evidence/jobs/job-aa20b0af94524337ba35ecf951823a2c/http/05-repair-request.json",
+      "bytes": 2062,
+      "sha256": "96e250fe935ec66fd672a5f4b67943f20b85e48417fa9c30e64694a56e4e9f1c"
+    },
+    {
+      "path": "06-final-full-request.json",
+      "original_archive_path": "evidence/jobs/job-aa20b0af94524337ba35ecf951823a2c/http/06-final-full-request.json",
+      "bytes": 1639,
+      "sha256": "982c20290833977e603c687f89426b3d99ffebce8ef6e10b7fd043dfac709d75"
+    },
+    {
+      "path": "summary.json",
+      "original_archive_path": "evidence/jobs/job-aa20b0af94524337ba35ecf951823a2c/summary.json",
+      "bytes": 684,
+      "sha256": "1fcdd03b39c4b1addd550b74f4576715a15ccba5b742cdc736363e0cc6a9f7ae"
+    }
+  ]
+}
