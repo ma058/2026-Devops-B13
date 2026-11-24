@@ -202,9 +202,10 @@ def execute(request, out, job_id=None):
         if mode in ('e11-b','e12'):
             from draft.autobuild import auto_build
             candidate=Path(request['candidate']).resolve()
-            expected = request.get('expected_output', '{}' if profile is not None else '1')
+            profile_output = bytes.fromhex(profile['stdout_hex']).decode('utf-8').rstrip('\r\n') if profile is not None else '1'
+            expected = request.get('expected_output', profile_output)
             if profile is not None:
-                pp.require(expected == '{}', 'INVALID_REQUEST', 'Profile requires exact empty-TOML output')
+                pp.require(expected == profile_output, 'INVALID_REQUEST', 'Expected output differs from the frozen profile')
             draft=auto_build(target,candidate,out/'draft-build',expected,timeout=request.get('build_timeout',600))
             if draft['status']!='SUCCEEDED':
                 raise Failure('DRAFT_FAILED',draft.get('error','Inspect draft-build logs'))
