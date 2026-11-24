@@ -1,0 +1,61 @@
+{
+  "project_id": "b13-level-v1",
+  "base": "cb6545b3e8eddda5bec89b12ee390ae5e930f822",
+  "target": "5cfaf2014db78635b61d88b62760481834a344d5",
+  "profile": {
+    "schema_version": "b13-e14-profile-1",
+    "id": "b13-level-v1",
+    "units": [
+      [
+        "main.o",
+        "main.c"
+      ],
+      [
+        "helper.o",
+        "helper.c"
+      ]
+    ],
+    "repair_targets": [
+      "main.o",
+      "helper.o"
+    ],
+    "effective_flags": [
+      "-O0"
+    ],
+    "clean_argv": [
+      "make",
+      "clean"
+    ],
+    "build_argv": [
+      "make",
+      "app"
+    ],
+    "test_argv": [
+      "make",
+      "check"
+    ],
+    "run_argv": [
+      "./app"
+    ],
+    "stdout_hex": "310a",
+    "exit_code": 0,
+    "makefile_templates": [
+      "5ccb59f58de377595a4ae1440e779e49dc978b310b1edddeb1c522f24278521e",
+      "a7426d35735cf8ca7f35040cb497c83a278c7b6adb887900aac5651b634c5b77"
+    ],
+    "header_probe": {
+      "path": "config.h",
+      "content_hex": "23646566696e652056414c554520320a",
+      "stdout_hex": "320a"
+    }
+  },
+  "profile_sha256": "f0367b454aff9cb0a5304e3e3330b61d4bbd01c3f19069eaf5930a1664d3733b",
+  "candidate_sha256": "8b26c9034b1535b243b99cb43361ad2d44625473c902e0f5f7a78ffbb678fd4a",
+  "build_timeout": 900,
+  "protocol": "member2-e14-1",
+  "job_id": "job-b1300000000000000000000000000001",
+  "trace_id": "trace-b1300000000000000000000000000001",
+  "project": "/course/work/m2-e14-a0b1c2d3e4f5/jobs/job-b1300000000000000000000000000001/target",
+  "candidate": "/course/data/m2-e14-a0b1c2d3e4f5/candidate.Dockerfile",
+  "out": "/course/work/m2-e14-a0b1c2d3e4f5/jobs/job-b1300000000000000000000000000001/draft"
+}
