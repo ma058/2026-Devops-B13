@@ -1,0 +1,198 @@
+{
+  "status": "PASS_FORMAL_E11_B_CLI_CONSUMPTION",
+  "archive": {
+    "archive": "/root/241880054/e13-e14-tomlc99-consume-20261124/member1-tomlc99-formal-consumption-20261124.tar.gz",
+    "bytes": 866065,
+    "sha256": "6159962922a0b6805c9655e14cfd1cd3d69fc813abfbae190548d4ddade5cdc5",
+    "manifest_entries": 1384,
+    "result_artifacts": 1347,
+    "job_id": "job-15dcdf2c3ba24a1487aae245776684bf",
+    "trace_id": "trace-52029a6df41a43c2ba5c7a39758a5e7b"
+  },
+  "manifest_entries_checked": 1384,
+  "json_documents_walked": 115,
+  "recursive_hashed_reference_occurrences": 1358,
+  "B_unique_artifact_uris": 1347,
+  "A_unique_referenced_artifact_uris": 0,
+  "upstream_hash_only_link_occurrences": 6,
+  "source_commit": "f05faf5bcd3496184c580dc30e710cc960bf0398",
+  "source_files_git_blob_byte_matched": 1004,
+  "source_line_ending_conversions": [
+    {
+      "path": "docs/students/241880115/e11-e12/数据与联调记录.csv",
+      "git_blob_bytes": 3971,
+      "archive_bytes": 3981,
+      "git_blob_sha256": "f9c9dd41e265bb0cb15db197c8e6906f935445403dcc927f28fd79db1dbe25a2",
+      "archive_sha256": "a4d952c0d12f0c5085d860ac861ab80e403cabd7bbac314385d960f31a976ecd",
+      "conversion": "LF to CRLF by Git archive text=auto / system core.autocrlf=true"
+    }
+  ],
+  "source_files_archive_manifest_matched": 1005,
+  "input_files_manifest_matched": 683,
+  "source_unchanged_server_check": 1005,
+  "input_unchanged_before_after": true,
+  "source_job": "job-fd1b21e39d41474699e43815b402804e",
+  "source_trace": "trace-ad14eb26d03f4129a38ab57ad626c72a",
+  "job_id": "job-15dcdf2c3ba24a1487aae245776684bf",
+  "trace_id": "trace-52029a6df41a43c2ba5c7a39758a5e7b",
+  "helper_verify_result": {
+    "status": "PASS",
+    "job_id": "job-15dcdf2c3ba24a1487aae245776684bf",
+    "trace_id": "trace-52029a6df41a43c2ba5c7a39758a5e7b",
+    "image_id": "sha256:d60fbdbfff205562b47a8d738dde22a9502761c1680de8792cb5e451c220cdf3",
+    "operations": [
+      "validate",
+      "full"
+    ],
+    "artifact_count": 1347,
+    "scope": [
+      "toml.o"
+    ],
+    "whole_project_residual_missing": [
+      {
+        "declared_dependencies": [
+          "libtoml.a",
+          "toml_json.c"
+        ],
+        "dependency": "toml.h",
+        "evidence": [
+          {
+            "line": 98,
+            "operation": "openat",
+            "pid": 28,
+            "source": "system_call",
+            "trace_file": "t.28"
+          },
+          {
+            "line": 70,
+            "operation": "openat",
+            "pid": 31,
+            "source": "system_call",
+            "trace_file": "t.31"
+          }
+        ],
+        "target": "toml_json",
+        "type": "MISSING"
+      }
+    ]
+  },
+  "image_operations": [
+    {
+      "operation": "validate",
+      "container_id": "9b27fdf384da276a00da2f484cdb3159530ac7ee8b4c5c37b2103604e283b669",
+      "uid": 10001,
+      "image": "sha256:d60fbdbfff205562b47a8d738dde22a9502761c1680de8792cb5e451c220cdf3",
+      "inspect_files": [
+        "05-inspect.stdout.log",
+        "07-inspect.stdout.log"
+      ],
+      "cleanup_exit": 0
+    },
+    {
+      "operation": "full",
+      "container_id": "b7dec224a1d5d13e9b7846e4b159486dac9ccaa514f39a2782673a5145b475c6",
+      "uid": 10001,
+      "image": "sha256:d60fbdbfff205562b47a8d738dde22a9502761c1680de8792cb5e451c220cdf3",
+      "inspect_files": [
+        "05-inspect.stdout.log",
+        "07-inspect.stdout.log"
+      ],
+      "cleanup_exit": 0
+    }
+  ],
+  "outer_attempts": [
+    {
+      "attempt": "evidence",
+      "exit": 128,
+      "container_id": "e13dbdc44c9279ddce3571c8fb5c934a14ccace9dd22bdda00d84fed6620ab00",
+      "started": "2026-11-24T01:21:11.3562266Z",
+      "finished": "2026-11-24T01:21:11.465991807Z",
+      "uid_config": "10001:10001",
+      "docker_socket_mounted": true
+    },
+    {
+      "attempt": "evidence-attempt02",
+      "exit": 0,
+      "container_id": "d592335eb6125d3b075721fae0f191ab9a2c23e4da50233a08de0238e3d896f9",
+      "started": "2026-11-24T01:22:57.471171004Z",
+      "finished": "2026-11-24T01:23:04.633145165Z",
+      "uid_config": "10001:10001",
+      "docker_socket_mounted": true
+    }
+  ],
+  "draft_build_exit_codes": [
+    1,
+    0
+  ],
+  "draft_first_failure": "MISSING_MAKE",
+  "draft_second_used_cache": true,
+  "draft_model_API_called": false,
+  "validation": {
+    "accepted": true,
+    "checks": {
+      "build": true,
+      "header_change": true,
+      "no_missing": true,
+      "patch_applies": true,
+      "test": true
+    },
+    "error": null,
+    "profile_sha256": "0f2bc52c0e791b97a833c1c4a22c70d6cd72a97befc3959c578ccf5c85d40ee1",
+    "rollback": false,
+    "source_unchanged": false,
+    "success_scope": [
+      "toml.o"
+    ]
+  },
+  "header_probe": {
+    "after_mtime_ns": 1795483382849008026,
+    "before_mtime_ns": 1795483381253008480,
+    "header_sha256": "0642667acc71b860a2b38face9cb036a59898a9c037b923f73d1b807c1edb376",
+    "successful_compiler_execs": [
+      {
+        "argv": [
+          "cc",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-fpic",
+          "-O2",
+          "-DNDEBUG",
+          "-c",
+          "-o",
+          "toml.o",
+          "toml.c"
+        ],
+        "executable": "/usr/bin/cc",
+        "line": 1,
+        "trace": "t.50"
+      }
+    ]
+  },
+  "recomputed_final_graphs": "all raw trace/database graphs, processes and findings match",
+  "final_trace_files": 10,
+  "tracked_C0": 152,
+  "tracked_C1": 154,
+  "target_tracked_changed": [
+    "Makefile"
+  ],
+  "patched_makefile_sha256": "3602a2f363cced6bfacd5b7a71882adc69c1309887a59240356feef0130ec1f2",
+  "scope": [
+    "toml.o"
+  ],
+  "scoped_missing": 0,
+  "whole_project_residual_missing": [
+    {
+      "target": "toml_json",
+      "dependency": "toml.h"
+    }
+  ],
+  "production_API_used_for_task": false,
+  "production_health_only": {
+    "exit_code": 0,
+    "stdout": "{\"status\": \"ok\", \"schema_version\": \"e11e12-1\"}",
+    "stderr": ""
+  },
+  "executor": "member1 authorized Codex-assisted isolated CLI; audit is offline tool-assisted verification",
+  "boundary": "DRAFT candidate replay, real Docker build with cached layers; no fresh AI inference, no uncached-build claim; Docker socket mounted in outer orchestrator"
+}

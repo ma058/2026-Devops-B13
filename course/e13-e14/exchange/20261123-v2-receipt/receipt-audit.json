@@ -1,0 +1,133 @@
+{
+  "status": "PASS_ORIGINAL_RECEIPT_ONLY",
+  "source": "A13_给B13_E13项目与当次报告_v2_20261118.zip",
+  "zip_bytes": 564475,
+  "zip_sha256": "e1b08ce371f372dd330e741bce46c28414e44b748e22e2f952df7bc2cd8498b0",
+  "zip_files": 675,
+  "zip_uncompressed_bytes": 1673974,
+  "zip_safety": {
+    "unique": true,
+    "safe_regular_paths": true,
+    "crc": "PASS"
+  },
+  "report_manifest_entries": 672,
+  "report_manifest_exact_coverage": true,
+  "outside_report_manifest": [
+    "request-original.json",
+    "toolchain.txt"
+  ],
+  "outside_copies_match_manifested_originals": true,
+  "strict_json_files_parsed": 19,
+  "artifact_reference_occurrences": 672,
+  "result_artifact_references": 665,
+  "unique_artifact_uris": 665,
+  "references_all_match": true,
+  "source_job_id": "job-cc3e73345c4549e485b6cb9124e3ed76",
+  "source_trace_id": "trace-7cf5d2b94318423eaddeb328af9e4da9",
+  "base": "592fc6f3d2463a58fe7f60b8d255ed242740bec0",
+  "target": "b2dda5513fe4a7d250493528800fe425cae459a5",
+  "producer_source_sha": "497b49f74904ac0ff9b7e28c0f5a29dcbb6d2a98",
+  "key_originals": {
+    "result.json": {
+      "bytes": 144737,
+      "sha256": "84b38878cf10e6f862a0eedd26d052e4b5a22009359546ccf451adf58bb2f013"
+    },
+    "incremental-check.json": {
+      "bytes": 4766,
+      "sha256": "05e561fca546d09a2ffa0d08c5a565e3d7322c084964d6ec664831b80ccd32e4"
+    },
+    "incremental-report.json": {
+      "bytes": 3790,
+      "sha256": "3ae064328c43a34c84eaa707c68e648be5973ee15c28f311168869073a946652"
+    },
+    "project.git.tar.gz": {
+      "bytes": 99489,
+      "sha256": "497479ebab2fc7955ca35f1298953ac18a289d7820963aff4adabcfd968bfdd2"
+    },
+    "full-check.json": {
+      "bytes": 17715,
+      "sha256": "33fc4e0bc0d442a117f694f46c48a76987afa1fe20979f48833bb041afb190fe"
+    },
+    "toolchain.txt": {
+      "bytes": 886,
+      "sha256": "7f9e3adda79bdba8f292d6d92d07dbfe7b2bc05e04a86b7eb599fc0847c393ab"
+    }
+  },
+  "profile_sha256_missing": {
+    "result": true,
+    "envelope": true,
+    "payload": true
+  },
+  "payload_equals_envelope_data": true,
+  "incremental_findings": [
+    {
+      "type": "MISSING",
+      "target": "toml.o",
+      "dependency": "toml.h"
+    },
+    {
+      "type": "MISSING",
+      "target": "toml.o",
+      "dependency": "toml_extra.h"
+    }
+  ],
+  "whole_project_target_findings": [
+    {
+      "type": "MISSING",
+      "target": "toml.o",
+      "dependency": "toml.h"
+    },
+    {
+      "type": "MISSING",
+      "target": "toml.o",
+      "dependency": "toml_extra.h"
+    },
+    {
+      "type": "MISSING",
+      "target": "toml_json",
+      "dependency": "toml.h"
+    }
+  ],
+  "git": {
+    "fsck_exit": 0,
+    "ancestor_exit": 0,
+    "shallow": "true",
+    "files_compared": {
+      "base": 152,
+      "target": 154
+    },
+    "diff_names": [
+      "Dockerfile.broken",
+      "toml.c",
+      "toml_extra.h"
+    ],
+    "diff_stat": " Dockerfile.broken | 5 +++++\n toml.c            | 1 +\n toml_extra.h      | 2 ++\n 3 files changed, 8 insertions(+)\n",
+    "copied_git_data": [
+      "HEAD",
+      "objects/pack/pack-47a06755d2fb7414be8f627eea412a79823358fe.idx",
+      "objects/pack/pack-47a06755d2fb7414be8f627eea412a79823358fe.pack",
+      "objects/pack/pack-47a06755d2fb7414be8f627eea412a79823358fe.rev",
+      "packed-refs",
+      "shallow"
+    ],
+    "ignored_tar_entries": [
+      "project.git/refs",
+      "project.git/config"
+    ],
+    "previous_project_copy_identical": true
+  },
+  "fixed_md": {
+    "sha256": "9919d48056bff297c697fe8865325c125f74689fa70598841a9c9de006a2a65f",
+    "payload_matches": true,
+    "producer_supplied_derived": true,
+    "accepted_as_new_bound_report": false
+  },
+  "execution_boundary": {
+    "downstream_executed_in": "orchestrator",
+    "project_scripts_executed": false,
+    "docker_started": false,
+    "incoming_bytes_modified": false,
+    "formal_new_profile_consumption": false
+  },
+  "failures": []
+}

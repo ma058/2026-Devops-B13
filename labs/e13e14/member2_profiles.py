@@ -84,8 +84,24 @@ def full(project, out, profile, timeout):
     from fullcheck import full_check
     result = full_check(project, out, clean_command=' '.join(profile['clean_argv']),
                         build_command=' '.join(profile['build_argv']), timeout=timeout)
-    result.update(profile_sha256=digest(canonical(profile)), success_scope=profile['repair_targets'],
-                  whole_project_findings=result.get('findings', []))
+    findings = result.get('findings')
+    targets = profile['repair_targets']
+    result.update(profile_sha256=digest(canonical(profile)), success_scope=targets,
+                  whole_project_findings=findings, findings_by_scope=None)
+    if result['status'] == 'SUCCEEDED':
+        if not isinstance(findings, list) or any(
+            not isinstance(item, dict) or item.get('type') not in ('MISSING', 'REDUNDANT')
+            or not all(isinstance(item.get(key), str) and item[key] for key in ('target', 'dependency'))
+            for item in findings
+        ):
+            raise ValueError('INVALID_FULL_FINDINGS')
+        inside = [item for item in findings if item['target'] in targets]
+        outside = [item for item in findings if item['target'] not in targets]
+        result['findings_by_scope'] = {
+            'in_scope': inside, 'out_of_scope': outside,
+            'in_scope_missing': sum(item['type'] == 'MISSING' for item in inside),
+            'out_of_scope_missing': sum(item['type'] == 'MISSING' for item in outside),
+        }
     (Path(out)/'findings.json').write_bytes(canonical(result)+b'\n')
     return result
 

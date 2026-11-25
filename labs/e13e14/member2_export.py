@@ -2,6 +2,7 @@
 import argparse,io,json,subprocess,tarfile,uuid
 from pathlib import Path
 from member2_profiles import canonical,digest
+from member2_evidence import evidence_files, scan_evidence
 ROOT=Path(__file__).resolve().parents[2]
 
 def main():
@@ -9,12 +10,15 @@ def main():
     config=json.loads(a.config.read_bytes())
     run=ROOT/config['run_relative']
     blob=Path(config['token_file']).read_bytes().strip()
+    # A failed run is still exported by CI. Recheck exactly the exportable
+    # runtime set here so a scan failure cannot upload the original secret.
+    if scan_evidence(run) != 0:
+        raise ValueError('EVIDENCE_SCAN_REJECTED: original run retained; no archive created')
     destination=a.out.resolve();destination.mkdir(parents=True,exist_ok=False)
     bundle=destination/'source.bundle'
     subprocess.run(['git','bundle','create',str(bundle),'HEAD'],cwd=ROOT,check=True)
     content={'source.bundle':bundle.read_bytes(),'source-commit.txt':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT)}
-    for path in sorted(run.rglob('*')):
-        if not path.is_file() or path.is_symlink() or '.git' in path.parts or path.name in ('token.secret','roles.secret.env'):continue
+    for path in evidence_files(run):
         raw=path.read_bytes()
         if blob and blob in raw:raise ValueError('SECRET_IN_EXPORT:'+str(path))
         content['evidence/'+path.relative_to(run).as_posix()]=raw

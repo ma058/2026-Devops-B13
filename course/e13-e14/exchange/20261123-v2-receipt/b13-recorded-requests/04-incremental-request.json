@@ -1,0 +1,65 @@
+{
+  "base": "cb6545b3e8eddda5bec89b12ee390ae5e930f822",
+  "target": "5cfaf2014db78635b61d88b62760481834a344d5",
+  "profile": {
+    "schema_version": "b13-e14-profile-1",
+    "id": "b13-level-v1",
+    "units": [
+      [
+        "main.o",
+        "main.c"
+      ],
+      [
+        "helper.o",
+        "helper.c"
+      ]
+    ],
+    "repair_targets": [
+      "main.o",
+      "helper.o"
+    ],
+    "effective_flags": [
+      "-O0"
+    ],
+    "clean_argv": [
+      "make",
+      "clean"
+    ],
+    "build_argv": [
+      "make",
+      "app"
+    ],
+    "test_argv": [
+      "make",
+      "check"
+    ],
+    "run_argv": [
+      "./app"
+    ],
+    "stdout_hex": "310a",
+    "exit_code": 0,
+    "makefile_templates": [
+      "5ccb59f58de377595a4ae1440e779e49dc978b310b1edddeb1c522f24278521e",
+      "a7426d35735cf8ca7f35040cb497c83a278c7b6adb887900aac5651b634c5b77"
+    ],
+    "header_probe": {
+      "path": "config.h",
+      "content_hex": "23646566696e652056414c554520320a",
+      "stdout_hex": "320a"
+    }
+  },
+  "profile_sha256": "f0367b454aff9cb0a5304e3e3330b61d4bbd01c3f19069eaf5930a1664d3733b",
+  "candidate_sha256": "8b26c9034b1535b243b99cb43361ad2d44625473c902e0f5f7a78ffbb678fd4a",
+  "protocol": "member2-e14-1",
+  "project_id": "b13-level-v1",
+  "job_id": "job-aa20b0af94524337ba35ecf951823a2c",
+  "trace_id": "trace-3fa369e8ee694087a57379c2b408d276",
+  "image_id": "sha256:3549cee8177407e632992d01cf3c3768790e850b8d36d07f9a7b34fdfdc840fe",
+  "project": "/course/work/m2-e14-396e048fe158/jobs/job-aa20b0af94524337ba35ecf951823a2c/target",
+  "out": "/course/work/m2-e14-396e048fe158/jobs/job-aa20b0af94524337ba35ecf951823a2c/incremental",
+  "base_project": "/course/work/m2-e14-396e048fe158/jobs/job-aa20b0af94524337ba35ecf951823a2c/base",
+  "baseline_graph": "/course/work/m2-e14-396e048fe158/jobs/job-aa20b0af94524337ba35ecf951823a2c/baseline-full/actual-graph.json",
+  "baseline_graph_sha256": "d21b9c2f39feb253eae68b82d989c4bfad448c602c02f88e5a963d8f0674b84f",
+  "target_findings": "/course/work/m2-e14-396e048fe158/jobs/job-aa20b0af94524337ba35ecf951823a2c/target-full/findings.json",
+  "target_findings_sha256": "6d1b69cc56b8d6309d509f52b175535cce16010c30bbb5af9087436708f4cf0f"
+}

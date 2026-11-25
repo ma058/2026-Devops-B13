@@ -1,0 +1,114 @@
+{
+  "record_version": "b13-e13-formal-consumption-1",
+  "date": "2026-11-24",
+  "status": "SUCCEEDED",
+  "executor": {
+    "member": "member1",
+    "name": "马宇航",
+    "student_id": "241880054",
+    "campus": "苏州",
+    "method": "member1-authorized Codex-assisted isolated CLI on B13 server; not a manual personal rerun or production HTTP job"
+  },
+  "source_commit": "f05faf5bcd3496184c580dc30e710cc960bf0398",
+  "merged_equivalent_commit": "be3b232342956aacd7edb9c3a320e36a0e0ec4d8",
+  "git_tree": "50b5434f2b26013a5eb1e4a4609fce683f645e78",
+  "job_id": "job-15dcdf2c3ba24a1487aae245776684bf",
+  "trace_id": "trace-52029a6df41a43c2ba5c7a39758a5e7b",
+  "mode": "e11-b",
+  "environment_image_id": "sha256:bd6407d706b8a3174a5444e1363cb0432f3e2eae70dcb0a36a7d1c1e0cb5afad",
+  "draft_image_id": "sha256:d60fbdbfff205562b47a8d738dde22a9502761c1680de8792cb5e451c220cdf3",
+  "profile_sha256": "0f2bc52c0e791b97a833c1c4a22c70d6cd72a97befc3959c578ccf5c85d40ee1",
+  "success_scope": [
+    "toml.o"
+  ],
+  "fixed_report_binding": {
+    "sha256": "328ec838926af9eee76781563de20ccd4404ff4b77e7086318db66005ac6f9ef",
+    "bytes": 5095,
+    "exchanged_hash_verified": true,
+    "source_report": {
+      "job_id": "job-fd1b21e39d41474699e43815b402804e",
+      "trace_id": "trace-ad14eb26d03f4129a38ab57ad626c72a",
+      "uri": "artifact://job-fd1b21e39d41474699e43815b402804e/incremental-check.json",
+      "sha256": "aa53cca89cdfc8137b414cdc39413dfed0379d6ba9cceb98e5cbb8711fb3df8d",
+      "payload_uri": "artifact://job-fd1b21e39d41474699e43815b402804e/incremental-report.json",
+      "payload_sha256": "2af2341c0ce909ae6680f4a9b08c85b4708f6ab5b9cdc6722101da7e5e8a85dc",
+      "result_sha256": "60b3b84db2319d0eb11e59a3bea5ebbaebe701a29918f8dfc846d895a8e13656",
+      "exchanged_result_sha256_verified": true,
+      "exchanged_job_id_verified": true,
+      "exchanged_trace_id_verified": true
+    }
+  },
+  "input_sha256": {
+    "handoff_zip_receiver_computed": "3edf566905c480ef05a621a5c1edf55b1c6f62762deb1289e549ac79e7e0bc2e",
+    "A_original_zip": "91fda34e63294d9c6a58bf8b541d4c389c7ab018c511badaf91a70334db47e90",
+    "fixed_md": "328ec838926af9eee76781563de20ccd4404ff4b77e7086318db66005ac6f9ef",
+    "candidate_Dockerfile": "eb506f89177da2eb5736b7a62336b0f2d156e81feca04de1ef5747ce27f7eb8a"
+  },
+  "result_sha256": "bb83e2d4225cb27a0b8cf394dacea5dab42fcbf8431ace3db626962ce56fef9e",
+  "result_bytes": 307794,
+  "fixed_md_input_sha256": "328ec838926af9eee76781563de20ccd4404ff4b77e7086318db66005ac6f9ef",
+  "patch_sha256": "04b079c9c63f860776ab9c33d8d632b96942eab14d3a93f7bd6985f1fdb4fa6f",
+  "validation": {
+    "accepted": true,
+    "checks": {
+      "build": true,
+      "header_change": true,
+      "no_missing": true,
+      "patch_applies": true,
+      "test": true
+    },
+    "error": null,
+    "profile_sha256": "0f2bc52c0e791b97a833c1c4a22c70d6cd72a97befc3959c578ccf5c85d40ee1",
+    "rollback": false,
+    "source_unchanged": false,
+    "success_scope": [
+      "toml.o"
+    ]
+  },
+  "residual_missing": [
+    {
+      "declared_dependencies": [
+        "libtoml.a",
+        "toml_json.c"
+      ],
+      "dependency": "toml.h",
+      "evidence": [
+        {
+          "line": 98,
+          "operation": "openat",
+          "pid": 28,
+          "source": "system_call",
+          "trace_file": "t.28"
+        },
+        {
+          "line": 70,
+          "operation": "openat",
+          "pid": 31,
+          "source": "system_call",
+          "trace_file": "t.31"
+        }
+      ],
+      "target": "toml_json",
+      "type": "MISSING"
+    }
+  ],
+  "archive": {
+    "name": "member1-tomlc99-formal-consumption-20261124.tar.gz",
+    "sha256": "6159962922a0b6805c9655e14cfd1cd3d69fc813abfbae190548d4ddade5cdc5",
+    "bytes": 866065,
+    "manifest_entries": 1384,
+    "artifact_count": 1347,
+    "shared_path": "/srv/b13-e13e14-handoff/tomlc99-consumption-20261124/member1-tomlc99-formal-consumption-20261124.tar.gz"
+  },
+  "execution_start_utc": "2026-11-24T01:22:57Z",
+  "execution_end_utc": "2026-11-24T01:23:04Z",
+  "boundaries": [
+    "A source is E11-A/orchestrator, with no A DRAFT execution",
+    "B E11-B uses four stages and two downstream operations: validate, full",
+    "DRAFT is a fixed manual candidate replay, not a new model/API call; cached build layers were used",
+    "Non-root orchestrator has docker.sock access; not a host security boundary",
+    "Original inputs unchanged; successful repair changes only the target work copy Makefile",
+    "Attempt01 failed during Git preparation before any pipeline job, and is preserved separately",
+    "Production API 8081/8083 not redeployed; not evidence of four cross-service failure/recovery drills"
+  ]
+}

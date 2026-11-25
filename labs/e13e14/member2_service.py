@@ -1,8 +1,11 @@
 """Authenticated roles and restricted DRAFT broker; protocol member2-e14-1."""
-import hmac,json,os,re,shutil,subprocess,sys,traceback,urllib.request,urllib.error
+import hmac,json,os,re,shutil,subprocess,sys,time,urllib.request,urllib.error
+from datetime import datetime, timezone
 from pathlib import Path
 from http.server import BaseHTTPRequestHandler,HTTPServer
+from tempfile import TemporaryDirectory
 import member2_profiles as profiles
+from member2_faults import permits_fault
 from member2_runtime import execute,fingerprint,save
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -10,6 +13,77 @@ ROLE=os.environ.get('E14_ROLE','')
 RUN_ROOT=Path(os.environ.get('E14_RUN_ROOT',str(ROOT/'work/e14-member2'))).resolve()
 STATE=Path(os.environ.get('E14_BROKER_STATE','/tmp/b13-e14-broker'))
 PROTOCOL='member2-e14-1'
+ROLE_STAGES = {'draft': 'draft', 'buildchecker': 'full', 'echecker': 'scan', 'mdfixer': 'validate'}
+OPERATIONS = ('full', 'scan', 'validate')
+INVALID_PATCH = b'not a patch\n'
+
+# Only service-owned codes may enter shared telemetry. Exceptions may contain
+# customer data, command arguments, filesystem paths, or an upstream HTTP body.
+REJECTION_CODES = frozenset("""
+    ARTIFACT_HASH_MISMATCH BROKER_REJECTED CANDIDATE_MISMATCH COMMIT_MISMATCH
+    DRAFT_BINDING_MISMATCH DRAFT_NOT_REGISTERED DRAFT_ONLY DRAFT_TARGET_REQUIRED
+    EXACT_PATCH_REQUIRED FAULT_DISABLED IMMUTABLE_IMAGE_REQUIRED INVALID_BUILD_BUDGET
+    INVALID_IDENTITY INVALID_PROFILE INVALID_REPORT INVALID_REQUEST INVALID_SIZE
+    INVALID_TIMEOUT JOB_ALREADY_REGISTERED NO_REPAIR OLD_REPORT_BINDING_MISMATCH
+    OLD_REPORT_HASH_MISMATCH OUTPUT_EXISTS PATCH_HASH_MISMATCH PROFILE_HASH_MISMATCH
+    PROFILE_REQUIRED PROJECT_NOT_REGISTERED PROTOCOL_REQUIRED REFERENCE_HASH_MISMATCH
+    REPORT_HASH_MISMATCH SOURCE_BINDING_MISMATCH SOURCE_COMMIT_MISMATCH STALE_REPORT
+    UNSAFE_OUTPUT UNSAFE_PATCH UNSAFE_PATH UNSUPPORTED_FLAGS_OR_TARGETS
+    UNSUPPORTED_LAYOUT UNSUPPORTED_MAKEFILE UNSUPPORTED_OPERATION UNSUPPORTED_PROFILE
+    UNSUPPORTED_PROJECT UNSUPPORTED_PROJECT_PATH UNSUPPORTED_TARGET
+""".split())
+FAILURE_CODES = frozenset("""
+    BROKER_IDENTITY_MISMATCH CLEANUP_UNVERIFIED DOCKER_COMMAND_FAILED DRAFT_FAILED
+    FULL_CHECK_FAILED FULL_INCREMENTAL_MISMATCH IMAGE_BINDING_MISMATCH INVALID_FULL_FINDINGS
+    NONROOT_LINUX_REQUIRED SOURCE_CHANGED SOURCE_CHANGED_DURING_DRAFT SOURCE_CHANGED_DURING_WORKER
+    WORKER_FAILED WORKER_RESPONSE_MISMATCH
+""".split())
+
+
+def identity(value, prefix):
+    return isinstance(value, str) and re.fullmatch(prefix + r'[A-Za-z0-9-]{8,80}', value)
+
+
+def public_ids(data):
+    credential = os.environ.get('E14_TOKEN')
+    fields = {}
+    for key, prefix in (('job_id', 'job-'), ('trace_id', 'trace-')):
+        value = data.get(key) if isinstance(data, dict) else None
+        fields[key] = value if identity(value, prefix) and not (credential and credential in value) else None
+    return fields
+
+
+def known_code(value, allowed, fallback):
+    code = value.partition(':')[0] if isinstance(value, str) else None
+    return code if code in allowed else fallback
+
+
+def exception_outcome(exc):
+    if isinstance(exc, (TimeoutError, subprocess.TimeoutExpired)) or (
+        isinstance(exc, urllib.error.URLError) and isinstance(exc.reason, TimeoutError)
+    ):
+        return 'TIMED_OUT', 'TIMEOUT'
+    if isinstance(exc, (json.JSONDecodeError, UnicodeDecodeError)):
+        return 'REJECTED', 'INVALID_JSON'
+    if isinstance(exc, KeyError):
+        return 'REJECTED', 'INVALID_REQUEST'
+    code = known_code(getattr(exc, 'code', None) or str(exc),
+                      REJECTION_CODES | FAILURE_CODES, 'INTERNAL_ERROR')
+    return ('REJECTED' if code in REJECTION_CODES else 'FAILED'), code
+
+
+def result_outcome(result, stage):
+    status = result['status']
+    if status == 'TIMED_OUT':
+        return status, 'TIMEOUT'
+    # A completed validate worker can legitimately reject a patch.
+    if status == 'REJECTED' or (
+        stage == 'validate' and status == 'SUCCEEDED' and result.get('payload', {}).get('accepted') is False
+    ):
+        return 'REJECTED', 'VALIDATION_REJECTED'
+    if status == 'SUCCEEDED':
+        return status, None
+    return 'FAILED', known_code(result.get('error'), FAILURE_CODES, 'STAGE_FAILED')
 
 def below(value,root):
     p=Path(value)
@@ -30,7 +104,7 @@ def manifest(project_id):
 def context(data):
     if not isinstance(data,dict) or data.get('protocol')!=PROTOCOL:raise ValueError('PROTOCOL_REQUIRED')
     for key,prefix in [('job_id','job-'),('trace_id','trace-')]:
-        if not isinstance(data.get(key),str) or not re.fullmatch(prefix+r'[A-Za-z0-9-]{8,80}',data[key]):raise ValueError('INVALID_IDENTITY')
+        if not identity(data.get(key),prefix):raise ValueError('INVALID_IDENTITY')
     m=manifest(data.get('project_id'));profile=profiles.resolve(data.get('profile'),data.get('profile_sha256'))
     if data.get('profile_sha256')!=m['profile_sha256'] or profile!=m['profile']:raise ValueError('PROFILE_HASH_MISMATCH')
     for key in ('base','target'):
@@ -75,20 +149,55 @@ def report_payload(data,job,m):
     if any(f['target'] not in m['profile']['repair_targets'] for f in got.payload['findings']):raise ValueError('UNSUPPORTED_TARGET')
     return got.payload
 
+def baked_files(m):
+    targets = m['target_files']
+    names = m.get('image_files')
+    if names is None:
+        names = [name for name in targets if name.endswith(('.c', '.h')) or name == 'Makefile']
+    return {name: targets[name] for name in names}
+
+
+def stage_draft_context(source, destination, m):
+    """Copy only registered C1 files into a private build context, without changing the checkout."""
+    copied_to_image = baked_files(m)
+    for name, expected_digest in m['target_files'].items():
+        relative = Path(name)
+        if relative.is_absolute() or '..' in relative.parts:
+            raise ValueError('UNSAFE_PATH')
+        original = below(source / relative, source)
+        staged = destination / relative
+        staged.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        shutil.copyfile(original, staged)
+        if profiles.digest(staged.read_bytes()) != expected_digest:
+            raise ValueError('SOURCE_BINDING_MISMATCH')
+        executable = bool(original.stat().st_mode & 0o111)
+        # Docker COPY sets root ownership and carries the source mode into the
+        # image. The production worker must read these files with its own UID.
+        mode = 0o755 if executable else 0o644
+        if name not in copied_to_image:
+            mode &= 0o700
+        staged.chmod(mode)
+
+
 def broker(data):
     if ROLE!='draft':raise ValueError('DRAFT_ONLY')
     m,profile,job=context(data);b,state=load_binding(data)
     p=project(data,job,m,b);out=output(data,job)
     operation=data.get('operation')
-    if operation not in ('full','scan','validate'):raise ValueError('UNSUPPORTED_OPERATION')
+    if operation not in OPERATIONS:raise ValueError('UNSUPPORTED_OPERATION')
     fault=data.get('fault')
-    if fault not in (None,'sleep') or (fault and os.environ.get('E14_ENABLE_FAULTS')!='1'):raise ValueError('FAULT_DISABLED')
+    if fault is not None and (fault != 'sleep' or operation != 'full' or not permits_fault('C4', os.environ)):
+        raise ValueError('FAULT_DISABLED')
+    if data.get('fault_patch') and (operation != 'validate' or not permits_fault('C5', os.environ)):
+        raise ValueError('FAULT_DISABLED')
     patchfile=None;expected=None
     if operation=='validate':
         report=report_payload(data,job,m);expected,_=profiles.patch(p,report,profile)
         patchfile=below(data['patchfile'],job)
-        if profiles.digest(patchfile.read_bytes())!=data['patch_sha256']:raise ValueError('PATCH_HASH_MISMATCH')
-        if patchfile.read_bytes()!=expected.encode() and not (data.get('fault_patch') and os.environ.get('E14_ENABLE_FAULTS')=='1'):raise ValueError('UNSAFE_PATCH')
+        patch_bytes = patchfile.read_bytes()
+        if profiles.digest(patch_bytes)!=data['patch_sha256']:raise ValueError('PATCH_HASH_MISMATCH')
+        permitted_patch = INVALID_PATCH if data.get('fault_patch') else expected.encode()
+        if patch_bytes != permitted_patch:raise ValueError('UNSAFE_PATCH')
     old=None
     if data.get('old_path') is not None:
         oldpath=below(data['old_path'],job)
@@ -97,8 +206,7 @@ def broker(data):
         if old.get('commit')!=m['base'] or old.get('profile_sha256')!=m['profile_sha256']:raise ValueError('OLD_REPORT_BINDING_MISMATCH')
     result=execute(b['image_id'],p,out,profile,operation,old=old,patchfile=patchfile,
                    timeout_seconds=data.get('timeout_seconds',120),fault=fault,
-                   baked_files={n:h for n,h in m['target_files'].items() if n in m.get('image_files',[]) or
-                                ('image_files' not in m and (n.endswith(('.c','.h')) or n=='Makefile'))})
+                   baked_files=baked_files(m))
     if operation=='validate' and result['status']=='SUCCEEDED' and result['payload']['accepted']:
         before=(p/'Makefile').read_bytes();accepted=(out/'output/accepted.Makefile').read_bytes()
         import difflib
@@ -122,6 +230,12 @@ def delegate(data,**changes):
 
 def run(data):
     m,profile,job=context(data);out=output(data,job)
+    # BuildChecker forwards a C4 request. Only the DRAFT broker enables the
+    # worker fault in the isolated C4 deployment.
+    if data.get('fault') is not None and (ROLE != 'buildchecker' or data['fault'] != 'sleep'):
+        raise ValueError('FAULT_DISABLED')
+    if data.get('fault_patch') and (ROLE != 'mdfixer' or not permits_fault('C5', os.environ)):
+        raise ValueError('FAULT_DISABLED')
     if ROLE=='draft':
         p=project(data,job,m)
         if p!=job/'target':raise ValueError('DRAFT_TARGET_REQUIRED')
@@ -134,7 +248,9 @@ def run(data):
         from draft.autobuild import auto_build
         budget=data.get('build_timeout',900)
         if type(budget) not in (int,float) or not 1<=budget<=900:raise ValueError('INVALID_BUILD_BUDGET')
-        result=auto_build(p,candidate,out,m['expected_output'],timeout=budget)
+        with TemporaryDirectory(prefix='draft-context-', dir=job) as staging:
+            stage_draft_context(p, Path(staging), m)
+            result=auto_build(Path(staging), candidate, out, m['expected_output'], timeout=budget)
         if result['status']!='SUCCEEDED':return {'status':result['status'],'result':result,'error':'DRAFT_FAILED'}
         image=result['attempts'][-1]['image_id']
         if not re.fullmatch('sha256:[0-9a-f]{64}',image):raise ValueError('IMMUTABLE_IMAGE_REQUIRED')
@@ -176,8 +292,7 @@ def run(data):
         out.mkdir(parents=True,exist_ok=False);save(out/'repair-plan.json',edits)
         patchfile=out/'candidate.patch';patchfile.write_bytes(diff.encode())
         if data.get('fault_patch'):
-            if os.environ.get('E14_ENABLE_FAULTS')!='1':raise ValueError('FAULT_DISABLED')
-            patchfile.write_bytes(b'not a patch\n')
+            patchfile.write_bytes(INVALID_PATCH)
         result=delegate(data,out=str(out/'runtime'),operation='validate',patchfile=str(patchfile),patch_sha256=profiles.digest(patchfile.read_bytes()))
         if result['status']=='SUCCEEDED' and not result['payload']['accepted']:result['status']='REJECTED'
         save(out/'role-result.json',result);return result
@@ -186,25 +301,63 @@ def run(data):
 class Handler(BaseHTTPRequestHandler):
     def reply(self,code,data):
         body=profiles.canonical(data)+b'\n';self.send_response(code);self.send_header('Content-Type','application/json');self.send_header('Content-Length',str(len(body)));self.end_headers();self.wfile.write(body)
+
+    def complete(self, started, endpoint, stage, data, http_status, response, status, error_code):
+        event = {
+            'timestamp_utc': datetime.now(timezone.utc).isoformat(), 'protocol': PROTOCOL,
+            'role': ROLE, 'endpoint': endpoint, 'stage': stage, 'status': status,
+            'elapsed_ms': round((time.monotonic() - started) * 1000),
+            'http_status': http_status, 'error_code': error_code,
+        }
+        event.update(public_ids(data))
+        print(json.dumps(event), flush=True)
+        self.reply(http_status, response)
+
     def do_GET(self):
-        self.reply(200 if self.path=='/health' else 404,{'status':'ok' if self.path=='/health' else 'NOT_FOUND','role':ROLE,'protocol':PROTOCOL})
+        started = time.monotonic()
+        healthy = self.path == '/health'
+        response = {'status': 'ok' if healthy else 'NOT_FOUND', 'role': ROLE, 'protocol': PROTOCOL}
+        self.complete(started, '/health' if healthy else None, 'health' if healthy else 'route', {},
+                      200 if healthy else 404, response, 'SUCCEEDED' if healthy else 'REJECTED',
+                      None if healthy else 'NOT_FOUND')
+
     def do_POST(self):
-        if self.path not in ('/v1/run','/v1/worker'):self.reply(404,{'error':'NOT_FOUND'});return
-        expected_auth=os.environ.get('E14_TOKEN','')
-        if len(expected_auth)<32 or not hmac.compare_digest(self.headers.get('X-E14-Token',''),expected_auth):
-            self.reply(403,{'error':'FORBIDDEN'})
+        started = time.monotonic()
+        if self.path not in ('/v1/run', '/v1/worker'):
+            self.complete(started, None, 'route', {}, 404, {'error': 'NOT_FOUND'}, 'REJECTED', 'NOT_FOUND')
             return
-        data={}
+        expected_auth = os.environ.get('E14_TOKEN', '')
+        supplied = self.headers.get('X-E14-Token', '')
+        if len(expected_auth) < 32 or not hmac.compare_digest(supplied.encode(), expected_auth.encode()):
+            self.complete(started, self.path, 'authenticate', {}, 403, {'error': 'FORBIDDEN'}, 'REJECTED', 'FORBIDDEN')
+            return
+        data = {}
+        stage = 'decode'
         try:
-            length=int(self.headers.get('Content-Length','0'))
-            if not 1<=length<=100000:raise ValueError('INVALID_SIZE')
-            data=json.loads(self.rfile.read(length))
-            result=broker(data) if self.path=='/v1/worker' else run(data)
-            self.reply(200,result)
-            print(json.dumps({'role':ROLE,'job_id':data.get('job_id'),'trace_id':data.get('trace_id'),'status':result['status']}),flush=True)
+            length = self.headers.get('Content-Length', '0')
+            if not length.isascii() or not length.isdecimal() or len(length) > 6 or not 1 <= int(length) <= 100000:
+                raise ValueError('INVALID_SIZE')
+            data = json.loads(self.rfile.read(int(length)))
+            if not isinstance(data, dict):
+                raise ValueError('PROTOCOL_REQUIRED')
+            if self.path == '/v1/worker':
+                operation = data.get('operation')
+                stage = operation if operation in OPERATIONS else 'worker'
+                response = broker(data)
+            else:
+                stage = ROLE_STAGES[ROLE]
+                response = run(data)
+            status, error_code = result_outcome(response, stage)
+            http_status = 200
         except Exception as exc:
-            traceback.print_exc();self.reply(422,{'status':'FAILED','error':str(exc),'job_id':data.get('job_id') if isinstance(data,dict) else None})
-    def log_message(self,fmt,*args):print(fmt%args,flush=True)
+            status, error_code = exception_outcome(exc)
+            http_status = 422
+            response = {'status': 'FAILED', 'error': error_code, 'error_code': error_code, **public_ids(data)}
+        self.complete(started, self.path, stage, data, http_status, response, status, error_code)
+
+    def log_message(self, fmt, *args):
+        # The default access log echoes the raw request target, including its query string.
+        pass
 
 def main():
     if ROLE not in {'draft','buildchecker','echecker','mdfixer'}:raise SystemExit('INVALID_ROLE')

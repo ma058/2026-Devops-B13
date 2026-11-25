@@ -1,18 +1,37 @@
 """Member2 normal/C4/C5 runner; actual Linux four-role service execution only."""
 import argparse,json,os,shutil,subprocess,time,urllib.request,urllib.error,uuid
 from pathlib import Path
+from member2_faults import SCENARIOS
 from member2_profiles import canonical,digest
 from member2_runtime import fingerprint,save
 
 ROOT=Path(__file__).resolve().parents[2]
 
+def scenario_config(path, scenario):
+    conf=json.loads(Path(path).read_bytes())
+    if conf.get('scenario')!=scenario:
+        raise ValueError(f'CONFIG_SCENARIO_MISMATCH: prepare a fresh {scenario} stack')
+    return conf
+
+def health(ports):
+    checks={}
+    for role,port in ports.items():
+        with urllib.request.urlopen(f'http://127.0.0.1:{port}/health',timeout=5) as response:
+            value=json.load(response)
+        if (value.get('status'),value.get('role'),value.get('protocol'))!=('ok',role,'member2-e14-1'):
+            raise ValueError(f'HEALTH_PROTOCOL_OR_ROLE_MISMATCH: {role}')
+        checks[role]=value
+    return checks
+
 def run(config,scenario):
-    conf=json.loads(Path(config).read_bytes());runroot=ROOT/conf['run_relative']
+    conf=scenario_config(config,scenario);runroot=ROOT/conf['run_relative']
     m=json.loads((ROOT/'course/e13-e14/projects/b13-level-v1/manifest.json').read_bytes())
     token=Path(conf['token_file']).read_text().strip()
-    if os.name!='posix' or os.getuid()==0:raise ValueError('NONROOT_LINUX_REQUIRED')
+    if os.name!='posix' or os.getuid()==0 or os.getuid()!=os.geteuid():raise ValueError('NONROOT_LINUX_REQUIRED')
+    if conf['uid']!=os.getuid():raise ValueError('CONFIG_OWNER_MISMATCH')
     uid=os.getuid();job='job-'+uuid.uuid4().hex;trace='trace-'+uuid.uuid4().hex
     folder=runroot/'jobs'/job;folder.mkdir(parents=True,exist_ok=False)
+    save(folder/'health.json',health(conf['ports']))
     http=folder/'http';http.mkdir();counter=0
     def cpath(p):return '/course/'+Path(p).resolve().relative_to(ROOT.resolve()).as_posix()
     def git(*args):return subprocess.check_output(['git',*args],stderr=subprocess.STDOUT)
@@ -103,14 +122,27 @@ def run(config,scenario):
     return result,folder
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--config',required=True);parser.add_argument('--scenario',choices=['normal','C4','C5','all'],default='all');args=parser.parse_args()
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--config',required=True)
+    parser.add_argument('--scenario',choices=(*SCENARIOS,'all'),default='normal')
+    parser.add_argument('--c4-config',help='separate C4 deployment for an explicit matrix')
+    parser.add_argument('--c5-config',help='separate C5 deployment for an explicit matrix')
+    args=parser.parse_args()
+    jobs=[(args.config,args.scenario)]
+    if args.scenario=='all':
+        if not args.c4_config or not args.c5_config:
+            parser.error('--scenario all requires independent --c4-config and --c5-config')
+        jobs=[(args.config,'normal'),(args.c4_config,'C4'),(args.config,'normal'),(args.c5_config,'C5')]
+    for config,scenario in jobs:
+        scenario_config(config,scenario)
     records=[]
-    for scenario in (['normal','C4','normal','C5'] if args.scenario=='all' else [args.scenario]):
-        result,folder=run(args.config,scenario);records.append({'scenario':scenario,'path':str(folder),'result':result})
+    for config,scenario in jobs:
+        result,folder=run(config,scenario);records.append({'scenario':scenario,'path':str(folder),'result':result})
         if result['status'] not in ('PASS','EXPECTED_TIMEOUT_VERIFIED'):return 1
     conf=json.loads(Path(args.config).read_bytes())
     out=ROOT/conf['run_relative']/('matrix-'+uuid.uuid4().hex+'.json')
-    save(out,{'status':'PASS','scope':'MEMBER2_PERSONAL_SERVER_RUN_NOT_A13_ACCEPTANCE','records':records,
+    scope='B13_SHARED_COMPOSE_RUN' if conf.get('shared_compose') else 'MEMBER2_PERSONAL_SERVER_RUN_NOT_A13_ACCEPTANCE'
+    save(out,{'status':'PASS','scope':scope,'operator':conf['operator'],'records':records,
               'C4_recovered_in_new_job':args.scenario=='all' and records[1]['result']['job_id']!=records[2]['result']['job_id']})
     print('MEMBER2_MATRIX='+str(out))
     return 0
