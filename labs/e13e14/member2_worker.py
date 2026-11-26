@@ -15,8 +15,17 @@ def main():
         profile=profiles.resolve(request['profile'],request['profile_sha256']);profiles.check(project,profile)
         for n,h in request['source_files'].items():
             if hashlib.sha256((project/n).read_bytes()).hexdigest()!=h:raise ValueError('INPUT_SOURCE_MISMATCH')
+        image_blobs = {}
         for n,h in request['baked_files'].items():
-            if hashlib.sha256((Path('/work')/n).read_bytes()).hexdigest()!=h:raise ValueError('BAKED_SOURCE_MISMATCH')
+            raw = (Path('/work')/n).read_bytes()
+            if hashlib.sha256(raw).hexdigest()!=h:raise ValueError('BAKED_SOURCE_MISMATCH')
+            if profile['id'] == profiles.FULL_PREVIEW_ID:
+                blob = hashlib.sha1(b'blob ' + str(len(raw)).encode() + bytes([0]) + raw).hexdigest()
+                if blob != request['baked_git_blobs'][n]:
+                    raise ValueError('BAKED_SOURCE_MISMATCH')
+                image_blobs[n] = blob
+        if image_blobs:
+            response['baked_source_git_blobs'] = image_blobs
         response['input_source_sha256']=request['source_files']
         response['baked_source_sha256']=request['baked_files']
         if request.get('fault')=='sleep':time.sleep(60)

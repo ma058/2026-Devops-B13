@@ -17,6 +17,24 @@ for path in (ROOT/'labs/e11e12', ROOT/'labs/e8e10', ROOT/'labs/e11e12/environmen
 import project_profile as legacy
 import lab
 
+FULL_PREVIEW_ID = 'b13-tomlc99-full-preview-v1'
+PREVIEW_ENV = 'E14_TOMLC99_FULL_PREVIEW'
+
+
+def full_preview_enabled():
+    return os.environ.get(PREVIEW_ENV) == '1'
+
+
+def full_preview_profile():
+    if not full_preview_enabled():
+        raise ValueError('UNSUPPORTED_PROFILE')
+    bundled = Path(__file__).with_name('tomlc99-full-preview.json')
+    path = bundled if bundled.is_file() else ROOT/'course/e13-e14/projects'/FULL_PREVIEW_ID/'profile.json'
+    registered = json.loads(path.read_bytes())
+    if digest(canonical(registered)) != 'b051e3169de0d482692c18f35204bd54b19ebe32cc9cbfa4e5eef9d4ae5d4368':
+        raise ValueError('PROFILE_HASH_MISMATCH')
+    return registered
+
 def canonical(value):
     return json.dumps(value, sort_keys=True, ensure_ascii=False, allow_nan=False, separators=(',', ':')).encode()
 
@@ -30,7 +48,10 @@ def b_profile():
 def resolve(raw, expected=None):
     if not isinstance(raw, dict):
         raise ValueError('PROFILE_REQUIRED')
-    if canonical(raw) not in (canonical(b_profile()), canonical(legacy.PROFILE)):
+    if raw.get('id') == FULL_PREVIEW_ID:
+        if canonical(raw) != canonical(full_preview_profile()):
+            raise ValueError('UNSUPPORTED_PROFILE')
+    elif canonical(raw) not in (canonical(b_profile()), canonical(legacy.PROFILE)):
         raise ValueError('UNSUPPORTED_PROFILE')
     if expected is not None and expected != digest(canonical(raw)):
         raise ValueError('PROFILE_HASH_MISMATCH')
@@ -42,6 +63,9 @@ def check(project, profile):
     project = Path(project)
     if any(p.is_symlink() for p in project.rglob('*')):
         raise ValueError('UNSAFE_PATH')
+    if profile['id'] == FULL_PREVIEW_ID:
+        import member2_tomlc99_full
+        return member2_tomlc99_full.check(project, profile)
     if profile['id'] == legacy.PROFILE['id']:
         return legacy.check_project(project, profile)
     if {p.name for p in project.glob('*.c')} != {'main.c', 'helper.c'}:
@@ -65,6 +89,11 @@ def check(project, profile):
 
 def scan(project, old, profile):
     check(project, profile)
+    if profile['id'] == FULL_PREVIEW_ID:
+        import member2_tomlc99_full
+        report = member2_tomlc99_full.scan(project, old, profile)
+        report['profile_sha256'] = digest(canonical(profile))
+        return report
     report = legacy.scan(project, old, profile) if profile['id'] == legacy.PROFILE['id'] else lab.scan(project, old)
     report['profile_sha256'] = digest(canonical(profile))
     return report
@@ -75,6 +104,9 @@ def patch(project, report, profile):
         raise ValueError('PROFILE_HASH_MISMATCH')
     if report.get('commit') != subprocess.check_output(['git','rev-parse','HEAD'],cwd=project,text=True).strip():
         raise ValueError('STALE_REPORT')
+    if profile['id'] == FULL_PREVIEW_ID:
+        import member2_tomlc99_full
+        return member2_tomlc99_full.patch(project, report, profile)
     if any(f.get('target') not in profile['repair_targets'] for f in report.get('findings', [])):
         raise ValueError('UNSUPPORTED_TARGET')
     return legacy.patch(project, report, profile) if profile['id'] == legacy.PROFILE['id'] else lab.patch(Path(project), report)
@@ -85,10 +117,12 @@ def full(project, out, profile, timeout):
     result = full_check(project, out, clean_command=' '.join(profile['clean_argv']),
                         build_command=' '.join(profile['build_argv']), timeout=timeout)
     findings = result.get('findings')
-    targets = profile['repair_targets']
+    targets = profile['products'] if profile['id'] == FULL_PREVIEW_ID else profile['repair_targets']
     result.update(profile_sha256=digest(canonical(profile)), success_scope=targets,
                   whole_project_findings=findings, findings_by_scope=None)
     if result['status'] == 'SUCCEEDED':
+        if profile['id'] == FULL_PREVIEW_ID and set(result.get('observed_targets', [])) != set(targets):
+            raise ValueError('INVALID_FULL_FINDINGS')
         if not isinstance(findings, list) or any(
             not isinstance(item, dict) or item.get('type') not in ('MISSING', 'REDUNDANT')
             or not all(isinstance(item.get(key), str) and item[key] for key in ('target', 'dependency'))
@@ -107,6 +141,9 @@ def full(project, out, profile, timeout):
 
 def validate(project, patchfile, out, profile):
     check(project, profile)
+    if profile['id'] == FULL_PREVIEW_ID:
+        import member2_tomlc99_full
+        return member2_tomlc99_full.validate(project, patchfile, out, profile)
     if profile['id'] == legacy.PROFILE['id']:
         return legacy.validate(project, patchfile, out, profile)
     project, out = Path(project), Path(out)

@@ -8,6 +8,7 @@ ROOT=Path(__file__).resolve().parents[2]
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument('--image',required=True)
+    ap.add_argument('--project', choices=('b13-level-v1', 'b13-tomlc99-full-preview-v1'), default='b13-level-v1')
     ap.add_argument('--port-start',type=int,default=28081)
     ap.add_argument('--shared',action='store_true',help='use the shared four-role Compose file plus a protocol override')
     ap.add_argument('--scenario',choices=SCENARIOS,default='normal')
@@ -28,7 +29,7 @@ def main():
         with socket.socket() as s:s.bind(('127.0.0.1',port))
     name='m2-e14-'+uuid.uuid4().hex[:12];run=ROOT/'work'/name;run.mkdir(parents=True)
     data=ROOT/'data'/name;data.mkdir(parents=True)
-    shutil.copyfile(ROOT/'course/e13-e14/projects/b13-level-v1/candidate.Dockerfile',data/'candidate.Dockerfile')
+    shutil.copyfile(ROOT/'course/e13-e14/projects'/a.project/'candidate.Dockerfile',data/'candidate.Dockerfile')
     auth_file=run/'token.secret'
     auth_file.write_text(secrets.token_hex(32))
     auth_file.chmod(0o600)
@@ -42,6 +43,8 @@ def main():
     for role in ports:
         protocol_env={'E14_PROTOCOL':'member2-e14-1','E14_RUN_ROOT':'/course/work/'+name,
                       'E14_DRAFT_URL':'http://draft:8080',**fault_environment(role,a.scenario)}
+        if a.project == 'b13-tomlc99-full-preview-v1':
+            protocol_env['E14_TOMLC99_FULL_PREVIEW'] = '1'
         if a.shared:
             services[role]={'env_file':[str(envfile)],'environment':protocol_env,'restart':'no'}
             continue
@@ -56,7 +59,7 @@ def main():
         services[role]=value
     compose=run/'compose.json';compose.write_bytes(canonical({'services':services}))
     config={'run_name':name,'run_relative':'work/'+name,'compose':str(compose),'ports':ports,'token_file':str(auth_file),
-            'image_id':image,'scenario':a.scenario,'shared_compose':a.shared,'operator':owner.pw_name,'uid':os.getuid()}
+            'image_id':image,'project_id':a.project,'scenario':a.scenario,'shared_compose':a.shared,'operator':owner.pw_name,'uid':os.getuid()}
     (run/'config.json').write_bytes(canonical(config))
     (run/'source-commit.txt').write_bytes(subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT))
     variables={'M2_E14_REPO':ROOT,'M2_E14_CONFIG':run/'config.json','M2_E14_RUN':run,

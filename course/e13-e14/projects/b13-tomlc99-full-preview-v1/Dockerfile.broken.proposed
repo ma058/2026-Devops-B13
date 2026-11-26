@@ -1,0 +1,5 @@
+FROM m.daocloud.io/docker.io/library/python:3.13-slim
+WORKDIR /work
+COPY toml.c toml.h toml_extra.h toml_json.c toml_cat.c toml_sample.c Makefile ./
+RUN make clean && make all
+CMD ["./toml_json"]
