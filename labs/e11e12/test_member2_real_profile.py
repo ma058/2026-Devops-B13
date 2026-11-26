@@ -4,6 +4,7 @@ import hashlib
 import inspect
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -129,5 +130,83 @@ class RealProfileContracts(unittest.TestCase):
         self.assertEqual(len(observed), 1)
         self.assertEqual(observed[0]['argv'], argv)
 
+
+class B13LevelV1Contracts(unittest.TestCase):
+    fixtures = Path(__file__).resolve().parents[2] / 'course/e13-e14/projects/b13-level-v1'
+
+    def setUp(self):
+        self.profile = json.loads((self.fixtures / 'profile.json').read_bytes())
+
+    def test_requires_exact_frozen_profile_and_hash(self):
+        self.assertEqual(pp.bind_profile(self.profile, pp.B13_PROFILE_SHA256), self.profile)
+        for key, value in [('repair_targets', ['main.o']), ('effective_flags', ['-O1']),
+                           ('build_argv', ['make', 'all']), ('exit_code', False)]:
+            wrong = dict(self.profile, **{key: value})
+            with self.subTest(key=key), self.assertRaises(pp.ProfileError):
+                pp.bind_profile(wrong, hashlib.sha256(pp.canonical(wrong)).hexdigest())
+        with self.assertRaises(pp.ProfileError):
+            pp.bind_profile(self.profile, pp.profile_hash(pp.PROFILE))
+
+    def test_only_frozen_recipes_and_scoped_header_insertions_allowed(self):
+        for version in ('base', 'target'):
+            self.assertTrue(pp.check_project(self.fixtures / version, self.profile))
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp) / 'target'
+            shutil.copytree(self.fixtures / 'target', project)
+            makefile = project / 'Makefile'
+            source = makefile.read_bytes()
+            for old, new in [(b'gcc main.o helper.o', b'cc main.o helper.o'),
+                             (b'HEADERS = unused.h', b'HEADERS = config.h'),
+                             (b'helper.o: helper.c', b'helper.o: helper.c config.h'),
+                             (b'helper.o: helper.c', b'helper.o: helper.c extra.h extra.h')]:
+                makefile.write_bytes(source.replace(old, new))
+                with self.subTest(change=new), self.assertRaises(pp.ProfileError):
+                    pp.check_project(project, self.profile)
+                self.assertEqual(makefile.read_bytes(), source.replace(old, new))
+            makefile.write_bytes(source)
+            (project / 'extra.c').write_bytes(b'')
+            with self.assertRaises(pp.ProfileError):
+                pp.check_project(project, self.profile)
+
+    def test_exact_two_target_patch_and_no_writes_on_bad_input(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            project = Path(tmp) / 'project'
+            subprocess.run(['git', 'clone', '-q', '-c', 'core.autocrlf=false',
+                            str(self.fixtures / 'project.bundle'), str(project)], check=True)
+            commit = json.loads((self.fixtures / 'manifest.json').read_bytes())['target']
+            subprocess.run(['git', 'checkout', '-q', '--detach', commit], cwd=project, check=True)
+            makefile = project / 'Makefile'
+            source = makefile.read_bytes()
+            report = {'schema_version': 'e8e10-1', 'commit': commit,
+                      'profile_sha256': pp.B13_PROFILE_SHA256,
+                      'findings': [{'type': 'MISSING', 'target': 'helper.o', 'dependency': 'extra.h'},
+                                   {'type': 'REDUNDANT', 'target': 'main.o', 'dependency': 'unused.h'},
+                                   {'type': 'MISSING', 'target': 'main.o', 'dependency': 'config.h'}]}
+            for field, value in [('commit', '0' * 40), ('profile_sha256', '0' * 64),
+                                 ('findings', report['findings'] + [
+                                     {'type': 'MISSING', 'target': 'helper.o', 'dependency': 'config.h'}])]:
+                with self.subTest(field=field), self.assertRaises(pp.ProfileError):
+                    pp.patch(project, dict(report, **{field: value}), self.profile)
+                self.assertEqual(makefile.read_bytes(), source)
+            diff, edits = pp.patch(project, report, self.profile)
+            self.assertEqual(len(edits), 2)
+            self.assertEqual(makefile.read_bytes(), source)
+            subprocess.run(['git', 'apply', '-'], input=diff.encode(), cwd=project, check=True)
+            expected = source.replace(b'main.o: main.c $(HEADERS)\n', b'main.o: main.c $(HEADERS) config.h\n')
+            expected = expected.replace(b'helper.o: helper.c\n', b'helper.o: helper.c extra.h\n')
+            self.assertEqual(makefile.read_bytes(), expected)
+            self.assertTrue(pp.check_project(project, self.profile))
+
+    def test_b13_header_probe_requires_successful_main_object_compile(self):
+        sys.path.insert(0, str(Path(__file__).resolve().parent / 'environment/services/buildchecker'))
+        good = ['gcc', '-O0', '-c', 'main.c', '-o', 'main.o']
+        with tempfile.TemporaryDirectory() as tmp:
+            trace = Path(tmp) / 't.1'
+            rows = [(good, '-1 ENOENT'), (['gcc', '-O0', '-c', 'helper.c', '-o', 'helper.o'], '0'),
+                    (['gcc', '-O2', '-c', 'main.c', '-o', 'main.o'], '0'), (good, '0')]
+            trace.write_text(''.join('execve("/usr/bin/gcc", ' + json.dumps(argv) + ', 0x0) = ' + ret + '\n'
+                                     for argv, ret in rows), encoding='utf-8')
+            hits = pp.observed_recompile(Path(tmp), self.profile)
+            self.assertEqual([hit['argv'] for hit in hits], [good])
 
 if __name__ == '__main__': unittest.main(verbosity=2)

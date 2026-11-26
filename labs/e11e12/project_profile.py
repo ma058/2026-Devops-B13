@@ -1,4 +1,4 @@
-"""Versioned, deliberately narrow tomlc99 release profile; no teaching overrides.
+"""Frozen tomlc99 and b13-level-v1 profiles for E11/E12 project execution.
 
 The non-target Makefile bytes must equal the received audited recipe. This is
 not a general Make interpreter. Unsupported layouts/overrides fail closed.
@@ -26,6 +26,11 @@ PROFILE = {
     'recursive_scan': False, 'strict_sources': False,
     'makefile_template_sha256': '9247cc0f838a47456213d49d4aed2af11c6ba4c17b67dfff81d58aa486fb2c15',
 }
+B13_PROJECT_ID = 'b13-level-v1'
+# Workers receive this module independently of the repository's profile JSON.
+B13_PROFILE_SHA256 = 'f0367b454aff9cb0a5304e3e3330b61d4bbd01c3f19069eaf5930a1664d3733b'
+B13_MISSING_HEADERS = {'main.o': 'config.h', 'helper.o': 'extra.h'}
+
 OVERRIDES = ('DEBUG', 'CC', 'CFLAGS', 'CPPFLAGS', 'LDFLAGS', 'MAKEFLAGS',
              'GNUMAKEFLAGS', 'MAKEOVERRIDES', 'MFLAGS', 'MAKEFILES')
 
@@ -50,11 +55,14 @@ def resolve_profile(raw):
         return None
     require(isinstance(raw, dict), 'INVALID_PROFILE', 'Profile must be an object')
     try:
-        same = canonical(raw) == canonical(PROFILE)
-    except (TypeError, ValueError):
-        same = False
-    require(same, 'INVALID_PROFILE', 'Only the versioned, audited tomlc99 release profile is supported')
-    return copy.deepcopy(PROFILE)
+        raw_bytes = canonical(raw)
+    except (TypeError, ValueError) as exc:
+        raise ProfileError('INVALID_PROFILE', 'Profile must be canonical JSON') from exc
+    if raw_bytes == canonical(PROFILE):
+        return copy.deepcopy(PROFILE)
+    require(raw.get('id') == B13_PROJECT_ID and hashlib.sha256(raw_bytes).hexdigest() == B13_PROFILE_SHA256,
+            'INVALID_PROFILE', 'Expected the frozen tomlc99 or b13-level-v1 profile')
+    return copy.deepcopy(raw)
 
 
 def profile_hash(profile):
@@ -82,6 +90,17 @@ def declarations(project, profile):
     project = Path(project)
     require(not any(p.is_symlink() for p in project.rglob('*')), 'UNSAFE_PATH', 'Symlinks are not supported')
     data = (project / 'Makefile').read_bytes()
+    if profile['id'] == B13_PROJECT_ID:
+        from lab import declarations as teaching_declarations
+        # The base recipe already declares config.h. On the target accept the
+        # two corresponding header additions, independently, retaining all other bytes.
+        normalized = data.replace(b'\nmain.o: main.c $(HEADERS) config.h\n', b'\nmain.o: main.c $(HEADERS)\n')
+        normalized = normalized.replace(b'\nhelper.o: helper.c extra.h\n', b'\nhelper.o: helper.c\n')
+        base, target = profile['makefile_templates']
+        require(hashlib.sha256(data).hexdigest() == base or hashlib.sha256(normalized).hexdigest() == target,
+                'UNSUPPORTED_MAKEFILE', 'Expected a frozen b13-level-v1 recipe and scoped dependencies')
+        declared, _ = teaching_declarations(project)
+        return declared, None
     matches = list(re.finditer(rb'^toml\.o: ([^\r\n]*)\n', data, re.M))
     require(len(matches) == 1, 'UNSUPPORTED_MAKEFILE', 'Exactly one standalone toml.o rule required')
     match = matches[0]
@@ -103,7 +122,12 @@ def declarations(project, profile):
 
 def check_project(project, profile):
     declarations(project, profile)
-    for name in ('toml.c', 'toml.h', 'toml_json.c'):
+    required = ('toml.c', 'toml.h', 'toml_json.c')
+    if profile['id'] == B13_PROJECT_ID:
+        require({path.name for path in Path(project).glob('*.c')} == {unit[1] for unit in profile['units']},
+                'UNSUPPORTED_PROJECT', 'Unexpected b13-level-v1 compilation units')
+        required = ('config.h', 'extra.h', 'unused.h')
+    for name in required:
         require((Path(project) / name).is_file(), 'UNSUPPORTED_PROJECT', 'Missing ' + name)
     return True
 
@@ -125,19 +149,28 @@ def effective_toolchain(project, profile, folder=None):
     query = b'\n.PHONY: __m2_profile_vars\n__m2_profile_vars:\n\t@printf "%s\\n%s\\n" "$(CFLAGS)" "$(CC)"\n'
     raw = run(['make', '--no-print-directory', '-s', '-f', 'Makefile', '-f', '-', '__m2_profile_vars'],
               project, folder, 'effective-flags', query)
-    require(raw.splitlines() == [(' '.join(FLAGS)).encode(), b'cc'],
+    flags = profile['effective_flags']
+    require(raw.splitlines() == [(' '.join(flags)).encode(), b'cc'],
             'UNSUPPORTED_FLAGS', 'Effective Make CFLAGS/CC differ from the versioned release profile')
     cc, gcc = shutil.which('cc'), shutil.which('gcc')
     require(cc is not None and gcc is not None and Path(cc).resolve() == Path(gcc).resolve(),
             'UNSUPPORTED_COMPILER', 'This profile requires cc resolving to the installed GCC')
     version = run(['cc', '--version'], project, folder, 'compiler-version').decode('utf-8')
-    return {'compiler': str(Path(cc).resolve()), 'compiler_version': version, 'effective_flags': FLAGS[:],
+    return {'compiler': str(Path(cc).resolve()), 'compiler_version': version, 'effective_flags': flags[:],
             'profile_sha256': profile_hash(profile), 'build_argv': profile['build_argv'], 'targets': profile['units']}
 
 
 def scan(project, old=None, profile=None):
     profile = resolve_profile(profile); check_environment(); check_project(project, profile)
     project = Path(project)
+    if profile['id'] == B13_PROJECT_ID:
+        from lab import scan as teaching_scan
+        digest = profile_hash(profile)
+        if old and old.get('profile_sha256') != digest:
+            old = None
+        report = teaching_scan(project, old)
+        report.update(profile=profile['id'], profile_sha256=digest)
+        return report
     declared, _ = declarations(project, profile)
     key = effective_toolchain(project, profile)
     # Conservative byte fingerprints; configuration/flags/compiler are part of the key.
@@ -175,15 +208,22 @@ def check_report(report, profile):
     require(isinstance(fs, list), 'INVALID_REPORT', 'Findings must be a list')
     for f in fs:
         require(isinstance(f, dict) and f.get('type') in ('MISSING', 'REDUNDANT'), 'INVALID_REPORT', 'Invalid finding type')
-        require(f.get('target') == 'toml.o', 'UNSUPPORTED_TARGET', 'Only scoped object findings accepted for repair')
+        require(f.get('target') in profile['repair_targets'], 'UNSUPPORTED_TARGET', 'Only scoped object findings accepted for repair')
         require(isinstance(f.get('dependency'), str) and re.fullmatch(r'[A-Za-z0-9_-]+\.(?:c|h)', f['dependency']),
                 'UNSAFE_PATH', 'Unsupported dependency')
+        if profile['id'] == B13_PROJECT_ID and f['type'] == 'MISSING':
+            require(f['dependency'] == B13_MISSING_HEADERS[f['target']], 'UNSUPPORTED_DEPENDENCY',
+                    'Missing header does not belong to this frozen object target')
 
 
 def patch(project, report, profile):
     profile = resolve_profile(profile); check_report(report, profile)
     project = Path(project)
     require(report.get('commit') == run(['git', 'rev-parse', 'HEAD'], project).decode().strip(), 'STALE_REPORT', 'Report is not for this commit')
+    if profile['id'] == B13_PROJECT_ID:
+        from lab import patch as teaching_patch
+        check_project(project, profile)
+        return teaching_patch(project, report)
     declared, match = declarations(project, profile)
     original = (project / 'Makefile').read_bytes()
     missing = sorted({f['dependency'] for f in report['findings'] if f['type'] == 'MISSING'} - set(declared['toml.o']))
@@ -205,30 +245,39 @@ def full(project, folder, profile):
         from fullcheck import full_check
     except ImportError:
         from buildchecker.fullcheck import full_check
-    result = full_check(project, folder, clean_command='make clean', build_command='make toml_json')
+    result = full_check(project, folder, clean_command=' '.join(profile['clean_argv']),
+                        build_command=' '.join(profile['build_argv']))
     result.update(profile_sha256=profile_hash(profile), effective_toolchain=effective,
-                  success_scope=['toml.o'], whole_project_findings=result.get('findings', []))
-    result['scoped_findings'] = [f for f in result.get('findings', []) if f['target'] == 'toml.o']
+                  success_scope=profile['repair_targets'], whole_project_findings=result.get('findings', []))
+    result['scoped_findings'] = [f for f in result.get('findings', []) if f['target'] in profile['repair_targets']]
     Path(folder, 'findings.json').write_bytes(canonical(result) + b'\n')
     require(result.get('status') == 'SUCCEEDED', 'FULL_CHECK_FAILED', str(result.get('error')))
     return result
 
 
-def observed_recompile(trace_dir):
+def observed_recompile(trace_dir, profile=None):
     """Require successful compiler exec with the exact versioned argv, not stdout."""
     try:
         from fullcheck import trace_events
     except ImportError:
         from buildchecker.fullcheck import trace_events
+    profile = PROFILE if profile is None else resolve_profile(profile)
+    target, source = profile['units'][0]
+    if profile['id'] == B13_PROJECT_ID:
+        expected_args = [*profile['effective_flags'], '-c', source, '-o', target]
+        compilers = ('gcc',)
+    else:
+        expected_args = [*profile['effective_flags'], '-c', '-o', target, source]
+        compilers = ('cc', 'gcc')
     found = []
     for path in sorted(Path(trace_dir).glob('t.*')):
         for event in trace_events(path):
             if event['call'] != 'execve' or event['return'] != 0:
                 continue
             argv = ast.literal_eval(event['args'][1])
-            if isinstance(argv, list) and argv[1:] == FLAGS + ['-c', '-o', 'toml.o', 'toml.c']:
+            if isinstance(argv, list) and argv[1:] == expected_args:
                 exe = ast.literal_eval(event['args'][0])
-                if Path(exe).name in ('cc', 'gcc'):
+                if Path(exe).name in compilers:
                     found.append({'trace': path.name, 'line': event['line'], 'executable': exe, 'argv': argv})
     return found
 
@@ -243,7 +292,8 @@ def validate(project, patchfile, evidence, profile):
         expected, _ = patch(project, scan(project, profile=profile), profile)
         require(bool(expected) and Path(patchfile).read_bytes() == expected.encode(), 'UNSAFE_PATCH', 'Candidate must be exact scoped missing-dependency patch')
         sandbox = evidence / 'sandbox'
-        shutil.copytree(project, sandbox, ignore=shutil.ignore_patterns('.git', '*.o', 'libtoml.a', 'libtoml.so*', 'toml_json', 'toml_cat', 'toml_sample'))
+        shutil.copytree(project, sandbox, ignore=shutil.ignore_patterns('.git', '*.o', Path(profile['run_argv'][0]).name,
+                                                                        'libtoml.a', 'libtoml.so*', 'toml_cat', 'toml_sample'))
         run(['git', 'init', '-b', 'main'], sandbox, evidence, 'git-init')
         run(['git', 'config', 'user.name', 'ValidationSandbox'], sandbox)
         run(['git', 'config', 'user.email', 'fixture@localhost'], sandbox)
@@ -253,21 +303,28 @@ def validate(project, patchfile, evidence, profile):
         effective_toolchain(sandbox, profile, evidence)
         run(profile['clean_argv'], sandbox, evidence, 'clean')
         run(profile['build_argv'], sandbox, evidence, 'build'); checks['build'] = True
+        if 'test_argv' in profile:
+            run(profile['test_argv'], sandbox, evidence, 'project-tests')
         checks['test'] = run(profile['run_argv'], sandbox, evidence, 'run-before') == bytes.fromhex(profile['stdout_hex'])
-        obj = sandbox / 'toml.o'; old_ns = obj.stat().st_mtime_ns
+        obj = sandbox / profile['units'][0][0]; old_ns = obj.stat().st_mtime_ns
         time.sleep(1.1)
-        header = sandbox / profile['header_probe']['path']
-        header.write_bytes(header.read_bytes() + bytes.fromhex(profile['header_probe']['append_hex']))
+        header_probe = profile['header_probe']
+        header = sandbox / header_probe['path']
+        if 'content_hex' in header_probe:
+            header.write_bytes(bytes.fromhex(header_probe['content_hex']))
+        else:
+            header.write_bytes(header.read_bytes() + bytes.fromhex(header_probe['append_hex']))
         require(header.stat().st_mtime_ns > old_ns, 'PROBE_CLOCK', 'Header must be newer than the object')
         traces = evidence / 'incremental-trace'; traces.mkdir()
         argv = ['strace', '-ff', '-s', '4096', '-o', str(traces.resolve() / 't'), '-e', 'trace=execve', *profile['build_argv']]
         run(argv, sandbox, evidence, 'incremental-build')
-        observed = observed_recompile(traces)
+        observed = observed_recompile(traces, profile)
         probe = {'before_mtime_ns': old_ns, 'after_mtime_ns': obj.stat().st_mtime_ns,
                  'successful_compiler_execs': observed, 'header_sha256': hashlib.sha256(header.read_bytes()).hexdigest()}
         (evidence / 'header-probe.json').write_bytes(canonical(probe) + b'\n')
         checks['header_change'] = bool(observed) and obj.stat().st_mtime_ns > old_ns
-        checks['test'] = checks['test'] and run(profile['run_argv'], sandbox, evidence, 'run-after') == bytes.fromhex(profile['stdout_hex'])
+        after_stdout = run(profile['run_argv'], sandbox, evidence, 'run-after')
+        checks['test'] = checks['test'] and after_stdout == bytes.fromhex(header_probe.get('stdout_hex', profile['stdout_hex']))
         recheck = scan(sandbox, profile=profile)
         (evidence / 'recheck.json').write_bytes(canonical(recheck) + b'\n')
         checks['no_missing'] = not any(f['type'] == 'MISSING' for f in recheck['findings'])
@@ -279,6 +336,6 @@ def validate(project, patchfile, evidence, profile):
         (project / 'Makefile').write_bytes((sandbox / 'Makefile').read_bytes())
     unchanged = (project / 'Makefile').read_bytes() == before
     result = {'accepted': accepted, 'checks': checks, 'error': error, 'source_unchanged': unchanged,
-              'rollback': not accepted and unchanged, 'profile_sha256': profile_hash(profile), 'success_scope': ['toml.o']}
+              'rollback': not accepted and unchanged, 'profile_sha256': profile_hash(profile), 'success_scope': profile['repair_targets']}
     (evidence / 'validation.json').write_bytes(canonical(result) + b'\n')
     return result
