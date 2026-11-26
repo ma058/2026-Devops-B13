@@ -96,7 +96,10 @@ def below(value,root):
     return p.resolve()
 
 def manifest(project_id):
-    if project_id not in ('b13-level-v1','a13-tomlc99-release-1'):raise ValueError('UNSUPPORTED_PROJECT')
+    enabled = ('b13-level-v1', 'a13-tomlc99-release-1')
+    if profiles.full_preview_enabled():
+        enabled += (profiles.FULL_PREVIEW_ID,)
+    if project_id not in enabled:raise ValueError('UNSUPPORTED_PROJECT')
     path=ROOT/'course/e13-e14/projects'/project_id/'manifest.json'
     if not path.is_file():raise ValueError('PROJECT_NOT_REGISTERED')
     return json.loads(path.read_bytes())
@@ -106,6 +109,15 @@ def context(data):
     for key,prefix in [('job_id','job-'),('trace_id','trace-')]:
         if not identity(data.get(key),prefix):raise ValueError('INVALID_IDENTITY')
     m=manifest(data.get('project_id'));profile=profiles.resolve(data.get('profile'),data.get('profile_sha256'))
+    if m.get('project_id') == profiles.FULL_PREVIEW_ID:
+        allowed = {'protocol', 'project_id', 'job_id', 'trace_id', 'base', 'target', 'profile', 'profile_sha256',
+                   'candidate_sha256', 'project', 'out', 'candidate', 'build_timeout', 'image_id',
+                   'base_project', 'baseline_graph', 'baseline_graph_sha256', 'target_findings',
+                   'target_findings_sha256', 'report', 'report_sha256', 'payload', 'payload_sha256',
+                   'operation', 'patchfile', 'patch_sha256', 'old_path', 'old_sha256',
+                   'timeout_seconds', 'fault', 'fault_patch'}
+        if data.keys() - allowed:
+            raise ValueError('INVALID_REQUEST')
     if data.get('profile_sha256')!=m['profile_sha256'] or profile!=m['profile']:raise ValueError('PROFILE_HASH_MISMATCH')
     for key in ('base','target'):
         if not re.fullmatch('[0-9a-f]{40}',str(data.get(key))) or data[key]!=m[key]:raise ValueError('COMMIT_MISMATCH')
@@ -146,7 +158,13 @@ def report_payload(data,job,m):
     got=verify_received_bytes(raw,data['report_sha256'],payload,data['payload_sha256'],m['target'],data['job_id'],data['trace_id'])
     for obj in (json.loads(raw),got.payload):
         if obj.get('profile_sha256')!=m['profile_sha256']:raise ValueError('PROFILE_HASH_MISMATCH')
-    if any(f['target'] not in m['profile']['repair_targets'] for f in got.payload['findings']):raise ValueError('UNSUPPORTED_TARGET')
+    allowed_targets = m['profile']['repair_targets']
+    if m.get('project_id') == profiles.FULL_PREVIEW_ID:
+        envelope = json.loads(raw)
+        if envelope.get('image_id') != data.get('image_id') or envelope.get('execution_environment') != 'draft-image':
+            raise ValueError('DRAFT_BINDING_MISMATCH')
+        allowed_targets = m['profile']['products']
+    if any(f['target'] not in allowed_targets for f in got.payload['findings']):raise ValueError('UNSUPPORTED_TARGET')
     return got.payload
 
 def baked_files(m):
@@ -155,6 +173,31 @@ def baked_files(m):
     if names is None:
         names = [name for name in targets if name.endswith(('.c', '.h')) or name == 'Makefile']
     return {name: targets[name] for name in names}
+
+
+def stage_preview_pair(staging, candidate, m):
+    """Install the approved B13-derived bytes in the job's private build context."""
+    from draft.autobuild import prepare_candidate
+    pair = m['baseline_pair']
+    baseline = staging/'Dockerfile.broken'
+    if profiles.digest(baseline.read_bytes()) != pair['Dockerfile.broken.C1']:
+        raise ValueError('SOURCE_BINDING_MISMATCH')
+    derivative = ROOT/'course/e13-e14/projects'/profiles.FULL_PREVIEW_ID/'Dockerfile.broken.proposed'
+    proposed = derivative.read_bytes()
+    if profiles.digest(proposed) != pair['Dockerfile.broken.proposed']:
+        raise ValueError('SOURCE_BINDING_MISMATCH')
+    raw_candidate = candidate.read_bytes()
+    if profiles.digest(raw_candidate) != m['candidate_sha256']:
+        raise ValueError('CANDIDATE_MISMATCH')
+    effective = prepare_candidate(proposed.decode('utf-8'), raw_candidate.decode('utf-8')).encode('utf-8')
+    if profiles.digest(effective) != pair['Dockerfile.broken.effective']:
+        raise ValueError('DRAFT_BINDING_MISMATCH')
+    baseline.write_bytes(proposed)
+    # auto_build excludes this copy from the image build context.
+    fixed_candidate = staging/'Dockerfile.reference'
+    with fixed_candidate.open('xb') as stream:
+        stream.write(raw_candidate)
+    return fixed_candidate
 
 
 def stage_draft_context(source, destination, m):
@@ -204,9 +247,12 @@ def broker(data):
         if profiles.digest(oldpath.read_bytes())!=data.get('old_sha256'):raise ValueError('OLD_REPORT_HASH_MISMATCH')
         old=json.loads(oldpath.read_bytes())
         if old.get('commit')!=m['base'] or old.get('profile_sha256')!=m['profile_sha256']:raise ValueError('OLD_REPORT_BINDING_MISMATCH')
+    extra = {}
+    if m.get('project_id') == profiles.FULL_PREVIEW_ID:
+        extra['baked_git_blobs'] = m['image_git_blobs']
     result=execute(b['image_id'],p,out,profile,operation,old=old,patchfile=patchfile,
                    timeout_seconds=data.get('timeout_seconds',120),fault=fault,
-                   baked_files=baked_files(m))
+                   baked_files=baked_files(m),**extra)
     if operation=='validate' and result['status']=='SUCCEEDED' and result['payload']['accepted']:
         before=(p/'Makefile').read_bytes();accepted=(out/'output/accepted.Makefile').read_bytes()
         import difflib
@@ -250,12 +296,18 @@ def run(data):
         if type(budget) not in (int,float) or not 1<=budget<=900:raise ValueError('INVALID_BUILD_BUDGET')
         with TemporaryDirectory(prefix='draft-context-', dir=job) as staging:
             stage_draft_context(p, Path(staging), m)
+            if m.get('project_id') == profiles.FULL_PREVIEW_ID:
+                candidate = stage_preview_pair(Path(staging), candidate, m)
             result=auto_build(Path(staging), candidate, out, m['expected_output'], timeout=budget)
+        if m.get('project_id') == profiles.FULL_PREVIEW_ID:
+            save(out/'baseline-pair.json', dict(m['baseline_pair'], candidate_sha256=m['candidate_sha256']))
         if result['status']!='SUCCEEDED':return {'status':result['status'],'result':result,'error':'DRAFT_FAILED'}
         image=result['attempts'][-1]['image_id']
         if not re.fullmatch('sha256:[0-9a-f]{64}',image):raise ValueError('IMMUTABLE_IMAGE_REQUIRED')
         b={k:data[k] for k in ('job_id','trace_id','project_id','base','target','profile_sha256','candidate_sha256')}
         b.update(image_id=image,files={'base':fingerprint(job/'base'),'target':fingerprint(job/'target')})
+        if m.get('project_id') == profiles.FULL_PREVIEW_ID:
+            b['baseline_pair'] = m['baseline_pair']
         if b['files']['base']!=m['base_files'] or b['files']['target']!=m['target_files']:raise ValueError('SOURCE_CHANGED_DURING_DRAFT')
         save(state,b);save(out/'binding.json',b)
         return {'status':'SUCCEEDED','image_id':image,'binding':b,'result':result}
@@ -275,8 +327,13 @@ def run(data):
             path=below(data[field],job)
             if profiles.digest(path.read_bytes())!=data[field+'_sha256']:raise ValueError('REFERENCE_HASH_MISMATCH')
         graph=json.loads(Path(data['baseline_graph']).read_bytes());reference=json.loads(Path(data['target_findings']).read_bytes())
-        targets=profile['repair_targets'];projection={t:sorted({e['dependency'] for e in graph if e['target']==t}) for t in targets}
-        norm=lambda fs:sorted((f['type'],f['target'],f['dependency']) for f in fs if f['target'] in targets)
+        preview = m.get('project_id') == profiles.FULL_PREVIEW_ID
+        targets = profile['products'] if preview else profile['repair_targets']
+        projection={t:sorted({e['dependency'] for e in graph if e['target']==t}) for t in targets}
+        norm=lambda fs:sorted((f['type'],f['target'],f['dependency']) for f in fs if preview or f['target'] in targets)
+        if preview and (reference.get('profile_sha256') != m['profile_sha256']
+                        or set(reference.get('observed_targets', [])) != set(targets)):
+            raise ValueError('FULL_INCREMENTAL_MISMATCH')
         if projection!=old['payload']['actual'] or reference['status']!='SUCCEEDED' or norm(reference['findings'])!=norm(current['payload']['findings']):raise ValueError('FULL_INCREMENTAL_MISMATCH')
         save(out/'incremental-report.json',current['payload']);raw=(out/'incremental-report.json').read_bytes()
         env={'schema_version':'e11e12-1','kind':'incremental-check','status':'SUCCEEDED','commit':m['target'],

@@ -1,5 +1,5 @@
 """Member2 normal/C4/C5 runner; actual Linux four-role service execution only."""
-import argparse,json,os,shutil,subprocess,time,urllib.request,urllib.error,uuid
+import argparse,json,os,shutil,subprocess,tarfile,tempfile,time,urllib.request,urllib.error,uuid
 from pathlib import Path
 from member2_faults import SCENARIOS
 from member2_profiles import canonical,digest
@@ -23,9 +23,39 @@ def health(ports):
         checks[role]=value
     return checks
 
+def project_inputs(config):
+    project_id = config.get('project_id', 'b13-level-v1')
+    if project_id not in ('b13-level-v1', 'b13-tomlc99-full-preview-v1'):
+        raise ValueError('UNSUPPORTED_PROJECT')
+    directory = ROOT / 'course/e13-e14/projects' / project_id
+    return directory, json.loads((directory / 'manifest.json').read_bytes())
+
+
+def restore_sources(directory, manifest, folder):
+    def git(*argv):
+        subprocess.run(['git', *map(str, argv)], check=True, stdout=subprocess.PIPE)
+    with tempfile.TemporaryDirectory(dir=folder) as temporary:
+        source = directory / 'project.bundle'
+        if manifest['project_id'] == 'b13-tomlc99-full-preview-v1':
+            archive = directory.parent / 'a13-tomlc99-release-1' / 'project.git.tar.gz'
+            if digest(archive.read_bytes()) != manifest['source_archive_sha256']:
+                raise ValueError('SOURCE_ARCHIVE_MISMATCH')
+            # The frozen archive holds a shallow bare Git repository.
+            with tarfile.open(archive, 'r:gz') as tar:
+                tar.extractall(temporary, filter='data')
+            source = Path(temporary) / 'project.git'
+        for side in ('base', 'target'):
+            dest = folder / side
+            git('clone', '--no-checkout', '--no-hardlinks', source, dest)
+            git('-C', dest, 'config', 'core.autocrlf', 'false')
+            git('-C', dest, 'checkout', '--detach', manifest[side])
+            if fingerprint(dest) != manifest[side + '_files']:
+                raise ValueError('SOURCE_FINGERPRINT_MISMATCH')
+
+
 def run(config,scenario):
     conf=scenario_config(config,scenario);runroot=ROOT/conf['run_relative']
-    m=json.loads((ROOT/'course/e13-e14/projects/b13-level-v1/manifest.json').read_bytes())
+    directory,m=project_inputs(conf)
     token=Path(conf['token_file']).read_text().strip()
     if os.name!='posix' or os.getuid()==0 or os.getuid()!=os.geteuid():raise ValueError('NONROOT_LINUX_REQUIRED')
     if conf['uid']!=os.getuid():raise ValueError('CONFIG_OWNER_MISMATCH')
@@ -35,11 +65,7 @@ def run(config,scenario):
     http=folder/'http';http.mkdir();counter=0
     def cpath(p):return '/course/'+Path(p).resolve().relative_to(ROOT.resolve()).as_posix()
     def git(*args):return subprocess.check_output(['git',*args],stderr=subprocess.STDOUT)
-    for side in ['base','target']:
-        git('clone','--no-checkout','--no-hardlinks',str(ROOT/'course/e13-e14/projects/b13-level-v1/project.bundle'),str(folder/side))
-        git('-C',str(folder/side),'config','core.autocrlf','false')
-        git('-C',str(folder/side),'checkout','--detach',m[side])
-        assert fingerprint(folder/side)==m[side+'_files']
+    restore_sources(directory,m,folder)
     data={k:m[k] for k in ['base','target','profile','profile_sha256','candidate_sha256']}
     data.update(protocol='member2-e14-1',project_id=m['project_id'],job_id=job,trace_id=trace)
     source=ROOT/'data'/conf['run_name']/'candidate.Dockerfile'
@@ -69,7 +95,7 @@ def run(config,scenario):
         result=json.loads(raw)
         if status!=200:raise ValueError(f'{name}: HTTP {status}: '+str(result))
         return result
-    result={'status':'FAILED','scenario':scenario,'job_id':job,'trace_id':trace,'uid':uid,
+    result={'project_id':m['project_id'],'status':'FAILED','scenario':scenario,'job_id':job,'trace_id':trace,'uid':uid,
             'implementation_sha':git('-C',str(ROOT),'rev-parse','HEAD').decode().strip(),
             'profile_sha256':m['profile_sha256'],'candidate_sha256':m['candidate_sha256'],'base':m['base'],'target':m['target']}
     try:

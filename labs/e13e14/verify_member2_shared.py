@@ -68,7 +68,7 @@ def check(root):
     findings = load(job / "final-full" / "findings.json")
     require(findings["findings"] == findings["whole_project_findings"] and findings["findings_by_scope"]["in_scope_missing"] == 0
             and findings["findings_by_scope"]["out_of_scope_missing"] == 0, "unexpected B13 final findings")
-    return {"status": "PASS", "project_id": "b13-level-v1", "job_id": result["job_id"],
+    return {"status": "PASS", "project_id": request["project_id"], "job_id": result["job_id"],
             "trace_id": result["trace_id"], "implementation_sha": result["implementation_sha"], "image_id": image,
             "operations": dict(operations), "whole_project_findings": findings["whole_project_findings"]}
 

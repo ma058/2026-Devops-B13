@@ -2,13 +2,14 @@
 # Usage: bash labs/e13e14/run_shared_member2.sh IMAGE START_PORT [normal|smoke|C4|C5]
 set -euo pipefail
 umask 077
-if [[ $# -lt 2 || $# -gt 3 ]]; then
-  echo 'usage: run_shared_member2.sh IMAGE START_PORT [normal|smoke|C4|C5]' >&2
+if [[ $# -lt 2 || $# -gt 4 ]]; then
+  echo 'usage: run_shared_member2.sh IMAGE START_PORT [normal|smoke|C4|C5] [PROJECT_ID]' >&2
   exit 2
 fi
 image=$1
 start_port=$2
 mode=${3:-normal}
+project_id=${4:-b13-level-v1}
 scenario=$mode
 case "$mode" in
   smoke) scenario=normal ;;
@@ -17,7 +18,7 @@ case "$mode" in
 esac
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
 export PYTHONDONTWRITEBYTECODE=1
-setup=$(python3 labs/e13e14/member2_setup.py --shared --image "$image" --port-start "$start_port" --scenario "$scenario")
+setup=$(python3 labs/e13e14/member2_setup.py --shared --image "$image" --port-start "$start_port" --scenario "$scenario" --project "$project_id")
 session=$(printf '%s\n' "$setup" | sed -n 's/^M2_E14_SESSION=//p')
 [[ -f "$session" && -O "$session" ]]
 # shellcheck disable=SC1090

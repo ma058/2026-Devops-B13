@@ -26,12 +26,17 @@ def fingerprint(project):
         result[n]=profiles.digest(path.read_bytes())
     return result
 
-def execute(image,project,out,profile,operation,*,old=None,patchfile=None,timeout_seconds=120,fault=None,baked_files=None):
+def execute(image,project,out,profile,operation,*,old=None,patchfile=None,timeout_seconds=120,fault=None,baked_files=None,baked_git_blobs=None):
     if not re.fullmatch(r'sha256:[0-9a-f]{64}',image):raise ValueError('IMMUTABLE_IMAGE_REQUIRED')
     if operation not in ('full','scan','validate'):raise ValueError('UNSUPPORTED_OPERATION')
     if type(timeout_seconds) not in (int,float) or not 0.01<=timeout_seconds<=600:raise ValueError('INVALID_TIMEOUT')
     if os.name!='posix' or os.getuid()==0:raise ValueError('NONROOT_LINUX_REQUIRED')
     profile=profiles.resolve(profile);profiles.check(project,profile)
+    preview = profile['id'] == profiles.FULL_PREVIEW_ID
+    if preview:
+        required = {'toml.c','toml.h','toml_extra.h','toml_json.c','toml_cat.c','toml_sample.c','Makefile'}
+        if set(baked_files or {}) != required or set(baked_git_blobs or {}) != required:
+            raise ValueError('SOURCE_BINDING_MISMATCH')
     project=Path(project);out=Path(out);out.mkdir(parents=True,exist_ok=False)
     before=fingerprint(project);save(out/'source-before.json',before)
     nonce=uuid.uuid4().hex
@@ -59,18 +64,23 @@ def execute(image,project,out,profile,operation,*,old=None,patchfile=None,timeou
              'project_profile.py':ROOT/'labs/e11e12/project_profile.py',
              'lab.py':ROOT/'labs/e8e10/lab.py',
              'fullcheck.py':ROOT/'labs/e11e12/environment/services/buildchecker/buildchecker/fullcheck.py'}
+    worker_env = []
+    if preview:
+        sources['member2_tomlc99_full.py'] = Path(__file__).with_name('member2_tomlc99_full.py')
+        sources['tomlc99-full-preview.json'] = ROOT/'course/e13-e14/projects'/profiles.FULL_PREVIEW_ID/'profile.json'
+        worker_env = ['--env', profiles.PREVIEW_ENV + '=1']
     hashes={}
     for n,p in sources.items():shutil.copyfile(p,bundle/n);hashes[n]=profiles.digest(p.read_bytes())
     if patchfile:shutil.copyfile(patchfile,bundle/'candidate.patch')
     save(bundle/'request.json',{'operation':operation,'old':old,'fault':fault,'profile':profile,
          'profile_sha256':profiles.digest(profiles.canonical(profile)),'code_sha256':hashes,'timeout_seconds':timeout_seconds,
-         'source_files':before,'baked_files':baked_files or {}})
+         'source_files':before,'baked_files':baked_files or {},'baked_git_blobs':baked_git_blobs or {}})
     try:
         _,raw=command(['docker','image','inspect',image]);assert json.loads(raw)[0]['Id']==image
         _,raw=command(['docker','create','--network','none','--cpus','1','--memory','512m','--pids-limit','256',
                       '--cap-drop','ALL','--cap-add','SYS_PTRACE','--security-opt','no-new-privileges',
                       '--user',f'{os.getuid()}:{os.getgid()}','--label','b13.e14.operation='+nonce,
-                      '--entrypoint','python3',image,'/tmp/m2-input/member2_worker.py'])
+                      *worker_env,'--entrypoint','python3',image,'/tmp/m2-input/member2_worker.py'])
         cid=raw.decode().strip()
         if not re.fullmatch('[0-9a-f]{64}',cid):raise ValueError('INVALID_CONTAINER_ID')
         save(out/'container-id.json',{'container_id':cid,'ownership_label':nonce})
@@ -87,11 +97,15 @@ def execute(image,project,out,profile,operation,*,old=None,patchfile=None,timeou
             or response['profile_sha256']!=profiles.digest(profiles.canonical(profile))
             or response['input_source_sha256']!=before
             or response['baked_source_sha256']!=(baked_files or {})):raise ValueError('WORKER_RESPONSE_MISMATCH')
+        if preview and response.get('baked_source_git_blobs') != baked_git_blobs:
+            raise ValueError('WORKER_RESPONSE_MISMATCH')
         if operation=='full' and response['payload']['status']!='SUCCEEDED':raise ValueError('FULL_CHECK_FAILED')
         witness={'operation':operation,'image_id':image,'actual_container_image':info['Image'],'container_id':cid,
                  'container_exit_code':info['State']['ExitCode'],'code_sha256':hashes,'ownership_label':nonce,
                  'profile_sha256':response['profile_sha256'],'input_source_sha256':response['input_source_sha256'],
                  'baked_source_sha256':response['baked_source_sha256'],'transport':'docker cp; no host bind mount'}
+        if preview:
+            witness['baked_source_git_blobs'] = response['baked_source_git_blobs']
         save(out/'execution.json',witness)
     except Exception as exc:primary=exc
     finally:
