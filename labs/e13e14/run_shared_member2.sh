@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Usage: bash labs/e13e14/run_shared_member2.sh IMAGE START_PORT [normal|smoke|C4|C5]
+# Usage: bash labs/e13e14/run_shared_member2.sh IMAGE START_PORT [normal|smoke|C4|C5] [PROJECT_ID]
 set -euo pipefail
 umask 077
 if [[ $# -lt 2 || $# -gt 4 ]]; then

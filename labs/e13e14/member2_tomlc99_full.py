@@ -3,6 +3,7 @@ import difflib
 import hashlib
 import os
 from pathlib import Path
+import re
 import shlex
 import shutil
 import subprocess
@@ -93,6 +94,39 @@ def _planned_input(project):
     return recipes
 
 
+def validate_base_cache(old, profile, profile_digest):
+    require(isinstance(old, dict) and old.get("schema_version") == "e8e10-1"
+            and old.get("commit") == BASE and old.get("profile") == profile["id"]
+            and old.get("profile_sha256") == profile_digest, "OLD_REPORT_BINDING_MISMATCH")
+    keys = old.get("keys")
+    require(isinstance(keys, dict) and set(keys) == set(PRODUCTS)
+            and all(isinstance(v, str) and re.fullmatch(r"[a-f0-9]{64}", v) for v in keys.values()),
+            "INVALID_REPORT")
+    dependencies = set(SOURCES) | set(PRODUCTS)
+    for name in ("actual", "declared"):
+        graph = old.get(name)
+        require(isinstance(graph, dict) and set(graph) == set(PRODUCTS), "INVALID_REPORT")
+        for values in graph.values():
+            require(isinstance(values, list) and 0 < len(values) <= len(dependencies)
+                    and all(isinstance(v, str) and v in dependencies for v in values)
+                    and len(set(values)) == len(values), "INVALID_REPORT")
+    reported = old.get("findings")
+    require(isinstance(reported, list), "INVALID_REPORT")
+    actual_findings = set()
+    for value in reported:
+        require(isinstance(value, dict) and value.get("type") in ("MISSING", "REDUNDANT")
+                and value.get("target") in PRODUCTS and isinstance(value.get("dependency"), str)
+                and value["dependency"] in dependencies, "INVALID_REPORT")
+        actual_findings.add((value["type"], value["target"], value["dependency"]))
+    expected = set()
+    for target in PRODUCTS:
+        observed = set(old["actual"][target])
+        declared = set(old["declared"][target])
+        expected.update(("MISSING", target, dep) for dep in observed - declared)
+        expected.update(("REDUNDANT", target, dep) for dep in declared - observed)
+    require(len(actual_findings) == len(reported) and actual_findings == expected, "INVALID_REPORT")
+
+
 def scan(project, old, profile):
     from fullcheck import declaration_graph
 
@@ -100,7 +134,7 @@ def scan(project, old, profile):
     commit = check(project, profile)
     profile_digest = digest(canonical(profile))
     if old is not None:
-        require(old.get("commit") == BASE and old.get("profile_sha256") == profile_digest, "OLD_REPORT_BINDING_MISMATCH")
+        validate_base_cache(old, profile, profile_digest)
     recipes = _planned_input(project)
     headers = {p.name: digest(p.read_bytes()) for p in project.glob("*.h")}
     compiler = run(["cc", "--version"], project).decode().splitlines()[0]
@@ -115,8 +149,12 @@ def scan(project, old, profile):
         key = {"argv": recipe["argv"], "compiler": compiler, "headers": headers if units else {},
                "sources": {u: digest((project / u).read_bytes()) for u in units}}
         keys[target] = digest(canonical(key))
-        if old and old.get("keys", {}).get(target) == keys[target]:
-            actual[target] = sorted(set(old["actual"][target]))
+        # Only the archive and shared-library recipes have fully enumerable inputs.
+        # For every C unit, re-observe headers with the compiler even on a key hit.
+        if old is not None and not units:
+            require(set(old["actual"][target]) == set(recipe["products"]), "INVALID_REPORT")
+        if old is not None and not units and old["keys"][target] == keys[target]:
+            actual[target] = sorted(recipe["products"])
             reused.append(target)
         else:
             deps = set(recipe["products"])
@@ -154,6 +192,7 @@ def patch(project, report, profile):
     for f in findings:
         require(isinstance(f, dict) and f.get("type") in ("MISSING", "REDUNDANT")
                 and f.get("target") in PRODUCTS and isinstance(f.get("dependency"), str), "INVALID_REPORT")
+        require(f["dependency"] in (*SOURCES, *PRODUCTS, ".EXTRA_PREREQS", "="), "UNSUPPORTED_DEPENDENCY")
         if f["type"] == "MISSING":
             missing.add((f["target"], f["dependency"]))
     project = Path(project)

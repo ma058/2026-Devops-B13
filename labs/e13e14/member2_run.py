@@ -42,7 +42,19 @@ def restore_sources(directory, manifest, folder):
                 raise ValueError('SOURCE_ARCHIVE_MISMATCH')
             # The frozen archive holds a shallow bare Git repository.
             with tarfile.open(archive, 'r:gz') as tar:
-                tar.extractall(temporary, filter='data')
+                for member in tar:
+                    path = Path(member.name)
+                    if path.parts[:1] != ('project.git',) or '..' in path.parts:
+                        raise ValueError('INVALID_SOURCE_ARCHIVE_PATH')
+                    target = Path(temporary) / path
+                    if member.isdir():
+                        target.mkdir(parents=True, exist_ok=True)
+                    elif member.isfile():
+                        target.parent.mkdir(parents=True, exist_ok=True)
+                        with tar.extractfile(member) as contents, target.open('xb') as output:
+                            shutil.copyfileobj(contents, output)
+                    else:
+                        raise ValueError('INVALID_SOURCE_ARCHIVE_ENTRY')
             source = Path(temporary) / 'project.git'
         for side in ('base', 'target'):
             dest = folder / side
