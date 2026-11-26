@@ -28,11 +28,19 @@
 | Review #42 侧 artifact | 归档 `ci-runner-artifacts/pr42-run45148359925-ci-e14/` | job-c65d6caa/trace-adfd0020、162 项复算 0 损坏 |
 | docker.io 修复记录 | 报告第 1 节 + 服务器本地镜像 `python:3.13-slim`（digest 70729b46 经 m.daocloud 拉取+tag） | 未改冻结输入，BuildKit 本地解析实测通过 |
 | E13 v2 接收预检（前序） | `~/member3-241880115-e13-receive-preflight-20261121.tar.gz` | 672 项全过、Git 恢复八项检查 |
+| **本人隔离链 normal**（b13-level-v1） | 服务器 `~/e14-member3-shared-runs/receipt-normal-2WfUgr/`（RECEIPT 全套）+ 导出 `member2-e13e14-m2-e14-7d51296470f1.tar.gz`（SHA `ce0df2b3edfa23595355580b08a725fe5539316dbe5a86d17f9d46a84a07a6ea`）；成员二签收包归档 | job-5aef836c/trace-80ccfb41、DRAFT 20fc9da2、736 文件/1446 含嵌套清单验收通过 |
+| **C4 受控超时** | 服务器 `receipt-C4-1qOlU5/` + 导出 `…-26fc516f7f6d.tar.gz`（SHA `df357142ad2ee5fdffee6984be5ade29524113e71c06e0423549c879599ae61c`） | EXPECTED_TIMEOUT_VERIFIED、容器按 label 清理无残留（06:23:23Z）、job-0c6d7135/trace-d8a7516f |
+| **恢复 normal** | 服务器 `receipt-normal-7ewu5S/` + 导出 `…-931a57f88511.tar.gz`（SHA `e4cb57f2de61fbbc221f0d6a7b2b2c564682e0bc9c19bf50e92c218826913dca`） | 新 job-c7d64981/trace-f896b4ed、DRAFT b77c2997、MISSING=0 |
+| **C5 坏补丁** | 服务器 `receipt-C5-eEaKIs/` + 导出 `…-d5941d3d6bda.tar.gz`（SHA `61fb48298ff951c13220bb6c964014a339126f43fbea3c2c299c33b764378876`） | 坏补丁拒+源/Git 不变+真实 stderr；正确补丁过；job-c01c5e6b/trace-e34f025f |
+| 故障矩阵核验与签收 | 负责人核验文（02_给成员一_成员三故障矩阵核验.md）+ 签收包 `给成员一_成员三服务器故障矩阵签收_20261124.zip`（含 .sha256，三份归档与原件逐字相同） | C4/恢复/C5 三项经负责人核验通过 |
+| tomlc99 全项目编排准备 | 候选包 `给成员三_tomlc99全项目候选与验收范围_20261125.zip`（候选 `60d85982…`、六产物、空 stdin 用例、Makefile-only 五条依赖约定） | 候选已经成员二独立核验；正式任务待版本化 profile 交付后执行 |
 
 ## Git 侧（已合并/已批准）
 
 - PR #44：分支重建记录（8829f42 字面量污染 → 6042567 单干净提交）；合并 merge `0952fa97`；Issue #45 关闭。
 - PR #42：本人正式 APPROVE（2026-11-23T10:45:16Z，六点核验正文在 PR 页面）；run 45148359925 下载复算记录在归档。
+- PR #46：本人正式 APPROVE（2026-11-24T06:22:41Z，实时 head `9725bbc…` 复核依据在 PR 页面）；已由负责人正常合并（main `6244f76`）。
+- PR #47（个人报告三件套）：已合并（2026-11-23T11:07:44Z，merge `60c8dcf5`）。
 
 ## 排除项
 
