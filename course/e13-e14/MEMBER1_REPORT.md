@@ -64,7 +64,7 @@ C8 job为 `job-1152f9791c1742b2a9ca889e0b423a30`，trace为 `trace-86f77047381a4
 
 推送第二轮修复前，已在服务器独立Compose项目 `b13-e14-m1-check` 验证相同配置：UID/GID10001、HOME=/tmp、仅DRAFT增加Socket组，完整五阶段SUCCEEDED，job `job-aab901e2087448e09c9674fea1e0dee9` / trace `trace-f94a01fd77914889943aaa5137b0c9fd`，四角色日志均对应此任务。运行使用既有测试源码1b667dd加归档中的新版Compose文件；清理只移除此项目，生产health仍ok。这是课程生成样例四服务彩排，不是实际项目/profile成品执行贯通或正式E14验收。此修复链对应Issue #41，随PR #40正常评审合并。
 
-## 当前边界与后续
+## 2026-11-22 当时边界与后续
 
 上述 A 端来源全部为 `LOCAL_SIMULATED_A`，是成员一准备链路；尚不是A13本人客户端、本轮双向实际项目矩阵、教师隐藏测试或正式E14验收。新四服务同步接口未宣称具有旧异步接口幂等功能。
 
@@ -77,3 +77,22 @@ C8 job为 `job-1152f9791c1742b2a9ca889e0b423a30`，trace为 `trace-86f77047381a4
 本次补收A13 v2原件，完成完整归档/产物引用/Git源码核验及历史报告只读预检。670份originals哈希前后不变，未运行A项目脚本或Docker。已把B13正常任务的6份请求body及原件索引提供于exchange目录，供A13字段对照。详细摘要与拒绝测试见 `exchange/20261123-v2-receipt/README.md`。
 
 A13 scoped profile精确值已回签；新绑定报告、真实项目公共编排及跨组矩阵尚待对应交付，不把旧v2历史handoff成功等同于正式C1，也不把拒绝预检等同于完整E13门禁。#46共享协议和#47成员三证据另行按最终head审查；最终结项/RC继续由实际证据决定。
+
+## 2026-11-28 成员一收口补记
+
+前述11月22/23日待办保留为历史记录，当前状态以本节与 [收口台账](CLOSEOUT_LEDGER_20261128.md) 为准。实际执行由成员一授权Codex辅助完成，不代记同伴执行或人工独立复核。
+
+1. 已签收两条真实A→B消费、成员三五轮跨机与双方三回签；服务端六子包/5227清单、12组原始图、客户端2285 HTTP/2216下载/27回滚原件独立复核通过。#54已正式Approve并正常合入main fb4be620da9587ea3dc35581eeb2599ffe98fae7。
+2. 补验main成功CI内部原件：实际b13-level-v1 normal的根清单735/735、Job清单711/711；成员一教学清单746/746、五份源码快照40/40及合法隐藏文件完整，C8教学85下载/92 HTTP通过。六worker及36源码摘要与fb4be620一致。E13 run46145327540首次APT镜像源连接超时exit100，原件保留；同SHA仅重试失败job后成功，未改代码/候选。其余三条main workflow成功，第五E14-shared因路径过滤未触发。详细见 docs/students/241880054/e13-e14/MAIN_CI_AUDIT_20261128.md。
+3. 真实A13 tomlc99当次报告的C2/C3构建前拒绝已补验：固定实现fb4be620，Windows/Python3.11.8，实际pipeline.main/read_fixed_report未修改；C2仅把请求target改为真实C0返回STALE_REPORT，C3仅在报告副本末尾加LF并保留旧hash返回ARTIFACT_HASH_MISMATCH，均exit1/stages=[]。保护性副作用guard均未触发，没有执行Docker；154份C1源码、Git状态及673份A原件不变。匹配请求正向读取通过，未重复成功DRAFT。详细见 docs/students/241880054/e13-e14/REAL_REPORT_NEGATIVE_20261128.md。
+4. 上述负例使用已冻结旧toml.o profile，属于本地真实报告消费边界验证，不是新A13客户端负例，不是六产物正式验收。归档919067B/SHA b312c6db7f7b03820fb86fbc0d0d0cae8f1cec0836dafcd4315898cdf897a3ee，服务器团队目录已复算并确认成员二可读。
+5. 全项目profile/manifest/配对baseline/candidate四份原字节及canonical已重新对账，准备好直接签认或字段修改两种最小交接；A13无需重写相同JSON。正式采用状态尚待实际回信，不以沉默代替确认。
+6. 已形成 [候选发布准备与已知限制](RC_PREPARATION_20261128.md)：固定身份、复现入口、隔离回退、原件保留、最终门禁与标签条件均已列出。未发布v0.9-rc，正式全项目输入、组级候选验收与教师结果仍按实际状态推进。
+
+本次收口PR由成员二按原分工Review；本节所引fb4be620运行是固定历史基线，本PR的CI在PR页面按实际head登记，不冒用既有run。
+
+### 同日第二真实项目补验
+
+b13-level-v1 的 A13 job-456068d41f694e8aa563d29bdcbf1849 当次报告也经当前main原样合法接收：fixed-md 3116B/SHA1a40bf524133427de60271c843865a3e37908b9298b998def6e9d3c9da0644e4。新C2/C3同样返回STALE_REPORT/ARTIFACT_HASH_MISMATCH、exit1/stages=[]，guard未触发；10份目标源码、Git状态及242份A原件未变。独立复算通过；归档315998B/SHA4f05cc4a351e5325dd965f00ac2158e7e153184bab83da3e682644c7b889d780已放同一团队目录。详细见 docs/students/241880054/e13-e14/B13LEVEL_REPORT_NEGATIVE_20261128.md。
+
+至此本轮两个真实项目共4项构建前拒绝验证完成；b13-level-v1历史成功B消费job-a7e0的操作者仍为成员二、源码ebdaeed，本次不改记为成员一成功构建。四项新负例均为Windows隔离本地实际pipeline调用，不冒充跨机负例或新全项目RC。
