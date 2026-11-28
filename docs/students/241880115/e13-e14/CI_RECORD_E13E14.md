@@ -31,3 +31,9 @@ py_compile + test_contract（10 项）+ labs/e13e14/tests（28 项）+ compose c
 
 - 服务器基线 `e13-baseline-01` 是 iter-01 的 docker.io metadata i/o timeout，外层 DRAFT_FAILED 表示没有复现预期 missing-make；`02/03` 及 H1/H2/H3 的首跑才是 `Docker client command exceeded 600s`。各任务原始result与构建stderr均保留。宿主网络探测只有事后说明文字，本包未交原stdout/stderr；客户端超时不等于已证明BuildKit终止。Runner当前证据仅覆盖教学fixture正常路径，不代替这些公开上游项目或故障恢复的实跑。网络恢复后 2026-11-23 晚已由真实项目链（第 5.1 节）证实服务器构建路径恢复；基线与 H1-H3 若复测按新目录另行登记。
 - 教师隐藏测试：**尚未收到结果**；已按负责人决定随结项包归档材料，不以双方互查或自写测试代替。
+
+## 7. 跨机联调报告补记 PR（本 PR，docs-only，2026-11-28）
+
+- 本 PR 自最新 main `01a8f140f00ce1f8564e2fd43dd84b9504bce113` 分出，仅更新三份文档（`MEMBER3_E13E14_REPORT.md` 第 7/8 节、本文件第 7 节、`EVIDENCE_INDEX.md` 跨机联调证据节），无任何代码、工作流或契约变更。
+- 个人报告第 7 节五轮跨机联调为服务器真实跨机运行（A13 客户端 × 本人服务端），**非 GitHub CI Runner 运行**，不以 CI 记录冒充；其证据以服务器归档与服务端总包为准（见证据索引）。
+- 本 PR 新 CI 于 PR head 单独触发，以 PR 页面实时状态为准（由成员二按轮转 Review 时实时复核 head CI）；按负责人 2026-11-28 指令，**不为文档修改重跑任何已验收实验**。本文件不预填本 PR 自身的运行号（自引用无法在合并前闭环登记），运行号与结论以 PR 页面及 Review 记录为准。
