@@ -35,6 +35,23 @@
 | 故障矩阵核验与签收 | 负责人核验文（02_给成员一_成员三故障矩阵核验.md）+ 签收包 `给成员一_成员三服务器故障矩阵签收_20261124.zip`（含 .sha256，三份归档与原件逐字相同） | C4/恢复/C5 三项经负责人核验通过 |
 | tomlc99 全项目编排准备 | 候选包 `给成员三_tomlc99全项目候选与验收范围_20261125.zip`（候选 `60d85982…`、六产物、空 stdin 用例、Makefile-only 五条依赖约定） | 候选已经成员二独立核验；正式任务待版本化 profile 交付后执行 |
 
+## 跨机联调最终证据（A13 客户端 241830217 × 本人服务端，2026-11-26—27）
+
+- **服务端总包**：服务器 `~/member3-241880115-interop-final-evidence-bundle-20261127.tar.gz`（3581442 字节，SHA-256 `f9e6dedf8546ee5395d5e172944ea48cb507b11dde641c7de6a9f37432163cb0`）= 六子归档 + 总索引 `interop-final-evidence-index.json`（自 SHA `dbfe1a5462867f4974ec217c471758e5c4c248d4db76333c17939900d0bd189e`）。原件原样保留，不重新打包不覆盖；负责人已取回复核；用户机本地留档副本：本人工作区 `联调证据留档\`（复制件，SHA 同上）。交付前敏感审查 CLEAN：session.sh 仅路径/端口/镜像变量、config.json 仅 token 路径引用、无 token.secret/私钥入包，唯一模式命中=manifest 内 session.sh 合法 SHA 前缀撞形（非凭据）。
+- **五轮服务端归档**（服务器 `~`，原样保留；完整 job/trace/DRAFT 镜像/manifest 见总索引与个人报告第 7 节）：
+  - normal `member3-241880115-interop-normal-job-e5b6db98-20261126.tar.gz`（551514B，`9300d3ad60147654094ae056db2d13726a3b062a99f9b139ef6415cc055d0b04`，manifest 762 项）
+  - C4 `member3-241880115-interop-c4-job-32fce11c-20261127.tar.gz`（76484B，`1036e65b865ea51f3c4813e84bc8ee9679a584200d12e5861fcccb47e62f1d89`，167 项，含首次 403 鉴权拒绝服务端日志原件）
+  - recovery `member3-241880115-interop-recovery-job-ca339fc3-20261127.tar.gz`（391357B，`35618b6732873cdbea84d0a5818a1c79e8b82394d3cca5acb28621da5a3ce225`，761 项）
+  - C5 `member3-241880115-interop-c5-job-8532b300-20261127.tar.gz`（883531B，`ac6c73cf98f7a0036cebc44d05147e6e6101e5ebb9c068a87a613084571527ac`，903 项，含 bad/repair 双链）
+  - C8 `member3-241880115-interop-c8-job-eea43b0f-20261127.tar.gz`（1712237B，`3274605eda7fd9a2df3b89d7c3e24dd78ae23457e24f329b87aee302132c0fd7`，2634 项，含 409 复现响应原件+Store.submit 源码节选+API 容器日志）
+  - c5-handoff-1 `c5-handoff-1-job-8532b300.tar.gz`（4934B，`f41ffa0cebfb42ed803d36a8facf0ac629a4c0c6a0e7175790ce0aace14f4370`；27 份回滚原件；双清单均保留未覆盖：初版 `0a36cc798ca4cac19b0e79b865efdccde97dabd0237431ea26d361b6d2cca8a8`、合规 `c0bdab9729035553841968f019dc17b46e76eca28cd2b0155fa84a5613171efa`）
+- **A13 客户端总归档（本人已签收；供负责人复制留档与复算，不需向 A13 重索）**：用户机本地留档 `A13_最终归档留档\a13-client-final-evidence-20261127.tar.gz`（2508573B，SHA-256 `3fea847de93b5482a67cc5c170dcde89595a2b10fcd5abcd9bea42615adf7f7b`；总索引 `a13-client-archive-index.json` 自 SHA `e7335171d1eab2a5a245d296228f3e6ad1ae49539516997f8257466b8bb7c29e`；五子归档经本人独立复算一致：normal 10308B/`d334e3d5711fdfb3bb04c8342dae9da26731d2160525555c98c22f70db8748a0`、C4 5355B/`219687db0ed0386587609fc2fc457dad3ac3dab47748821b0154cb6a8baa316d`、recovery 10285B/`ee1c71646c72e0c074971ba6507fa8ea74ef09d36b29b4a1c8a705e43f405679`、C5 16154B/`67584919d080f7a3254fbb5e52ef564829a64c455f6b3a450e8af27e5ae1e3bb`、C8 2516184B/`5bb952a15bc73c5985aa88933b54072b9cb89d56e3b071d53505d9fe92204012`）。
+- **双边联合验收记录（三份私聊原件，不入公开 Git；负责人经既有受限渠道复制留档，本人已签收）**：
+  - A13 客户端验收总回签（2026-11-28，6754B，SHA-256 `cf691c46aa9c26d8d66574a39007871cc68d86d63bde71e7da0f09b3869a4080`）
+  - B13 服务端验收总回签（2026-11-27，3598B，SHA-256 `1c9f5f21b1889f4f8f6ec3cce24ab74582c208fef0488a2c60fac0c94e1a1226`）
+  - B13 最终确认 A13 总归档（2026-11-28，3929B，SHA-256 `b821ee5b8ef76088982085cc76c364071920f5f80a571d5e7a0404ffe58bbe8b`）
+- **A13 侧记录**：A13 PR #29 公开确认（FINAL_REPORT/PAIR13_SIGNOFF/EVIDENCE_INDEX，对方仓库记录，非本人执行）；A13 回签所载双端审计记录 `a13-b13-bilateral-evidence-audit-20261127.json`（SHA-256 `42b32e31612ed477327b2188ebf5e2d01cf08a8a98cb622a828f80b7b080e352`，结果 PASS_ARCHIVE_AND_CROSS_END_AUDIT）按其申报登记：该记录未含于 A13 总归档，本人未单独复算其 SHA。
+
 ## Git 侧（已合并/已批准）
 
 - PR #44：分支重建记录（8829f42 字面量污染 → 6042567 单干净提交）；合并 merge `0952fa97`；Issue #45 关闭。
