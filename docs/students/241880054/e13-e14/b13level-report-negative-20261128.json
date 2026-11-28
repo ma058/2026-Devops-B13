@@ -1,0 +1,59 @@
+{
+  "status": "PASS_REAL_A_REPORT_C2_C3_PREBUILD_REJECTION",
+  "scope": "LOCAL_PREVIEW guarded pipeline rejection on real A13 report; frozen b13-level-v1 profile; not new A13 HTTP or group RC acceptance",
+  "execution": "Member1 authorized Codex-assisted Windows Python; actual unmodified pipeline.main/read_fixed_report with fail-stop side-effect guards",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "python": "3.11.8 (tags/v3.11.8:db85d51, Feb  6 2024, 22:03:32) [MSC v.1937 64 bit (AMD64)]",
+  "implementation_sha": "fb4be620da9587ea3dc35581eeb2599ffe98fae7",
+  "started_at_utc": "2026-11-28T13:00:55.720602+00:00",
+  "finished_at_utc": "2026-11-28T13:01:01.237476+00:00",
+  "source_job": "job-456068d41f694e8aa563d29bdcbf1849",
+  "source_trace": "trace-4707d6738c354193ab3f2ea19290c0a2",
+  "source_result_sha256": "92d1a700d96cf253ae597d32f9f51b4410ac3be7961698059922e72718126664",
+  "base": "cb6545b3e8eddda5bec89b12ee390ae5e930f822",
+  "target": "5cfaf2014db78635b61d88b62760481834a344d5",
+  "fixed_report_sha256": "1a40bf524133427de60271c843865a3e37908b9298b998def6e9d3c9da0644e4",
+  "profile_sha256": "f0367b454aff9cb0a5304e3e3330b61d4bbd01c3f19069eaf5930a1664d3733b",
+  "repair_targets": [
+    "main.o",
+    "helper.o"
+  ],
+  "cases": {
+    "C2": {
+      "job_id": "job-33e9069c4b7f42e6a416c1c744cda594",
+      "trace_id": "trace-43c98a86451b4946876ecc450524b03e",
+      "status": "FAILED",
+      "error": {
+        "code": "STALE_REPORT",
+        "message": "Report belongs to another commit"
+      },
+      "stages": [],
+      "pipeline_main_return_code": 1,
+      "artifacts_checked": 2,
+      "source_files_unchanged": 10,
+      "git_status_unchanged": true,
+      "guard_calls": []
+    },
+    "C3": {
+      "job_id": "job-5195ff52f42740b5b00e7e295d9cc128",
+      "trace_id": "trace-fa219533216d4862a3bb2b3075ffd273",
+      "status": "FAILED",
+      "error": {
+        "code": "ARTIFACT_HASH_MISMATCH",
+        "message": "Fixed report differs from the exchanged SHA-256"
+      },
+      "stages": [],
+      "pipeline_main_return_code": 1,
+      "artifacts_checked": 2,
+      "source_files_unchanged": 10,
+      "git_status_unchanged": true,
+      "guard_calls": []
+    }
+  },
+  "source_files": 10,
+  "original_A_files_unchanged": 242,
+  "guard_calls": [],
+  "docker_or_build_executed": false,
+  "A_originals_modified": false,
+  "successful_C1_reference": "nov26-closeout/member2-original-audit/independent-audit.md (member2 historical successful task on ebdaeed; not member1 execution, not rerun here)"
+}

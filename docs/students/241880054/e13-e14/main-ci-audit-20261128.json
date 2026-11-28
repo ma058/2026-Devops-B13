@@ -1,0 +1,353 @@
+{
+  "status": "PASS",
+  "source_sha": "fb4be620da9587ea3dc35581eeb2599ffe98fae7",
+  "run_id": 46145327540,
+  "attempt": 2,
+  "method": "Own offline byte/hash checks; no received scripts executed, no files extracted or experiments rerun",
+  "problems": [],
+  "shared": {
+    "zip_entries": 2,
+    "tar_files": 736,
+    "root_manifest": {
+      "manifest": "MANIFEST.json",
+      "items": 735,
+      "hidden_items": 12,
+      "missing": [],
+      "extra_files": []
+    },
+    "job_manifest": {
+      "manifest": "evidence/jobs/job-f3376ecdc60c4a8c8c78650eeef281a4/MANIFEST.json",
+      "items": 711,
+      "hidden_items": 12,
+      "missing": [],
+      "extra_files": []
+    },
+    "summary": {
+      "project_id": "b13-level-v1",
+      "status": "PASS",
+      "scenario": "normal",
+      "job_id": "job-f3376ecdc60c4a8c8c78650eeef281a4",
+      "trace_id": "trace-b110a3cdd61a47e4afc20406852fa2c7",
+      "uid": 1001,
+      "implementation_sha": "fb4be620da9587ea3dc35581eeb2599ffe98fae7",
+      "profile_sha256": "f0367b454aff9cb0a5304e3e3330b61d4bbd01c3f19069eaf5930a1664d3733b",
+      "candidate_sha256": "8b26c9034b1535b243b99cb43361ad2d44625473c902e0f5f7a78ffbb678fd4a",
+      "base": "cb6545b3e8eddda5bec89b12ee390ae5e930f822",
+      "target": "5cfaf2014db78635b61d88b62760481834a344d5",
+      "image_id": "sha256:a7eb9611d7d7757001c5a7a78af72f41a6d2bda5ad698dd1788340acf59d0545",
+      "remaining_missing": [],
+      "changed_sources": [
+        "Makefile"
+      ]
+    },
+    "runtime_witnesses": [
+      {
+        "path": "evidence/jobs/job-f3376ecdc60c4a8c8c78650eeef281a4/baseline-full/runtime/execution.json",
+        "operation": "full",
+        "container_id": "c7a527bf4b29eeda11ef5cb3af58170e83e807b1c33dd477f4dbc9a8d44e2e16"
+      },
+      {
+        "path": "evidence/jobs/job-f3376ecdc60c4a8c8c78650eeef281a4/final-full/runtime/execution.json",
+        "operation": "full",
+        "container_id": "0116270f09c949a96821f44ce8575e8c8cd0bc6c6a021775b66a6d05fb98b72f"
+      },
+      {
+        "path": "evidence/jobs/job-f3376ecdc60c4a8c8c78650eeef281a4/incremental/baseline-runtime/execution.json",
+        "operation": "scan",
+        "container_id": "de5a4d80958a0a5c8af9d08bd001dc03f48a4c183089e500d8238b60299e6bcb"
+      },
+      {
+        "path": "evidence/jobs/job-f3376ecdc60c4a8c8c78650eeef281a4/incremental/target-runtime/execution.json",
+        "operation": "scan",
+        "container_id": "b24b9762354a16d56b2c644311de4eca140aede53f358a20d5be7bb77561666f"
+      },
+      {
+        "path": "evidence/jobs/job-f3376ecdc60c4a8c8c78650eeef281a4/repair/runtime/execution.json",
+        "operation": "validate",
+        "container_id": "f974191e98072226bb6df9180e3642a7ec500881542b08c7c01464a771b4cc94"
+      },
+      {
+        "path": "evidence/jobs/job-f3376ecdc60c4a8c8c78650eeef281a4/target-full/runtime/execution.json",
+        "operation": "full",
+        "container_id": "c38662a03b448ebc9e79e436ddb4c8fbde7df97fbb71d97d47fbef0ce1e29e28"
+      }
+    ],
+    "worker_source_hashes_checked": 36,
+    "all_hidden_files": 12,
+    "final_findings": [
+      {
+        "type": "REDUNDANT",
+        "target": "main.o",
+        "dependency": "unused.h"
+      }
+    ]
+  },
+  "teaching": {
+    "zip_files": 914,
+    "m1_manifest": {
+      "manifest": "ci-member1/evidence-sha256.json",
+      "items": 746,
+      "hidden_items": 24,
+      "missing": [],
+      "extra_files": []
+    },
+    "snapshot_manifests": [
+      {
+        "manifest": "ci-member1/source-after-C1/sha256.json",
+        "items": 8,
+        "hidden_items": 1,
+        "missing": [],
+        "extra_files": []
+      },
+      {
+        "manifest": "ci-member1/source-after-C2/sha256.json",
+        "items": 8,
+        "hidden_items": 1,
+        "missing": [],
+        "extra_files": []
+      },
+      {
+        "manifest": "ci-member1/source-after-C3/sha256.json",
+        "items": 8,
+        "hidden_items": 1,
+        "missing": [],
+        "extra_files": []
+      },
+      {
+        "manifest": "ci-member1/source-after-C8/sha256.json",
+        "items": 8,
+        "hidden_items": 1,
+        "missing": [],
+        "extra_files": []
+      },
+      {
+        "manifest": "ci-member1/source-before/sha256.json",
+        "items": 8,
+        "hidden_items": 1,
+        "missing": [],
+        "extra_files": []
+      }
+    ],
+    "snapshot_contents_unchanged": true,
+    "checklists": [
+      {
+        "manifest": "ci-member1/C1-local-A-artifact-checks.json",
+        "items": 85,
+        "hidden_items": 4,
+        "missing": [],
+        "extra_files": null
+      },
+      {
+        "manifest": "ci-member1/C1-B-consumption-artifact-checks.json",
+        "items": 227,
+        "hidden_items": 7,
+        "missing": [],
+        "extra_files": null
+      },
+      {
+        "manifest": "ci-member1/C2-artifact-checks.json",
+        "items": 2,
+        "hidden_items": 0,
+        "missing": [],
+        "extra_files": null
+      },
+      {
+        "manifest": "ci-member1/C3-artifact-checks.json",
+        "items": 2,
+        "hidden_items": 0,
+        "missing": [],
+        "extra_files": null
+      },
+      {
+        "manifest": "ci-member1/C8-http/download-checks.json",
+        "items": 85,
+        "hidden_items": 4,
+        "missing": [],
+        "extra_files": null
+      }
+    ],
+    "results": [
+      {
+        "result": "ci-e14/result.json",
+        "job_id": "job-155724c60ff74a919bbf30d27cb61718",
+        "trace_id": "trace-6d7160679bf34679b2f91e2f80702902",
+        "status": "SUCCEEDED",
+        "artifact_references": 162,
+        "hidden_references": 7,
+        "stages": [
+          "draft",
+          "full-check",
+          "incremental-check",
+          "repair",
+          "recheck"
+        ],
+        "error": null
+      },
+      {
+        "result": "ci-member1/C1-local-A/result.json",
+        "job_id": "job-69b11d0000a84eb1b1928b30908be449",
+        "trace_id": "trace-1925adc310984607988aad12acb66d0e",
+        "status": "SUCCEEDED",
+        "artifact_references": 85,
+        "hidden_references": 4,
+        "stages": [
+          "full-check",
+          "incremental-check"
+        ],
+        "error": null
+      },
+      {
+        "result": "ci-member1/C1-B-consumption/result.json",
+        "job_id": "job-eb5425b8cdd849ff8211a3145cb4aff3",
+        "trace_id": "trace-974085853d1f490eb54cc121059e8666",
+        "status": "SUCCEEDED",
+        "artifact_references": 227,
+        "hidden_references": 7,
+        "stages": [
+          "draft",
+          "fixed-md",
+          "repair",
+          "recheck"
+        ],
+        "error": null
+      },
+      {
+        "result": "ci-member1/C2-rejection/result.json",
+        "job_id": "job-8d1a81f587e74dbda87b580f4df68957",
+        "trace_id": "trace-cb997fa9b71748d38449f9eefe5e8aad",
+        "status": "FAILED",
+        "artifact_references": 2,
+        "hidden_references": 0,
+        "stages": [],
+        "error": {
+          "code": "STALE_REPORT",
+          "message": "Report belongs to another commit"
+        }
+      },
+      {
+        "result": "ci-member1/C3-rejection/result.json",
+        "job_id": "job-072c97d7320947b280f1607be648f5c0",
+        "trace_id": "trace-85cb35dca0754d59b2c95fa50c4912b0",
+        "status": "FAILED",
+        "artifact_references": 2,
+        "hidden_references": 0,
+        "stages": [],
+        "error": {
+          "code": "ARTIFACT_HASH_MISMATCH",
+          "message": "Fixed report differs from the exchanged SHA-256"
+        }
+      }
+    ],
+    "C8_download_count": 85,
+    "C8_identity": {
+      "job": "job-c55e0c4cd52d446fb06168bacb8de6b3",
+      "trace": "trace-9357fecc2688465d923171253b822951",
+      "a13_client_session": false
+    },
+    "source_label": "LOCAL_SIMULATED_A",
+    "formal_cross_group_matrix": "NOT_RUN",
+    "teacher_hidden_tests": "NOT_RECEIVED",
+    "all_hidden_files": 31,
+    "C8_http_response_hashes_verified": 92,
+    "outside_m1_manifest_and_e14_artifact_list": [
+      "ci-member1-logs/run.log",
+      "ci-service-diagnostics/capture-status.txt",
+      "ci-service-diagnostics/ps.log",
+      "ci-service-diagnostics/services.log"
+    ]
+  },
+  "manifest_records": [
+    {
+      "manifest": "MANIFEST.json",
+      "items": 735,
+      "hidden_items": 12,
+      "missing": [],
+      "extra_files": []
+    },
+    {
+      "manifest": "evidence/jobs/job-f3376ecdc60c4a8c8c78650eeef281a4/MANIFEST.json",
+      "items": 711,
+      "hidden_items": 12,
+      "missing": [],
+      "extra_files": []
+    },
+    {
+      "manifest": "ci-member1/evidence-sha256.json",
+      "items": 746,
+      "hidden_items": 24,
+      "missing": [],
+      "extra_files": []
+    },
+    {
+      "manifest": "ci-member1/source-after-C1/sha256.json",
+      "items": 8,
+      "hidden_items": 1,
+      "missing": [],
+      "extra_files": []
+    },
+    {
+      "manifest": "ci-member1/source-after-C2/sha256.json",
+      "items": 8,
+      "hidden_items": 1,
+      "missing": [],
+      "extra_files": []
+    },
+    {
+      "manifest": "ci-member1/source-after-C3/sha256.json",
+      "items": 8,
+      "hidden_items": 1,
+      "missing": [],
+      "extra_files": []
+    },
+    {
+      "manifest": "ci-member1/source-after-C8/sha256.json",
+      "items": 8,
+      "hidden_items": 1,
+      "missing": [],
+      "extra_files": []
+    },
+    {
+      "manifest": "ci-member1/source-before/sha256.json",
+      "items": 8,
+      "hidden_items": 1,
+      "missing": [],
+      "extra_files": []
+    },
+    {
+      "manifest": "ci-member1/C1-local-A-artifact-checks.json",
+      "items": 85,
+      "hidden_items": 4,
+      "missing": [],
+      "extra_files": null
+    },
+    {
+      "manifest": "ci-member1/C1-B-consumption-artifact-checks.json",
+      "items": 227,
+      "hidden_items": 7,
+      "missing": [],
+      "extra_files": null
+    },
+    {
+      "manifest": "ci-member1/C2-artifact-checks.json",
+      "items": 2,
+      "hidden_items": 0,
+      "missing": [],
+      "extra_files": null
+    },
+    {
+      "manifest": "ci-member1/C3-artifact-checks.json",
+      "items": 2,
+      "hidden_items": 0,
+      "missing": [],
+      "extra_files": null
+    },
+    {
+      "manifest": "ci-member1/C8-http/download-checks.json",
+      "items": 85,
+      "hidden_items": 4,
+      "missing": [],
+      "extra_files": null
+    }
+  ],
+  "scope_limit": "Shared archive proves normal b13-level-v1 on Runner; separate teaching C1/C2/C3/C8 is LOCAL_SIMULATED_A, not A13 cross-host or tomlc99 full-project/RC acceptance; failure attempt1 unchanged"
+}

@@ -1,0 +1,58 @@
+{
+  "status": "PASS_REAL_A_REPORT_C2_C3_PREBUILD_REJECTION",
+  "scope": "LOCAL_PREVIEW guarded pipeline rejection on real A13 report; old toml.o profile; not new A13 HTTP or full-project E14 acceptance",
+  "execution": "Member1 authorized Codex-assisted Windows Python; actual unmodified pipeline.main/read_fixed_report with fail-stop side-effect guards",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "python": "3.11.8 (tags/v3.11.8:db85d51, Feb  6 2024, 22:03:32) [MSC v.1937 64 bit (AMD64)]",
+  "implementation_sha": "fb4be620da9587ea3dc35581eeb2599ffe98fae7",
+  "started_at_utc": "2026-11-28T12:54:32.095309+00:00",
+  "finished_at_utc": "2026-11-28T12:54:48.560590+00:00",
+  "source_job": "job-fd1b21e39d41474699e43815b402804e",
+  "source_trace": "trace-ad14eb26d03f4129a38ab57ad626c72a",
+  "source_result_sha256": "60b3b84db2319d0eb11e59a3bea5ebbaebe701a29918f8dfc846d895a8e13656",
+  "base": "592fc6f3d2463a58fe7f60b8d255ed242740bec0",
+  "target": "b2dda5513fe4a7d250493528800fe425cae459a5",
+  "fixed_report_sha256": "328ec838926af9eee76781563de20ccd4404ff4b77e7086318db66005ac6f9ef",
+  "profile_sha256": "0f2bc52c0e791b97a833c1c4a22c70d6cd72a97befc3959c578ccf5c85d40ee1",
+  "repair_targets": [
+    "toml.o"
+  ],
+  "cases": {
+    "C2": {
+      "job_id": "job-bd1836d888784262ad7d473dffbb6f81",
+      "trace_id": "trace-fde82b4cdd754f3e8345f12dcbfa33c7",
+      "status": "FAILED",
+      "error": {
+        "code": "STALE_REPORT",
+        "message": "Report belongs to another commit"
+      },
+      "stages": [],
+      "pipeline_main_return_code": 1,
+      "artifacts_checked": 2,
+      "source_files_unchanged": 154,
+      "git_status_unchanged": true,
+      "guard_calls": []
+    },
+    "C3": {
+      "job_id": "job-d0c4378e83ff4343b371ce05c0995b57",
+      "trace_id": "trace-3541fd92a1bf440c84690907ad9daff1",
+      "status": "FAILED",
+      "error": {
+        "code": "ARTIFACT_HASH_MISMATCH",
+        "message": "Fixed report differs from the exchanged SHA-256"
+      },
+      "stages": [],
+      "pipeline_main_return_code": 1,
+      "artifacts_checked": 2,
+      "source_files_unchanged": 154,
+      "git_status_unchanged": true,
+      "guard_calls": []
+    }
+  },
+  "source_files": 154,
+  "original_A_files_unchanged": 673,
+  "guard_calls": [],
+  "docker_or_build_executed": false,
+  "A_originals_modified": false,
+  "successful_C1_reference": "nov24-consumption/formal-consumption-audit.md (historical actual successful task; not rerun here)"
+}
